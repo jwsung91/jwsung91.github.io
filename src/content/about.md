@@ -4,11 +4,11 @@ title: About
 
 # About
 
-## Robotics Software Architect
-
 로보틱스 플랫폼에서 7년 이상 소프트웨어를 설계해 온 엔지니어입니다. HW/SW 통합, 비동기 통신, 임무 관리 시스템 등 복잡도가 높은 문제를 구조적으로 풀어내는 과정에서 소프트웨어 아키텍처의 중요성을 체감해 왔고, 도메인 전문가를 넘어 시스템 전체를 설계하는 아키텍트로 성장하는 것을 목표로 하고 있습니다.
 
 시스템 설계에 있어 모듈 간의 의존성을 분리(Decoupling)하여 유연성과 유지보수성을 높이고, 복잡한 통신 및 하드웨어 제어 인터페이스를 일관되게 추상화(Abstraction)하여 전체 시스템의 복잡도를 낮추는 것을 중요하게 생각합니다. 로우레벨의 비동기 I/O 처리부터 고수준의 임무 관리 시스템까지, 확장 가능하고 일관된 소프트웨어 구조를 설계해 왔습니다.
+
+---
 
 ## Key Expertise
 
@@ -39,12 +39,7 @@ title: About
 
 ## Projects & Skills
 
-### Open Source & Personal Projects
-
 - **[unilink](https://github.com/jwsung91/unilink):** TCP/UDP/Serial/UDS을 단일 인터페이스로 추상화한 C++ 비동기 통신 라이브러리.
-
-### Technical Skills
-
 - **Languages:** C++, Python
 - **Software:** ROS 2 (Foxy, Humble), Robotics Middleware
 - **Library & Tools:** Boost.Asio, pybind11, CMake, Docker, CI/CD (GitHub Actions, Jenkins)
