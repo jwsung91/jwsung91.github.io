@@ -3,6 +3,7 @@ import '../styles/global.css';
 import 'pretendard/dist/web/variable/pretendardvariable.css';
 import '@fontsource/jetbrains-mono/400.css';
 import '@fontsource/jetbrains-mono/600.css';
+import Nav from '../components/Nav.astro';
 
 interface Props {
   title?: string;
@@ -25,6 +26,7 @@ const {
     <title>{title}</title>
   </head>
   <body class="min-h-screen bg-zinc-950 font-sans text-base leading-relaxed text-zinc-300 transition-colors duration-200">
+    <Nav />
     <slot />
   </body>
 </html>
