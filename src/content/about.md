@@ -20,7 +20,7 @@ title: About
 
 ## Professional Experience
 
-**Staff Engineer, Robotics Software Architect** — Samsung Electronics  
+**Staff Engineer** — Samsung Electronics  
 2022 – Present
 
 - AMR 플랫폼의 HW/SW 인터페이스 표준화 및 모듈형 소프트웨어 아키텍처 설계
