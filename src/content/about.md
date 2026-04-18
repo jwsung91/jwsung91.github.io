@@ -20,18 +20,19 @@ title: About
 
 ## Professional Experience
 
-- **Staff Engineer (Robotics Software Architect)** | Samsung Electronics _(2024. 03 – Present)_
-  - 양산형 AMR 플랫폼의 HW/SW 인터페이스 표준화 및 모듈형 소프트웨어 아키텍처 설계
-  - Fleet 연동 임무 관리 시스템 아키텍처 설계 및 이기종 설비 통합 인터페이스 구현
+**Staff Engineer, Robotics Software Architect** — Samsung Electronics  
+2022 – Present
 
-- **Robotics Software Engineer** | Samsung Electronics _(2022. 10 – 2024. 02)_
-  - 서비스 로봇 및 산업용 AMR의 모듈형 HW/SW 통합 아키텍처 설계
-  - 로봇 안전 시스템 설계 및 구현
+- AMR 플랫폼의 HW/SW 인터페이스 표준화 및 모듈형 소프트웨어 아키텍처 설계
+- 서비스 로봇 및 산업용 AMR의 모듈형 HW/SW 통합 아키텍처 설계
+- 로봇 안전 시스템 설계 및 구현
 
-- **Robotics Software Engineer** | LG Electronics _(2018. 12 – 2022. 09)_
-  - LG CLOi 서비스 로봇 플랫폼 핵심 모듈 개발 및 HW/SW 통합 설계
-  - 서비스 로봇 양산화를 위한 시스템 안정화 및 소프트웨어 최적화
-  - 로봇 안전 시스템 설계 및 기능 구현
+**Robotics Software Engineer** — LG Electronics  
+2018 – 2022
+
+- LG CLOi 서비스 로봇 플랫폼 핵심 모듈 개발 및 HW/SW 통합 설계
+- 서비스 로봇 양산화를 위한 시스템 안정화 및 소프트웨어 최적화
+- 로봇 안전 시스템 설계 및 기능 구현
 
 > **전체 경력 및 상세 프로젝트 성과는 [LinkedIn](https://www.linkedin.com/in/jwsung91/)에서 확인하실 수 있습니다.**
 
