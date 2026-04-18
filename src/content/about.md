@@ -37,15 +37,6 @@ title: About
 
 ---
 
-## Skills
-
-- **Languages:** C++, Python
-- **Software:** ROS 2 (Foxy, Humble), Robotics Middleware
-- **Library & Tools:** Boost.Asio, pybind11, CMake, Docker, CI/CD (GitHub Actions, Jenkins)
-- **Architecture:** PIMPL Idiom, Modular Design, Async I/O Optimization
-
----
-
 ## Contact
 
 기술적인 교류나 협업 제안은 언제든 환영합니다. 편하게 메시지 남겨주세요!
