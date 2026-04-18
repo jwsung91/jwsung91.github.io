@@ -14,71 +14,83 @@ const statusLabel: Record<string, string> = {
 ---
 
 <BaseLayout title="jwsung91" description="Software engineer — systems, networking, and tools.">
-  <!-- Hero -->
-  <header class="mb-16">
-    <p class="text-zinc-500 text-sm mb-3">jwsung91.github.io</p>
-    <h1 class="text-2xl font-bold text-zinc-100 mb-2">Blake (Jungwon Sung)</h1>
-    <p class="text-zinc-400 leading-relaxed">
-      Software engineer. Systems programming, networking, and developer tooling.
-    </p>
-    <nav class="mt-6 flex gap-4 text-sm">
-      <a href="/now" class="text-blue-400 hover:text-blue-300 transition-colors">/now</a>
-      <a href="https://jwsung91.github.io/blog/" class="text-zinc-500 hover:text-zinc-300 transition-colors">/blog</a>
-      <a href="https://github.com/jwsung91" class="text-zinc-500 hover:text-zinc-300 transition-colors">github</a>
-    </nav>
-  </header>
-
-  <!-- Now preview -->
-  <section class="mb-16">
-    <h2 class="text-xs text-zinc-500 uppercase tracking-widest mb-4">Now</h2>
-    <div class="border border-zinc-800 rounded p-4 text-zinc-400 text-sm leading-relaxed">
-      <p>
-        unilink 라이브러리 개발 중. C++ 멀티플랫폼 통신 추상화.
+  <main class="mx-auto max-w-2xl px-6 py-16 md:px-8">
+    <section class="mb-16">
+      <p class="mb-2 font-mono text-sm text-zinc-500">jwsung91.github.io</p>
+      <h1 class="mb-3 text-3xl font-bold text-zinc-100 md:text-4xl">Jinwoo Sung</h1>
+      <p class="max-w-xl text-base leading-relaxed text-zinc-400">
+        Robotics Software Architect. C++ · ROS 2 · Async communication systems.
       </p>
-      <a href="/now" class="mt-3 inline-block text-blue-400 hover:text-blue-300 text-xs transition-colors">
-        more →
-      </a>
-    </div>
-  </section>
+      <div class="mt-4 flex flex-wrap gap-4 text-sm font-mono">
+        <a href="/#now" class="text-blue-400 hover:underline">/now</a>
+        <a href="/blog" class="text-blue-400 hover:underline">/blog</a>
+        <a href="/about" class="text-blue-400 hover:underline">/about</a>
+        <a href="https://github.com/jwsung91" class="text-blue-400 hover:underline">github</a>
+      </div>
+    </section>
 
-  <!-- Projects -->
-  <section>
-    <h2 class="text-xs text-zinc-500 uppercase tracking-widest mb-4">Projects</h2>
-    <ul class="space-y-4">
-      {projects.map((p) => (
-        <li class="border border-zinc-800 rounded p-4">
-          <div class="flex items-start justify-between gap-4">
-            <div>
-              <div class="flex items-center gap-2 mb-1">
-                <span class="text-zinc-100 font-semibold">{p.data.title}</span>
-                <span class={`text-xs px-1.5 py-0.5 rounded ${
-                  p.data.status === 'active'
-                    ? 'bg-blue-900/50 text-blue-400'
-                    : p.data.status === 'wip'
-                    ? 'bg-yellow-900/50 text-yellow-400'
-                    : 'bg-zinc-800 text-zinc-500'
-                }`}>
-                  {statusLabel[p.data.status]}
-                </span>
+    <section id="now" class="mb-16">
+      <h2 class="mb-6 font-mono text-xs uppercase tracking-wider text-zinc-500">Now</h2>
+
+      <!-- TODO: Move this section into src/content/now.md once the content layer is introduced. -->
+      <div class="space-y-8">
+        <div>
+          <h3 class="mb-3 font-mono text-xs uppercase tracking-wider text-zinc-500">작업 중</h3>
+          <ul class="space-y-2 text-zinc-300">
+            <li>unilink v0.5.x — ABI 안정화, Python 바인딩 개선</li>
+            <li>이 사이트 구축 (허브 + 블로그 + AI 피드 계획)</li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="mb-3 font-mono text-xs uppercase tracking-wider text-zinc-500">관심 주제</h3>
+          <ul class="space-y-2 text-zinc-300">
+            <li>ROS 2 Zenoh 브리지</li>
+            <li>C++20 coroutines과 Boost.Asio</li>
+          </ul>
+        </div>
+        <p class="text-sm text-zinc-600">마지막 업데이트: 2026년 4월</p>
+      </div>
+    </section>
+
+    <section id="projects" class="mb-16">
+      <h2 class="mb-6 font-mono text-xs uppercase tracking-wider text-zinc-500">Projects</h2>
+      <ul class="space-y-4">
+        {projects.map((p) => (
+          <li class="rounded-lg border border-zinc-800 bg-zinc-900/50 p-5">
+            <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+              <div>
+                <div class="mb-2 flex flex-wrap items-center gap-2">
+                  <span class="text-xl font-semibold text-zinc-100">{p.data.title}</span>
+                  <span class={`rounded px-2 py-1 font-mono text-xs uppercase tracking-wider ${
+                    p.data.status === 'active'
+                      ? 'bg-blue-900/50 text-blue-300'
+                      : p.data.status === 'wip'
+                        ? 'bg-amber-900/50 text-amber-300'
+                        : 'bg-zinc-800 text-zinc-400'
+                  }`}>
+                    {statusLabel[p.data.status]}
+                  </span>
+                </div>
+                <p class="text-base leading-relaxed text-zinc-300">{p.data.description}</p>
+                <div class="mt-3 flex flex-wrap gap-2">
+                  {p.data.tags.map((tag) => (
+                    <span class="font-mono text-xs uppercase tracking-wider text-zinc-500">#{tag}</span>
+                  ))}
+                </div>
               </div>
-              <p class="text-zinc-400 text-sm">{p.data.description}</p>
-              <div class="mt-2 flex flex-wrap gap-2">
-                {p.data.tags.map((tag) => (
-                  <span class="text-xs text-zinc-500">#{tag}</span>
-                ))}
+
+              <div class="flex gap-4 text-sm font-mono">
+                {p.data.url && (
+                  <a href={p.data.url} class="text-blue-400 hover:underline">docs</a>
+                )}
+                {p.data.repo && (
+                  <a href={p.data.repo} class="text-blue-400 hover:underline">repo</a>
+                )}
               </div>
             </div>
-            <div class="flex gap-3 text-xs shrink-0">
-              {p.data.url && (
-                <a href={p.data.url} class="text-blue-400 hover:text-blue-300 transition-colors">docs</a>
-              )}
-              {p.data.repo && (
-                <a href={p.data.repo} class="text-zinc-500 hover:text-zinc-300 transition-colors">repo</a>
-              )}
-            </div>
-          </div>
-        </li>
-      ))}
-    </ul>
-  </section>
+          </li>
+        ))}
+      </ul>
+    </section>
+  </main>
 </BaseLayout>
