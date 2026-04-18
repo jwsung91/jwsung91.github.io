@@ -2,8 +2,7 @@ backend:
   name: github
   repo: jwsung91/jwsung91.github.io
   branch: main
-  auth_type: pkce
-  app_id: Ov23liYVXfFl7DLqv6gX
+  base_url: https://jwsung91-github-io.jwsung91.workers.dev
 
 media_folder: "public/images"
 public_folder: "/images"
