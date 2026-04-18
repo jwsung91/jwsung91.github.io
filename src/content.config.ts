@@ -26,4 +26,12 @@ const blog = defineCollection({
   }),
 });
 
-export const collections = { projects, blog };
+const now = defineCollection({
+  loader: glob({ pattern: 'now.md', base: './src/content' }),
+  schema: z.object({
+    title: z.string().default('Now'),
+    updatedAt: z.string().optional(),
+  }),
+});
+
+export const collections = { projects, blog, now };

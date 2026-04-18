@@ -1,6 +1,6 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import { getCollection } from 'astro:content';
+import { getCollection, getEntry, render } from 'astro:content';
 import CategoryBadge from '../components/CategoryBadge.astro';
 import { formatDate, getBlogPath, sortBlogPosts } from '../lib/blog';
 
@@ -8,6 +8,8 @@ const projects = (await getCollection('projects')).sort(
   (a, b) => a.data.order - b.data.order
 );
 const recentPosts = sortBlogPosts(await getCollection('blog', ({ data }) => !data.draft)).slice(0, 3);
+const nowEntry = await getEntry('now', 'now');
+const { Content: NowContent } = await render(nowEntry);
 
 const statusLabel: Record<string, string> = {
   active: 'active',
@@ -29,24 +31,12 @@ const statusLabel: Record<string, string> = {
     <section id="now" class="mb-16">
       <h2 class="mb-6 font-mono text-xs uppercase tracking-wider text-zinc-500">Now</h2>
 
-      <!-- TODO: Move this section into src/content/now.md once the content layer is introduced. -->
-      <div class="space-y-8">
-        <div>
-          <h3 class="mb-3 font-mono text-xs uppercase tracking-wider text-zinc-500">작업 중</h3>
-          <ul class="space-y-2 text-zinc-300">
-            <li>unilink v0.5.x — ABI 안정화, Python 바인딩 개선</li>
-            <li>이 사이트 구축 (허브 + 블로그 + AI 피드 계획)</li>
-          </ul>
-        </div>
-        <div>
-          <h3 class="mb-3 font-mono text-xs uppercase tracking-wider text-zinc-500">관심 주제</h3>
-          <ul class="space-y-2 text-zinc-300">
-            <li>ROS 2 Zenoh 브리지</li>
-            <li>C++20 coroutines과 Boost.Asio</li>
-          </ul>
-        </div>
-        <p class="text-sm text-zinc-600">마지막 업데이트: 2026년 4월</p>
+      <div class="prose prose-invert prose-zinc max-w-none prose-headings:font-mono prose-headings:text-xs prose-headings:uppercase prose-headings:tracking-wider prose-headings:text-zinc-500 prose-p:text-zinc-300 prose-li:text-zinc-300">
+        <NowContent />
       </div>
+      {nowEntry.data.updatedAt && (
+        <p class="mt-6 text-sm text-zinc-600">마지막 업데이트: {nowEntry.data.updatedAt}</p>
+      )}
     </section>
 
     <section id="projects" class="mb-16">
