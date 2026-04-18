@@ -10,7 +10,7 @@ title: About
 
 시스템 설계에 있어 모듈 간의 의존성을 분리(Decoupling)하여 유연성과 유지보수성을 높이고, 복잡한 통신 및 하드웨어 제어 인터페이스를 일관되게 추상화(Abstraction)하여 전체 시스템의 복잡도를 낮추는 것을 중요하게 생각합니다. 로우레벨의 비동기 I/O 처리부터 고수준의 임무 관리 시스템까지, 확장 가능하고 일관된 소프트웨어 구조를 설계하는 데 관심이 많습니다.
 
-## 🚀 Key Expertise
+## Key Expertise
 
 - **AMR Platform Architecture:** HW/SW 인터페이스 표준화 및 모듈형 시스템 구조 설계
 - **Mission Management & Integration:** 관제 시스템 연동 API 설계 및 이기종 설비 인터페이스 통합
@@ -19,7 +19,7 @@ title: About
 
 ---
 
-## 💼 Professional Experience
+## Professional Experience
 
 - **Staff Engineer (Robotics Software Architect)** | Samsung Electronics _(2024. 03 – Present)_
   - 양산형 AMR 플랫폼 아키텍처 및 임무 관리 시스템(Fleet 연동) 설계
@@ -38,7 +38,7 @@ title: About
 
 ---
 
-## 🛠 Projects & Skills
+## Projects & Skills
 
 ### Open Source & Personal Projects
 
@@ -53,9 +53,10 @@ title: About
 
 ---
 
-## ✉️ Contact
+## Contact
 
 기술적인 교류나 협업 제안은 언제든 환영합니다. 편하게 메시지 남겨주세요!
 
+- **Email:** [jwsung91@gmail.com](mailto:jwsung91@gmail.com)
 - **LinkedIn:** [linkedin.com/in/jwsung91](https://www.linkedin.com/in/jwsung91/)
 - **GitHub:** [github.com/jwsung91](https://github.com/jwsung91)

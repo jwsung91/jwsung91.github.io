@@ -4,10 +4,10 @@ const pathname = Astro.url.pathname.endsWith('/') && Astro.url.pathname !== '/'
   : Astro.url.pathname;
 
 const items = [
+  { label: 'About', href: '/about', key: 'about' },
   { label: 'Now', href: '/#now', key: 'now' },
   { label: 'Projects', href: '/#projects', key: 'projects' },
   { label: 'Blog', href: '/blog', key: 'blog' },
-  { label: 'About', href: '/about', key: 'about' },
 ];
 
 const isRouteActive = (key: string) => {
