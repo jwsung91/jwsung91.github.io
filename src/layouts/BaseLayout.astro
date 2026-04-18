@@ -1,5 +1,8 @@
 ---
 import '../styles/global.css';
+import 'pretendard/dist/web/variable/pretendardvariable.css';
+import '@fontsource/jetbrains-mono/400.css';
+import '@fontsource/jetbrains-mono/600.css';
 
 interface Props {
   title?: string;
@@ -7,13 +10,13 @@ interface Props {
 }
 
 const {
-  title = 'jwsung91',
-  description = 'Software engineer — systems, networking, and tools.',
+  title = 'jwsung91.github.io',
+  description = 'Robotics Software Architect. C++ · ROS 2 · Async communication systems.',
 } = Astro.props;
 ---
 
 <!doctype html>
-<html lang="ko" class="bg-zinc-950 text-zinc-100 font-mono">
+<html lang="ko" class="bg-zinc-950 text-zinc-100">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -21,7 +24,7 @@ const {
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <title>{title}</title>
   </head>
-  <body class="min-h-screen max-w-2xl mx-auto px-6 py-16">
+  <body class="min-h-screen bg-zinc-950 font-sans text-base leading-relaxed text-zinc-300 transition-colors duration-200">
     <slot />
   </body>
 </html>
