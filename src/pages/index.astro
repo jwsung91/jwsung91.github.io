@@ -1,10 +1,13 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { getCollection } from 'astro:content';
+import CategoryBadge from '../components/CategoryBadge.astro';
+import { formatDate, getBlogPath, sortBlogPosts } from '../lib/blog';
 
 const projects = (await getCollection('projects')).sort(
   (a, b) => a.data.order - b.data.order
 );
+const recentPosts = sortBlogPosts(await getCollection('blog', ({ data }) => !data.draft)).slice(0, 3);
 
 const statusLabel: Record<string, string> = {
   active: 'active',
@@ -91,6 +94,46 @@ const statusLabel: Record<string, string> = {
           </li>
         ))}
       </ul>
+    </section>
+
+    <section class="mb-16">
+      <h2 class="mb-6 text-xl font-semibold text-zinc-100 md:text-2xl">Recent Writing</h2>
+      <div class="space-y-4">
+        {recentPosts.map((post) => (
+          <a
+            href={getBlogPath(post)}
+            class="block rounded-lg border border-zinc-800 bg-zinc-900/50 p-5"
+          >
+            <div class="mb-3 flex flex-wrap items-center gap-3">
+              <span class="font-mono text-xs uppercase tracking-wider text-zinc-500">
+                {formatDate(post.data.date)}
+              </span>
+              <CategoryBadge category={post.data.category} />
+            </div>
+            <h3 class="text-xl font-semibold text-zinc-100 transition-colors duration-200 hover:text-zinc-300">
+              {post.data.title}
+            </h3>
+            {post.data.description && (
+              <p class="mt-2 text-base leading-relaxed text-zinc-400">{post.data.description}</p>
+            )}
+          </a>
+        ))}
+      </div>
+      <a href="/blog" class="mt-6 inline-block font-mono text-sm text-blue-400 hover:underline">
+        all posts →
+      </a>
+    </section>
+
+    <section>
+      <h2 class="mb-6 text-xl font-semibold text-zinc-100 md:text-2xl">Contact</h2>
+      <div class="flex flex-wrap gap-4 text-sm font-mono">
+        <a href="mailto:jwsung91@gmail.com" class="text-blue-400 hover:underline">email</a>
+        <a href="https://www.linkedin.com/in/jwsung91/" class="text-blue-400 hover:underline">linkedin</a>
+        <a href="https://github.com/jwsung91" class="text-blue-400 hover:underline">github</a>
+      </div>
+      <p class="mt-3 text-sm text-zinc-500">
+        상세 이력은 <a href="/about" class="text-blue-400 hover:underline">/about</a>에 있습니다.
+      </p>
     </section>
   </main>
 </BaseLayout>

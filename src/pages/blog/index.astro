@@ -1,0 +1,42 @@
+---
+import { getCollection } from 'astro:content';
+import CategoryBadge from '../../components/CategoryBadge.astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { formatDate, getBlogPath, sortBlogPosts } from '../../lib/blog';
+
+const posts = sortBlogPosts(await getCollection('blog', ({ data }) => !data.draft));
+---
+
+<BaseLayout title="Blog — jwsung91" description="Writing about systems, robotics, and software architecture.">
+  <main class="mx-auto max-w-2xl px-6 py-16 md:px-8">
+    <section class="mb-16">
+      <h1 class="mb-3 text-3xl font-bold text-zinc-100 md:text-4xl">Writing</h1>
+      <p class="text-base leading-relaxed text-zinc-400">
+        Development notes, study logs, and architecture records from ongoing work.
+      </p>
+    </section>
+
+    <section>
+      <ul>
+        {posts.map((post) => (
+          <li class="border-b border-zinc-800 py-6 first:pt-0 last:border-b-0 last:pb-0">
+            <a href={getBlogPath(post)} class="group block">
+              <div class="mb-3 flex flex-wrap items-center gap-3">
+                <span class="font-mono text-xs uppercase tracking-wider text-zinc-500">
+                  {formatDate(post.data.date)}
+                </span>
+                <CategoryBadge category={post.data.category} />
+              </div>
+              <h2 class="text-xl font-semibold text-zinc-100 transition-colors duration-200 group-hover:text-zinc-300 md:text-2xl">
+                {post.data.title}
+              </h2>
+              {post.data.description && (
+                <p class="mt-2 text-base leading-relaxed text-zinc-400">{post.data.description}</p>
+              )}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </section>
+  </main>
+</BaseLayout>

@@ -1,0 +1,12 @@
+---
+import AboutContent from '../content/about.md';
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="About — jwsung91" description="Background, experience, and contact information for Jinwoo Sung.">
+  <main class="mx-auto max-w-2xl px-6 py-16 md:px-8">
+    <article class="prose prose-invert prose-zinc max-w-none prose-headings:text-zinc-100 prose-p:text-zinc-300 prose-li:text-zinc-300 prose-strong:text-zinc-100 prose-a:text-blue-400 prose-a:no-underline hover:prose-a:underline">
+      <AboutContent />
+    </article>
+  </main>
+</BaseLayout>

@@ -1,0 +1,20 @@
+---
+type Category = 'devlog' | 'study' | 'adr' | 'note';
+
+interface Props {
+  category: Category;
+}
+
+const { category } = Astro.props;
+
+const styles: Record<Category, string> = {
+  devlog: 'bg-green-900/50 text-green-300',
+  study: 'bg-blue-900/50 text-blue-300',
+  adr: 'bg-purple-900/50 text-purple-300',
+  note: 'bg-zinc-800 text-zinc-400',
+};
+---
+
+<span class={`inline-flex rounded px-2 py-1 font-mono text-xs uppercase tracking-wider ${styles[category]}`}>
+  {category}
+</span>
