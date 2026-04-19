@@ -5,7 +5,7 @@ const pathname = Astro.url.pathname.endsWith('/') && Astro.url.pathname !== '/'
 
 const items = [
   { label: 'About', href: '/about', key: 'about' },
-  { label: 'Now', href: '/#now', key: 'now' },
+  { label: 'Now', href: '/now', key: 'now' },
   { label: 'Projects', href: '/#projects', key: 'projects' },
   { label: 'Blog', href: '/blog', key: 'blog' },
 ];
@@ -17,6 +17,10 @@ const isRouteActive = (key: string) => {
 
   if (key === 'about') {
     return pathname === '/about';
+  }
+
+  if (key === 'now') {
+    return pathname === '/now';
   }
 
   return false;
@@ -208,7 +212,7 @@ const isRouteActive = (key: string) => {
     const desktopLinks = Array.from(document.querySelectorAll('[data-nav-item]'));
     const mobileLinks = Array.from(document.querySelectorAll('[data-mobile-nav-item]'));
     const underlines = Array.from(document.querySelectorAll('[data-nav-underline]'));
-    const sections = ['now', 'projects']
+    const sections = ['projects']
       .map((key) => ({ key, element: document.getElementById(key) }))
       .filter((section) => section.element instanceof HTMLElement);
 
