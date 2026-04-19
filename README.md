@@ -80,5 +80,5 @@ Node.js 22 이상 필요.
 
 이 레포가 블로그까지 통합 운영. 나머지 서브패스는 별도 레포:
 
-- `/feed/` — AI 큐레이션 ([jwsung91/feed](https://github.com/jwsung91/feed), Astro)
+- `/feed/` — AI 큐레이션 ([jwsung91/ai-curator](https://github.com/jwsung91/ai-curator), Astro)
 - `/unilink/` — 라이브러리 문서 ([jwsung91/unilink](https://github.com/jwsung91/unilink), Doxygen)
