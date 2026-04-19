@@ -7,7 +7,7 @@ jwsung91.github.io의 커리어 허브 + 개발 저널 통합 사이트 (Astro)
 ## 전체 아키텍처
 
 - jwsung91.github.io/ → 커리어 허브 + 블로그 (이 레포, Astro) ← 통합 운영
-- jwsung91.github.io/feed/ → AI 큐레이션 (별도 레포: jwsung91/ai-curator, Astro)
+- jwsung91.github.io/ai-curator/ → AI 큐레이션 (별도 레포: jwsung91/ai-curator, Astro)
 - jwsung91.github.io/unilink/ → 라이브러리 문서 (jwsung91/unilink, Doxygen, 현행 유지)
 
 ## 현재 상태 (2026-04-19 기준)
