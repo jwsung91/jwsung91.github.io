@@ -41,22 +41,10 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site ?? 'https://jwsung91
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
     <script is:inline>
-      const theme = (() => {
-        if (typeof localStorage !== 'undefined' && localStorage.getItem('theme')) {
-          return localStorage.getItem('theme');
-        }
-        if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-          return 'dark';
-        }
-        return 'light';
-      })();
-    
-      if (theme === 'light') {
-        document.documentElement.classList.remove('dark');
-      } else {
-        document.documentElement.classList.add('dark');
-      }
-      window.localStorage.setItem('theme', theme);
+      const stored = typeof localStorage !== 'undefined' ? localStorage.getItem('theme') : null;
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const isDark = stored ? stored === 'dark' : prefersDark;
+      document.documentElement.classList.toggle('dark', isDark);
     </script>
   </head>
   <body class="min-h-screen bg-white font-sans text-base leading-relaxed text-zinc-700 transition-colors duration-200 dark:bg-zinc-950 dark:text-zinc-300">
