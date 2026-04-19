@@ -30,13 +30,13 @@ const { Content } = await render(post);
             <span class="font-mono text-xs uppercase tracking-wider text-zinc-500">#{tag}</span>
           ))}
         </div>
-        <h1 class="mb-3 text-3xl font-bold text-zinc-100 md:text-4xl">{post.data.title}</h1>
+        <h1 class="mb-3 text-3xl font-bold text-zinc-900 dark:text-zinc-100 md:text-4xl">{post.data.title}</h1>
         {post.data.description && (
-          <p class="text-base leading-relaxed text-zinc-400">{post.data.description}</p>
+          <p class="text-base leading-relaxed text-zinc-600 dark:text-zinc-400">{post.data.description}</p>
         )}
       </header>
 
-      <div class="prose prose-invert prose-zinc max-w-none prose-headings:text-zinc-100 prose-p:text-zinc-300 prose-li:text-zinc-300 prose-strong:text-zinc-100 prose-a:text-blue-400 prose-a:no-underline hover:prose-a:underline">
+      <div class="prose dark:prose-invert prose-zinc max-w-none prose-headings:text-zinc-900 dark:prose-headings:text-zinc-100 prose-p:text-zinc-700 dark:prose-p:text-zinc-300 prose-li:text-zinc-700 dark:prose-li:text-zinc-300 prose-strong:text-zinc-900 dark:prose-strong:text-zinc-100 prose-a:text-blue-400 prose-a:no-underline hover:prose-a:underline">
         <Content />
       </div>
 
@@ -50,7 +50,7 @@ const { Content } = await render(post);
 <script>
   import mermaid from 'mermaid';
 
-  mermaid.initialize({ startOnLoad: false, theme: 'dark' });
+  mermaid.initialize({ startOnLoad: false, theme: document.documentElement.classList.contains('dark') ? 'dark' : 'default' });
 
   document.querySelectorAll('code.language-mermaid').forEach((el) => {
     const pre = el.parentElement;
