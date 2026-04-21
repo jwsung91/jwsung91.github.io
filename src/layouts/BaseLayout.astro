@@ -51,6 +51,47 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site ?? 'https://jwsung91
     <Nav />
     <slot />
     <script>
+      const copyIcon = `
+        <svg viewBox="0 0 24 24" aria-hidden="true" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect width="14" height="14" x="8" y="8" rx="2" ry="2"></rect>
+          <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path>
+        </svg>
+      `;
+      const checkIcon = `
+        <svg viewBox="0 0 24 24" aria-hidden="true" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 6 9 17l-5-5"></path>
+        </svg>
+      `;
+      const errorIcon = `
+        <svg viewBox="0 0 24 24" aria-hidden="true" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 6 6 18"></path>
+          <path d="m6 6 12 12"></path>
+        </svg>
+      `;
+
+      const setCopyButtonState = (button: HTMLButtonElement, state: 'idle' | 'copied' | 'failed') => {
+        button.classList.toggle('is-copied', state === 'copied');
+        button.classList.toggle('is-failed', state === 'failed');
+
+        if (state === 'copied') {
+          button.innerHTML = checkIcon;
+          button.setAttribute('aria-label', 'Code copied to clipboard');
+          button.title = 'Copied';
+          return;
+        }
+
+        if (state === 'failed') {
+          button.innerHTML = errorIcon;
+          button.setAttribute('aria-label', 'Failed to copy code');
+          button.title = 'Failed to copy';
+          return;
+        }
+
+        button.innerHTML = copyIcon;
+        button.setAttribute('aria-label', 'Copy code to clipboard');
+        button.title = 'Copy code';
+      };
+
       const copyText = async (text: string) => {
         if (navigator.clipboard && window.isSecureContext) {
           await navigator.clipboard.writeText(text);
@@ -86,8 +127,7 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site ?? 'https://jwsung91
           const button = document.createElement('button');
           button.type = 'button';
           button.className = 'code-copy-button';
-          button.textContent = 'Copy';
-          button.setAttribute('aria-label', 'Copy code to clipboard');
+          setCopyButtonState(button, 'idle');
 
           pre.parentNode?.insertBefore(wrapper, pre);
           wrapper.append(pre, button);
@@ -97,16 +137,13 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site ?? 'https://jwsung91
 
             try {
               await copyText(text.trimEnd());
-              button.textContent = 'Copied';
-              button.setAttribute('aria-label', 'Code copied to clipboard');
+              setCopyButtonState(button, 'copied');
             } catch {
-              button.textContent = 'Failed';
-              button.setAttribute('aria-label', 'Failed to copy code');
+              setCopyButtonState(button, 'failed');
             }
 
             window.setTimeout(() => {
-              button.textContent = 'Copy';
-              button.setAttribute('aria-label', 'Copy code to clipboard');
+              setCopyButtonState(button, 'idle');
             }, 1600);
           });
         });
