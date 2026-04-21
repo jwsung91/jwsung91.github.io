@@ -11,4 +11,4 @@ updatedAt: 2026년 4월
 ## 관심 주제
 
 - unilink 실사용 데이터 취득
-- docker container 오케스트레이
+- docker container 오케스트레이션
