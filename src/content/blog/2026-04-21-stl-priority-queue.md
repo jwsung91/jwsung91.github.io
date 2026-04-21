@@ -5,7 +5,7 @@ category: study
 tags:
   - STL
   - C++
-  - 자료구
+  - 자료구조
 description: STL 우선순위 큐 개념정리 및 예시코드
 draft: false
 ---
@@ -32,7 +32,6 @@ draft: false
 ### 템플릿 정의
 
 ```c
-++
 template <class T, class Container = std::vector<T>, class Compare = std::less<T>>
 class priority_queue;
 ```
