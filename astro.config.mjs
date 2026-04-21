@@ -13,7 +13,9 @@ const escapeHtml = (value) =>
 function remarkMermaid() {
   return (tree) => {
     const visit = (node, index, parent) => {
-      if (node?.type === 'code' && node.lang === 'mermaid' && parent && typeof index === 'number') {
+      const language = typeof node?.lang === 'string' ? node.lang.trim().toLowerCase() : '';
+
+      if (node?.type === 'code' && language === 'mermaid' && parent && typeof index === 'number') {
         parent.children[index] = {
           type: 'html',
           value: `<div class="mermaid not-prose">\n${escapeHtml(node.value)}\n</div>`,

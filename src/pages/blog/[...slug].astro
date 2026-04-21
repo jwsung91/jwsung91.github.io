@@ -45,14 +45,29 @@ const { Content } = await render(post);
       </footer>
     </article>
   </main>
-</BaseLayout>
 
 <script>
-  import mermaid from 'mermaid';
+  const renderMermaid = async () => {
+    const diagrams = document.querySelectorAll('.mermaid');
 
-  mermaid.initialize({ startOnLoad: false, theme: document.documentElement.classList.contains('dark') ? 'dark' : 'default' });
+    if (!diagrams.length) {
+      return;
+    }
 
-  if (document.querySelector('.mermaid')) {
-    mermaid.run({ querySelector: '.mermaid' });
+    const { default: mermaid } = await import('mermaid');
+
+    mermaid.initialize({
+      startOnLoad: false,
+      theme: document.documentElement.classList.contains('dark') ? 'dark' : 'default',
+    });
+
+    await mermaid.run({ nodes: Array.from(diagrams) });
+  };
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', renderMermaid, { once: true });
+  } else {
+    renderMermaid();
   }
 </script>
+</BaseLayout>
