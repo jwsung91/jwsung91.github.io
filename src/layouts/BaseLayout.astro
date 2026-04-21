@@ -50,5 +50,73 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site ?? 'https://jwsung91
   <body class="min-h-screen bg-white font-sans text-base leading-relaxed text-zinc-700 transition-colors duration-200 dark:bg-zinc-950 dark:text-zinc-300">
     <Nav />
     <slot />
+    <script>
+      const copyText = async (text: string) => {
+        if (navigator.clipboard && window.isSecureContext) {
+          await navigator.clipboard.writeText(text);
+          return;
+        }
+
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        textarea.setAttribute('readonly', '');
+        textarea.style.position = 'fixed';
+        textarea.style.top = '-9999px';
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        textarea.remove();
+      };
+
+      const enhanceCodeBlocks = () => {
+        document.querySelectorAll('pre').forEach((pre) => {
+          if (pre.parentElement?.classList.contains('code-copy-wrapper')) {
+            return;
+          }
+
+          const code = pre.querySelector('code');
+
+          if (!code) {
+            return;
+          }
+
+          const wrapper = document.createElement('div');
+          wrapper.className = 'code-copy-wrapper';
+
+          const button = document.createElement('button');
+          button.type = 'button';
+          button.className = 'code-copy-button';
+          button.textContent = 'Copy';
+          button.setAttribute('aria-label', 'Copy code to clipboard');
+
+          pre.parentNode?.insertBefore(wrapper, pre);
+          wrapper.append(pre, button);
+
+          button.addEventListener('click', async () => {
+            const text = code instanceof HTMLElement ? code.innerText : code.textContent ?? '';
+
+            try {
+              await copyText(text.trimEnd());
+              button.textContent = 'Copied';
+              button.setAttribute('aria-label', 'Code copied to clipboard');
+            } catch {
+              button.textContent = 'Failed';
+              button.setAttribute('aria-label', 'Failed to copy code');
+            }
+
+            window.setTimeout(() => {
+              button.textContent = 'Copy';
+              button.setAttribute('aria-label', 'Copy code to clipboard');
+            }, 1600);
+          });
+        });
+      };
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', enhanceCodeBlocks, { once: true });
+      } else {
+        enhanceCodeBlocks();
+      }
+    </script>
   </body>
 </html>
