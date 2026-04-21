@@ -39,4 +39,30 @@
   .mermaid svg {
     @apply mx-auto max-w-full;
   }
+
+  .mermaid-tabs {
+    @apply my-6 overflow-hidden rounded border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950;
+  }
+
+  .mermaid-tab-list {
+    @apply flex border-b border-zinc-200 bg-zinc-100 p-1 dark:border-zinc-800 dark:bg-zinc-900;
+  }
+
+  .mermaid-tab-button {
+    @apply rounded px-3 py-1.5 font-mono text-xs font-semibold uppercase tracking-wider text-zinc-500 transition-colors duration-150 hover:text-zinc-900 focus:outline-none focus:ring-2 focus:ring-blue-400 dark:text-zinc-400 dark:hover:text-zinc-100;
+  }
+
+  .mermaid-tab-button.is-active {
+    @apply bg-white text-zinc-900 shadow-sm dark:bg-zinc-800 dark:text-zinc-100;
+  }
+
+  .mermaid-tab-panel {
+    @apply p-4;
+  }
+
+  .mermaid-tab-panel > .mermaid,
+  .mermaid-tab-panel > .code-copy-wrapper,
+  .mermaid-tab-panel > pre {
+    @apply my-0;
+  }
 }
