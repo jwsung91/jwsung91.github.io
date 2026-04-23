@@ -1,5 +1,5 @@
 ---
-title: AI Curator 파이프라인 구축 방안
+title: '[AI Curator] 파이프라인 구축 방안'
 date: 2026-04-23
 category: devlog
 tags:
