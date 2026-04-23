@@ -5,7 +5,7 @@ updatedAt: 2026년 4월
 
 ## 작업 중
 
-- unilink v0.6.1 - doxygen 가시성 개선방안 (unilink)
+- unilink v0.6.1 - 기능 개선 및 문서화
 - jwsung91.github.io - AI 기반 피드 아키텍처 구성
 
 ## 관심 주제
