@@ -8,6 +8,7 @@ const items = [
   { label: 'Now', href: '/now', key: 'now' },
   { label: 'Projects', href: '/#projects', key: 'projects' },
   { label: 'Blog', href: '/blog', key: 'blog' },
+  { label: 'AI Digest', href: 'https://jwsung91.github.io/ai-curator/', key: 'ai-curator', external: true },
 ];
 
 const isRouteActive = (key: string) => {
@@ -45,6 +46,8 @@ const isRouteActive = (key: string) => {
             <a
               href={item.href}
               data-nav-item={item.key}
+              target={item.external ? '_blank' : undefined}
+              rel={item.external ? 'noopener noreferrer' : undefined}
               class:list={[
                 'relative pb-1 text-zinc-600 dark:text-zinc-400 transition-colors duration-200 hover:text-zinc-900 dark:hover:text-zinc-100',
                 active && 'text-zinc-900 dark:text-zinc-100',
@@ -104,6 +107,8 @@ const isRouteActive = (key: string) => {
             <a
               href={item.href}
               data-mobile-nav-item={item.key}
+              target={item.external ? '_blank' : undefined}
+              rel={item.external ? 'noopener noreferrer' : undefined}
               class:list={[
                 'border-b border-zinc-200 dark:border-zinc-800 pb-4 text-zinc-600 dark:text-zinc-400 transition-colors duration-200 hover:text-zinc-900 dark:hover:text-zinc-100',
                 active && 'text-zinc-900 dark:text-zinc-100',
