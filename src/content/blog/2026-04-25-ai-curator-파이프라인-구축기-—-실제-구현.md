@@ -4,7 +4,7 @@ date: 2026-04-25
 category: devlog
 tags:
   - ai-curator
-description: ''
+description: GitHub Actions와 Gemini API로 매일 기술 뉴스를 자동 수집·요약해 정적 사이트로 배포하는 AI 큐레이션 파이프라인
 draft: false
 ---
 
