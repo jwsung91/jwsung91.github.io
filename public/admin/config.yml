@@ -44,6 +44,8 @@ collections:
         fields:
           - { label: "Title", name: "title", widget: "hidden",
               default: "Now" }
+          - { label: "Updated At", name: "updatedAt", widget: "string",
+              required: false }
           - { label: "Body", name: "body", widget: "markdown" }
 
   - name: "projects"
@@ -55,10 +57,11 @@ collections:
     fields:
       - { label: "Title", name: "title", widget: "string" }
       - { label: "Description", name: "description", widget: "string" }
-      - { label: "GitHub", name: "github", widget: "string" }
-      - { label: "Docs", name: "docs", widget: "string", required: false }
-      - { label: "Tags", name: "tags", widget: "list" }
       - { label: "Status", name: "status", widget: "select",
-          options: ["active", "stable", "archived"] }
-      - { label: "Featured", name: "featured", widget: "boolean",
-          default: false }
+          options: ["active", "wip", "archived"] }
+      - { label: "Repository URL", name: "repo", widget: "string",
+          required: false }
+      - { label: "Project URL", name: "url", widget: "string",
+          required: false }
+      - { label: "Tags", name: "tags", widget: "list", required: false }
+      - { label: "Order", name: "order", widget: "number", default: 99 }
