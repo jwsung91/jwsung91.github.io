@@ -1,5 +1,5 @@
 ---
-title: '[unilink] Builder API 설계'
+title: '[unilink] builder API 설계'
 date: 2026-06-01
 category: devlog
 tags:
@@ -214,60 +214,6 @@ draft: false
 
   즉, `BuilderInterface`는 모든 transport가 공유하는 설정 언어 역할을 한다.
 
-  ## C++20 Concepts: Callback Signature 검증
-
-  비동기 통신 라이브러리에서 callback은 중요한 API다.
-  수신 데이터, 연결 상태, 에러 상태는 대부분 callback을 통해 사용자 코드로 전달된다.
-
-  문제는 callback signature가 잘못되었을 때다.
-  예를 들어 `on_data`는 수신 메시지 context를 받아야 하고, `on_error`는 error context를 받아야 한다. 사용자가 잘못된 인자를 받는 lambda를 넘기면 컴파일 오류가 발생해야 한다.
-
-  unilink는 이를 C++20 Concepts로 제한한다.
-
-  ```cpp
-  template <typename T>
-  concept DataHandler =
-      std::invocable<T, const wrapper::MessageContext&>;
-  
-  template <typename T>
-  concept ErrorHandler =
-      std::invocable<T, const wrapper::ErrorContext&>;
-  
-  template <typename T>
-  concept ConnectionHandler =
-      std::invocable<T, const wrapper::ConnectionContext&>;
-  ```
-
-  이 구조는 callback 등록 메서드가 어떤 callable을 받을 수 있는지 명확히 표현한다.
-
-  ```cpp
-  template <DataHandler F>
-  auto on_data(F&& handler);
-  
-  template <ErrorHandler F>
-  auto on_error(F&& handler);
-  
-  template <ConnectionHandler F>
-  Derived& on_connect(F&& handler);
-  ```
-
-  Concepts를 사용하면 template error message가 완전히 쉬워지는 것은 아니지만, API 의도를 타입 제약으로 표현할 수 있다.
-  이는 문서로만 설명하는 callback 규칙보다 강한 계약이다.
-
-  ```mermaid
-  flowchart TD
-      A[User Callback] --> B{Matches Concept?}
-  
-      B -- Yes --> C[Register Callback]
-      C --> D[Builder Chain Continues]
-  
-      B -- No --> E[Compile-time Error]
-      E --> F[Fix Callback Signature]
-  ```
-
-  이 방식은 런타임 검증이 아니라 컴파일 타임 검증이다.
-  비동기 통신 코드에서 callback signature 오류를 실행 후 발견하는 것보다, 빌드 단계에서 발견하는 편이 안전하다.
-
 ## C++20 Concepts: Callback Signature 검증
 
 비동기 통신 라이브러리에서 callback은 중요한 API다.
@@ -305,8 +251,8 @@ template <ConnectionHandler F>
 Derived& on_connect(F&& handler);
 ```
 
-Concepts를 사용한다고 해서 모든 template error message가 간단해지는 것은 아니다.
-하지만 중요한 차이는 오류가 깊은 내부 구현에서 뒤늦게 발생하는 것이 아니라, 사용자가 `on_data`, `on_error`, `on_connect`를 호출한 지점에서 더 빠르게 드러난다는 점이다.
+Concepts를 사용한다고 해서 모든 template error message가 단순해지는 것은 아니다.
+하지만 중요한 차이는 오류가 깊은 내부 구현에서 뒤늦게 발생하는 것이 아니라, 사용자가 `on_data`, `on_error`, `on_connect`를 호출한 API 경계에서 더 빠르게 드러난다는 점이다.
 
 즉, Concepts는 callback 규칙을 문서로만 설명하는 대신 API 호출 접점에서 fail-fast 성격의 컴파일 타임 계약으로 만든다.
 
@@ -323,8 +269,6 @@ flowchart TD
 
 이 방식은 런타임 검증이 아니라 컴파일 타임 검증이다.
 비동기 통신 코드에서 callback signature 오류를 실행 후 발견하는 것보다, 빌드 단계에서 API 경계에서 발견하는 편이 안전하다.
-
----
 
 ## Rebind와 BuilderState
 
@@ -377,8 +321,6 @@ flowchart TD
 
 중요한 점은 이 구조가 현재 모든 callback 등록을 강제한다는 의미는 아니라는 것이다.
 오히려 fluent API를 유지하면서도, 필요할 경우 더 엄격한 타입 기반 builder로 확장할 수 있는 설계 여지를 남겨둔 것이다.
-
----
 
 ## Transport-specific Builder
 
@@ -438,6 +380,7 @@ flowchart TD
 공통 설정은 모든 builder에서 같은 방식으로 제공한다.
 transport별 설정은 해당 builder에서만 노출한다.
 따라서 사용자는 공통 사용 흐름을 유지하면서도, transport별 세부 옵션을 필요한 곳에서만 사용할 수 있다.
+
 
 ## build(): 설정에서 실행 객체로
 
