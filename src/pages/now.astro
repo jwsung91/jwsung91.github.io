@@ -7,7 +7,7 @@ const { Content } = await render(nowEntry);
 ---
 
 <BaseLayout title="Now — jwsung91" description="지금 무엇을 하고 있는지">
-  <main class="mx-auto max-w-2xl px-6 py-16 md:px-8">
+  <main class="page-layout">
     <div class="mb-10">
       <p class="mb-2 font-mono text-sm text-zinc-500"><a href="/" class="hover:underline">jwsung91</a> / now</p>
       <h1 class="text-3xl font-bold text-zinc-900 dark:text-zinc-100">Now</h1>
@@ -16,7 +16,7 @@ const { Content } = await render(nowEntry);
       )}
     </div>
 
-    <div class="prose dark:prose-invert prose-zinc max-w-none prose-headings:font-mono prose-headings:text-xs prose-headings:uppercase prose-headings:tracking-wider prose-headings:text-zinc-500 prose-p:text-zinc-700 dark:prose-p:text-zinc-300 prose-li:text-zinc-700 dark:prose-li:text-zinc-300">
+    <div class="page-content prose dark:prose-invert prose-zinc max-w-none prose-headings:font-mono prose-headings:text-xs prose-headings:uppercase prose-headings:tracking-wider prose-headings:text-zinc-500 prose-p:text-zinc-700 dark:prose-p:text-zinc-300 prose-li:text-zinc-700 dark:prose-li:text-zinc-300">
       <Content />
     </div>
   </main>
