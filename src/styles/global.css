@@ -22,11 +22,11 @@
   }
 
   .blog-post-content > :where(p, ul, ol, blockquote) {
-    max-width: 52rem;
+    max-width: 60rem;
   }
 
   .blog-post-content > :where(h2, h3, h4) {
-    max-width: 54rem;
+    max-width: 60rem;
   }
 
   .blog-post-content > :where(pre, .code-copy-wrapper, .mermaid, .mermaid-tabs, table) {
