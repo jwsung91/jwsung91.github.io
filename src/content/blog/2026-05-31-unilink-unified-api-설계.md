@@ -14,8 +14,6 @@ description: Facade, Builder, Wrapper로 구성한 Public API
 draft: false
 ---
 
-# unilink Unified API 설계
-
 ## 도입: 설계 배경에서 Public API로
 
 이전 글에서는 unilink를 만든 배경과 설계 방향을 정리했다.
