@@ -1,5 +1,6 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
+import sitemap from '@astrojs/sitemap';
 
 import tailwindcss from '@tailwindcss/vite';
 
@@ -50,6 +51,7 @@ function remarkMermaid() {
 
 export default defineConfig({
   site: 'https://jwsung91.github.io',
+  integrations: [sitemap()],
   markdown: {
     remarkPlugins: [remarkMermaid],
   },
