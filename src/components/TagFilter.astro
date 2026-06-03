@@ -1,0 +1,66 @@
+---
+import type { BlogTagSummary } from '../lib/blog';
+import { blogCategories, getCategoryPath, getTagPath, type BlogCategory } from '../lib/blog';
+
+interface Props {
+  tags: BlogTagSummary[];
+  activeTag?: string;
+  activeCategory?: BlogCategory;
+  showCategories?: boolean;
+}
+
+const { tags, activeTag, activeCategory, showCategories = false } = Astro.props;
+
+const baseClass =
+  'inline-flex items-center rounded-full border px-3 py-1.5 font-mono text-xs transition-colors duration-200';
+const inactiveClass =
+  'border-zinc-200 text-zinc-600 hover:border-zinc-400 hover:text-zinc-900 dark:border-zinc-800 dark:text-zinc-400 dark:hover:border-zinc-600 dark:hover:text-zinc-100';
+const activeClass = 'border-zinc-900 bg-zinc-900 text-white dark:border-zinc-100 dark:bg-zinc-100 dark:text-zinc-950';
+---
+
+<nav class="mb-12" aria-label="Blog filters">
+  <div class="flex flex-wrap items-center gap-2">
+    <a
+      class={`${baseClass} ${activeTag || activeCategory ? inactiveClass : activeClass}`}
+      href="/blog/"
+      aria-current={activeTag || activeCategory ? undefined : 'page'}
+    >
+      All
+    </a>
+    {
+      tags.map((tag) => {
+        const isActive = activeTag === tag.slug;
+
+        return (
+          <a
+            class={`${baseClass} ${isActive ? activeClass : inactiveClass}`}
+            href={getTagPath(tag.tag)}
+            aria-current={isActive ? 'page' : undefined}
+          >
+            {tag.tag}
+          </a>
+        );
+      })
+    }
+  </div>
+  {
+    showCategories && (
+      <div class="mt-3 flex flex-wrap items-center gap-2">
+        <span class="mr-1 font-mono text-xs uppercase tracking-wider text-zinc-500">Categories</span>
+        {blogCategories.map((category) => {
+          const isActive = activeCategory === category;
+
+          return (
+            <a
+              class={`${baseClass} ${isActive ? activeClass : inactiveClass}`}
+              href={getCategoryPath(category)}
+              aria-current={isActive ? 'page' : undefined}
+            >
+              {category}
+            </a>
+          );
+        })}
+      </div>
+    )
+  }
+</nav>

@@ -1,5 +1,15 @@
 import type { CollectionEntry } from 'astro:content';
 
+export const blogCategories = ['devlog', 'study', 'adr', 'note'] as const;
+
+export type BlogPost = CollectionEntry<'blog'>;
+export type BlogCategory = (typeof blogCategories)[number];
+export type BlogTagSummary = {
+  tag: string;
+  slug: string;
+  count: number;
+};
+
 export const featuredBlogSeries = [
   {
     series: 'unilink-design',
@@ -18,10 +28,14 @@ export const featuredBlogSeries = [
   },
 ] as const;
 
-export const sortBlogPosts = (posts: CollectionEntry<'blog'>[]) =>
+const tagDisplayLabels: Record<string, string> = {
+  'ai-curator': 'AI Curator',
+};
+
+export const sortBlogPosts = (posts: BlogPost[]) =>
   [...posts].sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
 
-export const sortBlogSeriesPosts = (posts: CollectionEntry<'blog'>[]) =>
+export const sortBlogSeriesPosts = (posts: BlogPost[]) =>
   [...posts].sort((a, b) => {
     const orderA = a.data.seriesOrder ?? Number.MAX_SAFE_INTEGER;
     const orderB = b.data.seriesOrder ?? Number.MAX_SAFE_INTEGER;
@@ -33,8 +47,8 @@ export const sortBlogSeriesPosts = (posts: CollectionEntry<'blog'>[]) =>
     return a.data.date.getTime() - b.data.date.getTime();
   });
 
-export const groupBlogPostsBySeries = (posts: CollectionEntry<'blog'>[]) => {
-  const groups = new Map<string, CollectionEntry<'blog'>[]>();
+export const groupBlogPostsBySeries = (posts: BlogPost[]) => {
+  const groups = new Map<string, BlogPost[]>();
 
   posts.forEach((post) => {
     if (!post.data.series) {
@@ -67,6 +81,56 @@ export const getFeaturedBlogSeries = (posts: CollectionEntry<'blog'>[]) => {
     })
     .filter((series): series is NonNullable<typeof series> => series !== null);
 };
+
+export const slugifyBlogFilterValue = (value: string) =>
+  value
+    .trim()
+    .toLowerCase()
+    .replaceAll('&', ' and ')
+    .replaceAll('+', ' plus ')
+    .replace(/[^a-z0-9가-힣]+/gi, '-')
+    .replace(/^-+|-+$/g, '');
+
+export const getTagPath = (tag: string) => `/blog/tags/${slugifyBlogFilterValue(tag)}/`;
+
+export const getCategoryPath = (category: BlogCategory) => `/blog/categories/${category}/`;
+
+export const getBlogTagSummaries = (posts: BlogPost[]) => {
+  const tags = new Map<string, BlogTagSummary>();
+
+  posts.forEach((post) => {
+    post.data.tags.forEach((tag) => {
+      const slug = slugifyBlogFilterValue(tag);
+
+      if (!slug) {
+        return;
+      }
+
+      const existing = tags.get(slug);
+      const displayTag = tagDisplayLabels[slug] ?? tag;
+
+      tags.set(slug, {
+        tag: existing?.tag ?? displayTag,
+        slug,
+        count: (existing?.count ?? 0) + 1,
+      });
+    });
+  });
+
+  return [...tags.values()].sort((a, b) => {
+    if (a.count !== b.count) {
+      return b.count - a.count;
+    }
+
+    return a.tag.localeCompare(b.tag);
+  });
+};
+
+export const filterPostsByTagSlug = (posts: BlogPost[], tagSlug: string) =>
+  posts.filter((post) => post.data.tags.some((tag) => slugifyBlogFilterValue(tag) === tagSlug));
+
+export const filterPostsByCategory = (posts: BlogPost[], category: BlogCategory) =>
+  posts.filter((post) => post.data.category === category);
 
 export const formatSeriesTitle = (series: string) =>
   series

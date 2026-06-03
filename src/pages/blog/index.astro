@@ -2,12 +2,14 @@
 import { getCollection } from 'astro:content';
 import CategoryBadge from '../../components/CategoryBadge.astro';
 import SeriesCard from '../../components/SeriesCard.astro';
+import TagFilter from '../../components/TagFilter.astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import { formatDate, getBlogPath, getFeaturedBlogSeries, sortBlogPosts } from '../../lib/blog';
+import { formatDate, getBlogPath, getBlogTagSummaries, getFeaturedBlogSeries, sortBlogPosts } from '../../lib/blog';
 
 const allPosts = await getCollection('blog');
 const posts = sortBlogPosts(allPosts.filter((post) => post.data.draft !== true));
 const featuredSeries = getFeaturedBlogSeries(posts);
+const tagSummaries = getBlogTagSummaries(posts);
 ---
 
 <BaseLayout title="Blog — jwsung91" description="Writing about systems, robotics, and software architecture.">
@@ -18,6 +20,8 @@ const featuredSeries = getFeaturedBlogSeries(posts);
         Development notes, study logs, and architecture records from ongoing work.
       </p>
     </section>
+
+    <TagFilter tags={tagSummaries} showCategories />
 
     <section class="mb-16">
       <h2 class="mb-6 font-mono text-xs uppercase tracking-wider text-zinc-500">처음 읽는다면</h2>

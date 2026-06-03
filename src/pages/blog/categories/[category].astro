@@ -1,0 +1,80 @@
+---
+import { getCollection } from 'astro:content';
+import CategoryBadge from '../../../components/CategoryBadge.astro';
+import TagFilter from '../../../components/TagFilter.astro';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import {
+  blogCategories,
+  filterPostsByCategory,
+  formatDate,
+  getBlogPath,
+  getBlogTagSummaries,
+  sortBlogPosts,
+  type BlogCategory,
+  type BlogPost,
+} from '../../../lib/blog';
+
+export async function getStaticPaths() {
+  const allPosts = await getCollection('blog');
+  const posts = sortBlogPosts(allPosts.filter((post) => post.data.draft !== true));
+  const tagSummaries = getBlogTagSummaries(posts);
+
+  return blogCategories.map((category) => ({
+    params: { category },
+    props: {
+      category,
+      tagSummaries,
+      posts: filterPostsByCategory(posts, category),
+    },
+  }));
+}
+
+const { category, posts, tagSummaries } = Astro.props as {
+  category: BlogCategory;
+  posts: BlogPost[];
+  tagSummaries: ReturnType<typeof getBlogTagSummaries>;
+};
+const pageTitle = `Category: ${category} — jwsung91`;
+const pageDescription = `${category} 카테고리의 블로그 글 목록입니다.`;
+---
+
+<BaseLayout title={pageTitle} description={pageDescription}>
+  <main class="page-layout">
+    <section class="mb-12">
+      <p class="mb-3 font-mono text-xs uppercase tracking-wider text-zinc-500">Category</p>
+      <div class="mb-4">
+        <CategoryBadge category={category} />
+      </div>
+      <h1 class="mb-3 text-3xl font-bold text-zinc-900 dark:text-zinc-100 md:text-4xl">{category}</h1>
+      <p class="text-base leading-relaxed text-zinc-600 dark:text-zinc-400">{posts.length} posts in {category}.</p>
+    </section>
+
+    <TagFilter tags={tagSummaries} activeCategory={category} showCategories />
+
+    <section>
+      <h2 class="mb-6 font-mono text-xs uppercase tracking-wider text-zinc-500">Posts</h2>
+      {
+        posts.length > 0 ? (
+          <ul>
+            {posts.map((post) => (
+              <li class="border-b border-zinc-200 py-6 first:pt-0 last:border-b-0 last:pb-0 dark:border-zinc-800">
+                <a href={getBlogPath(post)} class="group block">
+                  <div class="mb-3 flex flex-wrap items-center gap-3">
+                    <span class="font-mono text-xs uppercase tracking-wider text-zinc-500">{formatDate(post.data.date)}</span>
+                    <CategoryBadge category={post.data.category} />
+                  </div>
+                  <h2 class="text-xl font-semibold text-zinc-900 transition-colors duration-200 group-hover:text-zinc-700 dark:text-zinc-100 dark:group-hover:text-zinc-300 md:text-2xl">
+                    {post.data.title}
+                  </h2>
+                  <p class="mt-2 text-base leading-relaxed text-zinc-600 dark:text-zinc-400">{post.data.description}</p>
+                </a>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p class="text-base leading-relaxed text-zinc-600 dark:text-zinc-400">이 카테고리의 글이 아직 없습니다.</p>
+        )
+      }
+    </section>
+  </main>
+</BaseLayout>
