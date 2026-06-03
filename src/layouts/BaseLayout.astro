@@ -9,12 +9,14 @@ interface Props {
   title?: string;
   description?: string;
   ogType?: 'website' | 'article';
+  structuredData?: Record<string, unknown>;
 }
 
 const {
   title = 'jwsung91.github.io',
   description = 'Robotics Software Architect — platform architecture, middleware.',
   ogType = 'website',
+  structuredData,
 } = Astro.props;
 
 const canonicalURL = new URL(Astro.url.pathname, Astro.site ?? 'https://jwsung91.github.io');
@@ -40,6 +42,11 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site ?? 'https://jwsung91
     <meta name="twitter:card" content="summary" />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
+    {
+      structuredData && (
+        <script type="application/ld+json" set:html={JSON.stringify(structuredData)} />
+      )
+    }
     <script is:inline>
       const stored = typeof localStorage !== 'undefined' ? localStorage.getItem('theme') : null;
       const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;

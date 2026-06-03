@@ -16,9 +16,34 @@ export async function getStaticPaths() {
 
 const { post, seriesNav } = Astro.props;
 const { Content } = await render(post);
+const pageTitle = `${post.data.title} — jwsung91`;
+const pageDescription = post.data.description;
+const blogPostingStructuredData = {
+  '@context': 'https://schema.org',
+  '@type': 'BlogPosting',
+  headline: post.data.title,
+  description: pageDescription,
+  datePublished: post.data.date.toISOString(),
+  dateModified: (post.data.updatedAt ?? post.data.date).toISOString(),
+  author: {
+    '@type': 'Person',
+    name: 'Jinwoo Sung',
+    url: 'https://jwsung91.github.io/about/',
+  },
+  keywords: post.data.tags.join(', '),
+  mainEntityOfPage: {
+    '@type': 'WebPage',
+    '@id': Astro.url.href,
+  },
+};
 ---
 
-<BaseLayout title={`${post.data.title} — jwsung91`} description={post.data.description ?? post.data.title} ogType="article">
+<BaseLayout
+  title={pageTitle}
+  description={pageDescription}
+  ogType="article"
+  structuredData={blogPostingStructuredData}
+>
   <main class="blog-post-layout">
     <article>
       <header class="mb-10">
