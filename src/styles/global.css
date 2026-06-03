@@ -1,5 +1,5 @@
 @config "../../tailwind.config.mjs";
-@import "tailwindcss";
+@import 'tailwindcss';
 
 :root {
   color-scheme: light dark;
@@ -55,7 +55,15 @@
     max-width: 100%;
   }
 
-  .blog-post-content > :where(pre, .code-copy-wrapper, .mermaid-figure, .mermaid-source, .mermaid-tabs, table) {
+  .blog-post-content
+    > :where(
+      pre,
+      .code-copy-wrapper,
+      .mermaid-figure,
+      .mermaid-source,
+      .mermaid-tabs,
+      table
+    ) {
     max-width: 100%;
   }
 

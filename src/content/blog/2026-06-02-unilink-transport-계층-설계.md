@@ -11,8 +11,8 @@ tags:
   - architecture
   - concurrency
 description: Channel 추상화를 실제 socket, serial port, event loop 기반 비동기 I/O 구현으로 연결하는 transport 계층을 정리했다.
-series: "unilink-design"
-seriesTitle: "unilink 설계 노트"
+series: 'unilink-design'
+seriesTitle: 'unilink 설계 노트'
 seriesOrder: 5
 draft: false
 ---
@@ -86,14 +86,14 @@ Transport가 담당하는 일은 단순히 Boost.Asio 함수를 호출하는 것
 
 Transport는 다음을 함께 관리한다.
 
-* 통신 리소스의 생성과 정리
-* 비동기 read/write 루프
-* 연결 상태 전이
-* 재연결 정책
-* 송신 queue
-* backpressure
-* callback 이벤트 발생
-* 통계와 에러 정보 기록
+- 통신 리소스의 생성과 정리
+- 비동기 read/write 루프
+- 연결 상태 전이
+- 재연결 정책
+- 송신 queue
+- backpressure
+- callback 이벤트 발생
+- 통계와 에러 정보 기록
 
 따라서 Transport는 unilink에서 실제 runtime behavior가 모이는 계층이라고 볼 수 있다.
 
@@ -328,9 +328,9 @@ flowchart TD
 
 unilink Transport는 여러 송신 API를 제공한다.
 
-* `async_write_copy`: 데이터를 내부 queue로 복사한다.
-* `async_write_move`: `std::vector<uint8_t>`의 ownership을 transport로 이동한다.
-* `async_write_shared`: `std::shared_ptr<const std::vector<uint8_t>>`로 공유 ownership을 유지한다.
+- `async_write_copy`: 데이터를 내부 queue로 복사한다.
+- `async_write_move`: `std::vector<uint8_t>`의 ownership을 transport로 이동한다.
+- `async_write_shared`: `std::shared_ptr<const std::vector<uint8_t>>`로 공유 ownership을 유지한다.
 
 ```mermaid
 mindmap
@@ -466,14 +466,14 @@ flowchart TD
 
 Transport 계층에서는 다음과 같은 에러가 발생할 수 있다.
 
-* resolve 실패
-* connect 실패
-* read 실패
-* write 실패
-* timeout
-* socket close
-* queue limit 초과
-* callback exception
+- resolve 실패
+- connect 실패
+- read 실패
+- write 실패
+- timeout
+- socket close
+- queue limit 초과
+- callback exception
 
 이런 에러를 모두 개별 transport 내부에만 가두면 wrapper나 사용자는 원인을 알기 어렵다.
 따라서 Transport는 error를 기록하고, 상태 전이를 발생시키며, 필요하면 wrapper가 이를 사용자-facing error callback으로 변환할 수 있도록 정보를 제공한다.
@@ -624,13 +624,13 @@ mindmap
 
 정리하면 다음과 같다.
 
-* Transport는 Channel 계약을 실제 TCP/UDP/Serial/UDS I/O로 구현한다.
-* Boost.Asio 기반의 비동기 실행 모델을 내부에 감춘다.
-* strand, timer, socket, queue, atomic state를 통해 runtime 상태를 관리한다.
-* raw byte 수신 이벤트를 Channel callback으로 전달한다.
-* write 요청은 queue, buffer ownership, backpressure 정책을 거쳐 async write로 이어진다.
-* error와 runtime stats는 transport에서 기록하고 wrapper를 통해 사용자에게 전달된다.
-* transport-specific concern은 Transport 계층 안에 격리한다.
+- Transport는 Channel 계약을 실제 TCP/UDP/Serial/UDS I/O로 구현한다.
+- Boost.Asio 기반의 비동기 실행 모델을 내부에 감춘다.
+- strand, timer, socket, queue, atomic state를 통해 runtime 상태를 관리한다.
+- raw byte 수신 이벤트를 Channel callback으로 전달한다.
+- write 요청은 queue, buffer ownership, backpressure 정책을 거쳐 async write로 이어진다.
+- error와 runtime stats는 transport에서 기록하고 wrapper를 통해 사용자에게 전달된다.
+- transport-specific concern은 Transport 계층 안에 격리한다.
 
 Transport 계층은 unilink에서 가장 복잡한 내부 구현 계층이다.
 하지만 이 복잡성을 내부에 모아두기 때문에, 사용자는 Wrapper와 Channel 수준의 단순한 API로 여러 통신 방식을 다룰 수 있다.

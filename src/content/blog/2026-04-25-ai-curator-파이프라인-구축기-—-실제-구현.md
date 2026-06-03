@@ -4,9 +4,9 @@ date: 2026-04-25
 category: devlog
 tags:
   - ai-curator
-description: "GitHub Actions와 Gemini API를 활용해 기술 뉴스를 자동 수집·요약하고 Astro 정적 사이트로 배포하는 과정을 정리합니다."
-series: "ai-curator-pipeline"
-seriesTitle: "AI Curator 파이프라인 구축기"
+description: 'GitHub Actions와 Gemini API를 활용해 기술 뉴스를 자동 수집·요약하고 Astro 정적 사이트로 배포하는 과정을 정리합니다.'
+series: 'ai-curator-pipeline'
+seriesTitle: 'AI Curator 파이프라인 구축기'
 seriesOrder: 2
 draft: false
 ---
@@ -22,7 +22,7 @@ draft: false
 
 ## 아키텍처
 
-```
+```text
 GitHub Actions (daily cron, KST 06:00)
   → scripts/main.py
     → 소스 수집 (10개 RSS/Atom 피드)
@@ -38,13 +38,13 @@ GitHub Actions (daily cron, KST 06:00)
 
 ## 기술 스택
 
-| 계층 | 기술 |
-|------|------|
-| 데이터 수집 | Python, feedparser, urllib |
-| LLM | Google Gemini Flash (`gemini-flash-latest`) |
-| 프론트엔드 | Astro 6 (SSG), Tailwind CSS v4 |
-| CI/CD | GitHub Actions |
-| 호스팅 | GitHub Pages |
+| 계층        | 기술                                        |
+| ----------- | ------------------------------------------- |
+| 데이터 수집 | Python, feedparser, urllib                  |
+| LLM         | Google Gemini Flash (`gemini-flash-latest`) |
+| 프론트엔드  | Astro 6 (SSG), Tailwind CSS v4              |
+| CI/CD       | GitHub Actions                              |
+| 호스팅      | GitHub Pages                                |
 
 ---
 
@@ -52,11 +52,11 @@ GitHub Actions (daily cron, KST 06:00)
 
 ### 소스 (10개)
 
-| 섹션 | 소스 |
-|------|------|
-| 🤖 로보틱스 | ROS2 Discourse, ROS2 GitHub Releases |
-| ✨ AI | OpenAI Blog, Google DeepMind, Simon Willison's Weblog, Changelog, HackerNews (키워드 필터), devai GitHub Releases |
-| 📈 트렌드 | IEEE Spectrum Robotics, The Robot Report |
+| 섹션        | 소스                                                                                                              |
+| ----------- | ----------------------------------------------------------------------------------------------------------------- |
+| 🤖 로보틱스 | ROS2 Discourse, ROS2 GitHub Releases                                                                              |
+| ✨ AI       | OpenAI Blog, Google DeepMind, Simon Willison's Weblog, Changelog, HackerNews (키워드 필터), devai GitHub Releases |
+| 📈 트렌드   | IEEE Spectrum Robotics, The Robot Report                                                                          |
 
 설계 당시 ArXiv를 포함했었는데, 논문 요약은 실무 리포트 톤과 맞지 않아 실용 뉴스 소스로 대체했다.
 
@@ -70,7 +70,7 @@ HackerNews는 전체 피드를 받아 키워드 필터로 AI/개발도구 관련
 
 설계 단계에서는 OOP 클래스 계층(`PipelineController`, `DataSource`, `LLMClient` 등)을 계획했다. 실제로는 3개 모듈의 함수형 구조로 단순하게 구현했다.
 
-```
+```text
 scripts/
   fetcher.py   — RSS/Atom 수집 함수 10개 + 공통 fetch_rss(), fetch_github_releases()
   builder.py   — Gemini 프롬프트, generate_summary(), save_to_markdown()
@@ -99,17 +99,17 @@ scripts/
 
 Gemini가 반환하는 `[N]` 인용 번호는 입력 순서 기준이다. 3개 섹션을 합쳤을 때 본문 등장 순서로 1부터 재번호 매겨 출처 목록과 일치시킨다.
 
-
 ## 프론트엔드
 
 라우팅은 두 개뿐이다.
 
-| 경로 | 설명 |
-|------|------|
-| `/ai-curator/` | 리포트 목록 (날짜 + itemCount + 요약) |
-| `/ai-curator/curation/YYYY-MM-DD/` | 날짜별 리포트 상세 |
+| 경로                               | 설명                                  |
+| ---------------------------------- | ------------------------------------- |
+| `/ai-curator/`                     | 리포트 목록 (날짜 + itemCount + 요약) |
+| `/ai-curator/curation/YYYY-MM-DD/` | 날짜별 리포트 상세                    |
 
 상세 페이지 기능:
+
 - **목차(TOC)**: h2 섹션 자동 추출, IntersectionObserver로 현재 섹션 하이라이트
 - **인용 툴팁**: `[1]` 링크에 마우스 오버 시 제목·출처·URL 팝오버 표시
 - **이전/다음 네비게이션**: 날짜 순서대로 이전·다음 리포트 이동

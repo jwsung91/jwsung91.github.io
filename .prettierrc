@@ -1,0 +1,28 @@
+{
+  "plugins": ["prettier-plugin-astro"],
+  "singleQuote": true,
+  "trailingComma": "all",
+  "endOfLine": "lf",
+  "proseWrap": "preserve",
+  "overrides": [
+    {
+      "files": "*.astro",
+      "options": {
+        "parser": "astro"
+      }
+    },
+    {
+      "files": "src/content/**/*.{md,mdx}",
+      "options": {
+        "proseWrap": "preserve",
+        "embeddedLanguageFormatting": "auto"
+      }
+    },
+    {
+      "files": "*.yml",
+      "options": {
+        "singleQuote": false
+      }
+    }
+  ]
+}

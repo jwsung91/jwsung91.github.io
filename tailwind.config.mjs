@@ -6,7 +6,12 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['"Pretendard Variable"', 'Pretendard', 'system-ui', 'sans-serif'],
+        sans: [
+          '"Pretendard Variable"',
+          'Pretendard',
+          'system-ui',
+          'sans-serif',
+        ],
         mono: ['"JetBrains Mono"', 'ui-monospace', 'monospace'],
       },
     },

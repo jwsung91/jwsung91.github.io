@@ -1,0 +1,28 @@
+config:
+  default: true
+
+  # 한국어 문단, 긴 URL, 코드 설명 때문에 line length는 비활성화
+  MD013: false
+
+  # Astro/HTML 조각, Mermaid wrapper, custom block 사용 가능성 때문에 허용
+  MD033: false
+
+  # frontmatter 이후 첫 heading 강제는 Astro content와 맞지 않을 수 있음
+  MD041: false
+
+  # 페이지 제목과 본문 H1이 공존할 수 있어 Astro content에서는 완화
+  MD025: false
+
+  # 중복 heading은 기술 글에서 같은 "정리", "예시"가 반복될 수 있어 완화
+  MD024:
+    siblings_only: true
+
+globs:
+  - 'src/content/**/*.md'
+  - 'README.md'
+  - 'docs/**/*.md'
+
+ignores:
+  - 'node_modules/**'
+  - 'dist/**'
+  - '.astro/**'

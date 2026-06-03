@@ -20,7 +20,10 @@ function remarkMermaid() {
 
       for (let index = 0; index < node.children.length; index += 1) {
         const child = node.children[index];
-        const language = typeof child?.lang === 'string' ? child.lang.trim().toLowerCase() : '';
+        const language =
+          typeof child?.lang === 'string'
+            ? child.lang.trim().toLowerCase()
+            : '';
 
         if (child?.type === 'code' && language === 'mermaid') {
           const escaped = escapeHtml(child.value);

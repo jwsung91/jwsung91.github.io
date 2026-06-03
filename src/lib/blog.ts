@@ -14,17 +14,20 @@ export const featuredBlogSeries = [
   {
     series: 'unilink-design',
     title: 'unilink 설계 노트',
-    description: 'C++ 비동기 통신 라이브러리를 설계하며 정리한 아키텍처 기록입니다.',
+    description:
+      'C++ 비동기 통신 라이브러리를 설계하며 정리한 아키텍처 기록입니다.',
   },
   {
     series: 'ai-curator-pipeline',
     title: 'AI Curator 파이프라인 구축기',
-    description: 'GitHub Actions, Gemini API, Astro를 활용한 자동 큐레이션 시스템 구축 기록입니다.',
+    description:
+      'GitHub Actions, Gemini API, Astro를 활용한 자동 큐레이션 시스템 구축 기록입니다.',
   },
   {
     series: 'cpp-stl-study',
     title: 'C++ STL Study',
-    description: '자료구조와 STL 사용법을 실무 관점에서 정리한 학습 노트입니다.',
+    description:
+      '자료구조와 STL 사용법을 실무 관점에서 정리한 학습 노트입니다.',
   },
 ] as const;
 
@@ -55,7 +58,10 @@ export const groupBlogPostsBySeries = (posts: BlogPost[]) => {
       return;
     }
 
-    groups.set(post.data.series, [...(groups.get(post.data.series) ?? []), post]);
+    groups.set(post.data.series, [
+      ...(groups.get(post.data.series) ?? []),
+      post,
+    ]);
   });
 
   return groups;
@@ -66,7 +72,9 @@ export const getFeaturedBlogSeries = (posts: CollectionEntry<'blog'>[]) => {
 
   return featuredBlogSeries
     .map((series) => {
-      const seriesPosts = sortBlogSeriesPosts(groupedPosts.get(series.series) ?? []);
+      const seriesPosts = sortBlogSeriesPosts(
+        groupedPosts.get(series.series) ?? [],
+      );
       const firstPost = seriesPosts[0];
 
       if (!firstPost) {
@@ -91,9 +99,11 @@ export const slugifyBlogFilterValue = (value: string) =>
     .replace(/[^a-z0-9가-힣]+/gi, '-')
     .replace(/^-+|-+$/g, '');
 
-export const getTagPath = (tag: string) => `/blog/tags/${slugifyBlogFilterValue(tag)}/`;
+export const getTagPath = (tag: string) =>
+  `/blog/tags/${slugifyBlogFilterValue(tag)}/`;
 
-export const getCategoryPath = (category: BlogCategory) => `/blog/categories/${category}/`;
+export const getCategoryPath = (category: BlogCategory) =>
+  `/blog/categories/${category}/`;
 
 export const getBlogTagSummaries = (posts: BlogPost[]) => {
   const tags = new Map<string, BlogTagSummary>();
@@ -127,10 +137,14 @@ export const getBlogTagSummaries = (posts: BlogPost[]) => {
 };
 
 export const filterPostsByTagSlug = (posts: BlogPost[], tagSlug: string) =>
-  posts.filter((post) => post.data.tags.some((tag) => slugifyBlogFilterValue(tag) === tagSlug));
+  posts.filter((post) =>
+    post.data.tags.some((tag) => slugifyBlogFilterValue(tag) === tagSlug),
+  );
 
-export const filterPostsByCategory = (posts: BlogPost[], category: BlogCategory) =>
-  posts.filter((post) => post.data.category === category);
+export const filterPostsByCategory = (
+  posts: BlogPost[],
+  category: BlogCategory,
+) => posts.filter((post) => post.data.category === category);
 
 export const formatSeriesTitle = (series: string) =>
   series
@@ -139,20 +153,27 @@ export const formatSeriesTitle = (series: string) =>
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
     .join(' ');
 
-export const getBlogSeriesNav = (post: CollectionEntry<'blog'>, posts: CollectionEntry<'blog'>[]) => {
+export const getBlogSeriesNav = (
+  post: CollectionEntry<'blog'>,
+  posts: CollectionEntry<'blog'>[],
+) => {
   const series = post.data.series;
 
   if (!series) {
     return null;
   }
 
-  const seriesPosts = sortBlogSeriesPosts(posts.filter((candidate) => candidate.data.series === series));
+  const seriesPosts = sortBlogSeriesPosts(
+    posts.filter((candidate) => candidate.data.series === series),
+  );
 
   if (seriesPosts.length < 2) {
     return null;
   }
 
-  const currentIndex = seriesPosts.findIndex((candidate) => candidate.id === post.id);
+  const currentIndex = seriesPosts.findIndex(
+    (candidate) => candidate.id === post.id,
+  );
 
   if (currentIndex === -1) {
     return null;
@@ -175,4 +196,5 @@ export const formatDate = (date: Date) => {
   return `${year}.${month}.${day}`;
 };
 
-export const getBlogPath = (post: CollectionEntry<'blog'>) => `/blog/${post.id.replace(/\.md$/, '')}`;
+export const getBlogPath = (post: CollectionEntry<'blog'>) =>
+  `/blog/${post.id.replace(/\.md$/, '')}`;

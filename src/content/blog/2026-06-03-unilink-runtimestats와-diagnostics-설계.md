@@ -11,8 +11,8 @@ tags:
   - observability
   - architecture
 description: 연결 상태, 송수신량, drop, queue pressure를 RuntimeStats와 Diagnostics로 관측 가능하게 만드는 설계를 정리했다.
-series: "unilink-design"
-seriesTitle: "unilink 설계 노트"
+series: 'unilink-design'
+seriesTitle: 'unilink 설계 노트'
 seriesOrder: 8
 draft: false
 ---
@@ -55,11 +55,11 @@ unilink에서 RuntimeStats와 Diagnostics는 이런 문제를 줄이기 위한 �
 예를 들어 `send()`가 실패했다고 하자.
 원인은 여러 가지일 수 있다.
 
-* 연결이 끊겼을 수 있다.
-* queue가 가득 찼을 수 있다.
-* backpressure가 활성화되었을 수 있다.
-* buffer size 제한을 넘었을 수 있다.
-* Transport 내부에서 I/O error가 발생했을 수 있다.
+- 연결이 끊겼을 수 있다.
+- queue가 가득 찼을 수 있다.
+- backpressure가 활성화되었을 수 있다.
+- buffer size 제한을 넘었을 수 있다.
+- Transport 내부에서 I/O error가 발생했을 수 있다.
 
 수신이 느려졌을 때도 마찬가지다.
 네트워크가 느린 것인지, peer가 보내지 않는 것인지, Framer가 message boundary를 기다리는 것인지, application callback이 병목인지 구분하기 어렵다.
@@ -293,9 +293,9 @@ RuntimeStats가 수치 기반의 관측성이라면, `ErrorContext`는 이벤트
 
 통신 중 에러가 발생하면 사용자는 최소한 다음을 알고 싶어 한다.
 
-* 어떤 종류의 에러인지
-* 어떤 메시지인지
-* 특정 client와 관련된 에러인지
+- 어떤 종류의 에러인지
+- 어떤 메시지인지
+- 특정 client와 관련된 에러인지
 
 unilink의 error callback은 이런 정보를 context로 전달한다.
 
@@ -501,15 +501,15 @@ mindmap
 
 정리하면 다음과 같다.
 
-* RuntimeStats는 통신 객체의 특정 시점 상태를 보여주는 snapshot이다.
-* 내부 RuntimeStatsCounters는 atomic counter로 비동기 이벤트를 기록한다.
-* accepted, sent, received, failed, dropped는 서로 다른 의미를 가진다.
-* queued bytes, pending bytes, max queued bytes는 queue pressure를 분석하는 데 중요하다.
-* ErrorContext는 사용자 callback에서 처리 가능한 에러 정보를 제공한다.
-* MessageContext와 ConnectionContext는 수신 데이터와 연결 이벤트를 public API에 맞게 정리한다.
-* Logging, RuntimeStats, callback context는 서로 보완적인 diagnostics 계층이다.
-* reset_stats는 transport 상태를 초기화하는 것이 아니라 관측 구간을 새로 시작하는 기능이다.
-* atomic counter 기반 계측은 단순하고 안전하지만, high-throughput 환경에서는 계측 비용도 최적화 대상이 될 수 있다.
+- RuntimeStats는 통신 객체의 특정 시점 상태를 보여주는 snapshot이다.
+- 내부 RuntimeStatsCounters는 atomic counter로 비동기 이벤트를 기록한다.
+- accepted, sent, received, failed, dropped는 서로 다른 의미를 가진다.
+- queued bytes, pending bytes, max queued bytes는 queue pressure를 분석하는 데 중요하다.
+- ErrorContext는 사용자 callback에서 처리 가능한 에러 정보를 제공한다.
+- MessageContext와 ConnectionContext는 수신 데이터와 연결 이벤트를 public API에 맞게 정리한다.
+- Logging, RuntimeStats, callback context는 서로 보완적인 diagnostics 계층이다.
+- reset_stats는 transport 상태를 초기화하는 것이 아니라 관측 구간을 새로 시작하는 기능이다.
+- atomic counter 기반 계측은 단순하고 안전하지만, high-throughput 환경에서는 계측 비용도 최적화 대상이 될 수 있다.
 
 통신 라이브러리는 정상 동작만 제공해서는 부족하다.
 실제 시스템에서는 느려짐, 끊김, drop, queue pressure, callback 지연 같은 문제가 반복적으로 발생한다.

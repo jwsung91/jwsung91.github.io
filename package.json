@@ -9,7 +9,14 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "format": "prettier . --write",
+    "format:check": "prettier . --check",
+    "format:content": "prettier \"src/content/**/*.{md,mdx}\" \"public/admin/config.yml\" --write",
+    "format:site": "prettier \"src/**/*.{astro,ts,js,json}\" \"*.{json,yml,md}\" \".github/**/*.yml\" --write",
+    "lint:md": "markdownlint-cli2",
+    "content:check": "node scripts/check-content.mjs",
+    "check": "npm run format:check && npm run lint:md && npm run content:check && npm run build"
   },
   "dependencies": {
     "@astrojs/rss": "^4.0.18",
@@ -22,6 +29,11 @@
     "tailwindcss": "^4.2.2"
   },
   "devDependencies": {
-    "@tailwindcss/typography": "^0.5.19"
+    "@tailwindcss/typography": "^0.5.19",
+    "fast-glob": "^3.3.3",
+    "gray-matter": "^4.0.3",
+    "markdownlint-cli2": "^0.22.1",
+    "prettier": "^3.8.3",
+    "prettier-plugin-astro": "^0.14.1"
   }
 }

@@ -19,18 +19,29 @@ const {
   structuredData,
 } = Astro.props;
 
-const canonicalURL = new URL(Astro.url.pathname, Astro.site ?? 'https://jwsung91.github.io');
+const canonicalURL = new URL(
+  Astro.url.pathname,
+  Astro.site ?? 'https://jwsung91.github.io',
+);
 ---
 
 <!doctype html>
-<html lang="ko" class="bg-white text-zinc-900 dark:bg-zinc-950 dark:text-zinc-100">
+<html
+  lang="ko"
+  class="bg-white text-zinc-900 dark:bg-zinc-950 dark:text-zinc-100"
+>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content={description} />
     <link rel="canonical" href={canonicalURL} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="alternate" type="application/rss+xml" title="jwsung91" href="/rss.xml" />
+    <link
+      rel="alternate"
+      type="application/rss+xml"
+      title="jwsung91"
+      href="/rss.xml"
+    />
     <title>{title}</title>
     <!-- Open Graph -->
     <meta property="og:type" content={ogType} />
@@ -44,17 +55,27 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site ?? 'https://jwsung91
     <meta name="twitter:description" content={description} />
     {
       structuredData && (
-        <script type="application/ld+json" set:html={JSON.stringify(structuredData)} />
+        <script
+          type="application/ld+json"
+          set:html={JSON.stringify(structuredData)}
+        />
       )
     }
     <script is:inline>
-      const stored = typeof localStorage !== 'undefined' ? localStorage.getItem('theme') : null;
-      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const stored =
+        typeof localStorage !== 'undefined'
+          ? localStorage.getItem('theme')
+          : null;
+      const prefersDark = window.matchMedia(
+        '(prefers-color-scheme: dark)',
+      ).matches;
       const isDark = stored ? stored === 'dark' : prefersDark;
       document.documentElement.classList.toggle('dark', isDark);
     </script>
   </head>
-  <body class="min-h-screen bg-white font-sans text-base leading-relaxed text-zinc-700 transition-colors duration-200 dark:bg-zinc-950 dark:text-zinc-300">
+  <body
+    class="min-h-screen bg-white font-sans text-base leading-relaxed text-zinc-700 transition-colors duration-200 dark:bg-zinc-950 dark:text-zinc-300"
+  >
     <a href="#main" class="skip-link">본문으로 건너뛰기</a>
     <Nav />
     <div id="main" tabindex="-1">
@@ -79,7 +100,10 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site ?? 'https://jwsung91
         </svg>
       `;
 
-      const setCopyButtonState = (button: HTMLButtonElement, state: 'idle' | 'copied' | 'failed') => {
+      const setCopyButtonState = (
+        button: HTMLButtonElement,
+        state: 'idle' | 'copied' | 'failed',
+      ) => {
         button.classList.toggle('is-copied', state === 'copied');
         button.classList.toggle('is-failed', state === 'failed');
 
@@ -143,7 +167,10 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site ?? 'https://jwsung91
           wrapper.append(pre, button);
 
           button.addEventListener('click', async () => {
-            const text = code instanceof HTMLElement ? code.innerText : code.textContent ?? '';
+            const text =
+              code instanceof HTMLElement
+                ? code.innerText
+                : (code.textContent ?? '');
 
             try {
               await copyText(text.trimEnd());
@@ -160,7 +187,9 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site ?? 'https://jwsung91
       };
 
       if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', enhanceCodeBlocks, { once: true });
+        document.addEventListener('DOMContentLoaded', enhanceCodeBlocks, {
+          once: true,
+        });
       } else {
         enhanceCodeBlocks();
       }

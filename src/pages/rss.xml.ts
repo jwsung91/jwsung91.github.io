@@ -5,12 +5,13 @@ import type { APIContext } from 'astro';
 
 export async function GET(context: APIContext) {
   const posts = sortBlogPosts(
-    await getCollection('blog', ({ data }) => !data.draft)
+    await getCollection('blog', ({ data }) => !data.draft),
   );
 
   return rss({
     title: 'jwsung91',
-    description: 'Robotics Software Architect — platform architecture, middleware.',
+    description:
+      'Robotics Software Architect — platform architecture, middleware.',
     site: context.site!,
     items: posts.map((post) => ({
       title: post.data.title,

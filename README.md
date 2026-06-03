@@ -12,18 +12,18 @@
 
 ## 라우팅
 
-| 경로 | 설명 |
-|------|------|
-| `/` | 홈 — Hero, Now 프리뷰, Projects, Recent Writing |
-| `/now` | 현재 작업 및 관심사 |
-| `/blog` | 포스트 목록 |
-| `/blog/[slug]` | 포스트 상세 |
-| `/about` | 소개 및 경력 |
-| `/rss.xml` | RSS 피드 |
+| 경로           | 설명                                            |
+| -------------- | ----------------------------------------------- |
+| `/`            | 홈 — Hero, Now 프리뷰, Projects, Recent Writing |
+| `/now`         | 현재 작업 및 관심사                             |
+| `/blog`        | 포스트 목록                                     |
+| `/blog/[slug]` | 포스트 상세                                     |
+| `/about`       | 소개 및 경력                                    |
+| `/rss.xml`     | RSS 피드                                        |
 
 ## 콘텐츠 구조
 
-```
+```text
 src/content/
 ├── blog/         # 개발 포스트 (Markdown)
 ├── projects/     # 프로젝트 카드 (Markdown)
@@ -39,7 +39,7 @@ src/content/
 ---
 title: 제목
 date: 2026-04-18
-category: devlog   # devlog | study | adr | note
+category: devlog # devlog | study | adr | note
 tags: [ros2, c++]
 description: 한 줄 요약 (선택)
 draft: false
@@ -54,17 +54,21 @@ draft: false
 ---
 title: 프로젝트명
 description: 설명
-status: active     # active | wip | archived
+status: active # active | wip | archived
 repo: https://github.com/...  (선택)
 url: https://...              (선택)
 tags: [c++, ros2]
-order: 1           # 홈 표시 순서
+order: 1 # 홈 표시 순서
 ---
 ```
 
 ## 다크모드
 
 OS 설정(`prefers-color-scheme`)을 기본으로 따르고, 토글 버튼으로 수동 전환 가능. 수동 전환 시에만 `localStorage`에 저장.
+
+## Writing
+
+- [CMS Writing Guide](docs/cms-writing-guide.md)
 
 ## 개발
 

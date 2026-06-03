@@ -11,8 +11,8 @@ tags:
   - architecture
   - dependency-injection
 description: Config를 기반으로 concrete Channel 구현체를 생성하고 Wrapper가 transport 선택을 직접 알지 않도록 분리한 구조를 정리했다.
-series: "unilink-design"
-seriesTitle: "unilink 설계 노트"
+series: 'unilink-design'
+seriesTitle: 'unilink 설계 노트'
 seriesOrder: 6
 draft: false
 ---

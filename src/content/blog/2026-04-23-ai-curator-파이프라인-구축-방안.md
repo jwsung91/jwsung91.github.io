@@ -5,9 +5,9 @@ category: devlog
 tags:
   - ai-curator
   - astro
-description: "Astro와 GitHub Actions를 활용해 서버리스 정적 큐레이션 시스템의 초기 아키텍처와 운영 원칙을 정리합니다."
-series: "ai-curator-pipeline"
-seriesTitle: "AI Curator 파이프라인 구축기"
+description: 'Astro와 GitHub Actions를 활용해 서버리스 정적 큐레이션 시스템의 초기 아키텍처와 운영 원칙을 정리합니다.'
+series: 'ai-curator-pipeline'
+seriesTitle: 'AI Curator 파이프라인 구축기'
 seriesOrder: 1
 draft: false
 ---
@@ -21,9 +21,9 @@ draft: false
 
 ### 주요 설계 원칙
 
-* **비용 통제:** 클라이언트(브라우저) 사이드에서의 API 호출을 원천 배제하여 악의적인 트래픽 공격에 따른 비용 과금을 방어합니다.
-* **유지보수 효율화:** 프론트엔드 코드와 데이터 파이프라인(Python 스크립트)을 단일 저장소에서 관리하되, 모듈을 명확히 분리합니다.
-* **정적 데이터 관리:** RDBMS 대신 마크다운(`.md`) 파일과 Git 커밋 히스토리를 시계열 데이터베이스처럼 활용합니다.
+- **비용 통제:** 클라이언트(브라우저) 사이드에서의 API 호출을 원천 배제하여 악의적인 트래픽 공격에 따른 비용 과금을 방어합니다.
+- **유지보수 효율화:** 프론트엔드 코드와 데이터 파이프라인(Python 스크립트)을 단일 저장소에서 관리하되, 모듈을 명확히 분리합니다.
+- **정적 데이터 관리:** RDBMS 대신 마크다운(`.md`) 파일과 Git 커밋 히스토리를 시계열 데이터베이스처럼 활용합니다.
 
 ---
 
@@ -88,7 +88,7 @@ sequenceDiagram
 
     Cron->>Fetcher: 지정된 시간에 파이프라인 실행
     activate Fetcher
-    
+
     rect rgb(30, 30, 30)
     Note over Fetcher, LLM: 1. 데이터 수집 및 가공
     Fetcher->>Fetcher: 타겟 소스(RSS, API) 스크래핑
@@ -97,14 +97,14 @@ sequenceDiagram
     LLM-->>Fetcher: 요약 및 인사이트 데이터 반환
     deactivate LLM
     end
-    
+
     rect rgb(40, 40, 40)
     Note over Fetcher, Repo: 2. 데이터 저장
     Fetcher->>Repo: Frontmatter 포함 YYYY-MM-DD.md 생성
     Fetcher->>Repo: src/content/curation/ 경로에 Commit & Push
     end
     deactivate Fetcher
-    
+
     rect rgb(30, 30, 30)
     Note over Repo, Astro: 3. 빌드 및 배포
     Repo->>Astro: Commit 발생 시 배포 Action 트리거
@@ -173,11 +173,11 @@ classDiagram
 
 ### 모듈별 책임 (Responsibility)
 
-* **`PipelineController`**: 배치 작업의 전체 생명주기 관리. 설정된 소스 목록을 순회하며 프로세스를 순차 제어합니다.
-* **`DataSource` (인터페이스/구현체)**: 외부 데이터를 읽어와 시스템 내부 규격인 `Article` 객체로 정규화합니다.
-* **`Article`**: 데이터 전송 객체(DTO).
-* **`LLMClient`**: 정규화된 리스트를 바탕으로 프롬프트를 구성하고 Gemini API와 통신하여 텍스트를 반환합니다.
-* **`MarkdownBuilder`**: LLM 응답과 메타데이터를 결합하여 Astro 프레임워크 규격에 맞는 마크다운 파일을 시스템에 기록합니다.
+- **`PipelineController`**: 배치 작업의 전체 생명주기 관리. 설정된 소스 목록을 순회하며 프로세스를 순차 제어합니다.
+- **`DataSource` (인터페이스/구현체)**: 외부 데이터를 읽어와 시스템 내부 규격인 `Article` 객체로 정규화합니다.
+- **`Article`**: 데이터 전송 객체(DTO).
+- **`LLMClient`**: 정규화된 리스트를 바탕으로 프롬프트를 구성하고 Gemini API와 통신하여 텍스트를 반환합니다.
+- **`MarkdownBuilder`**: LLM 응답과 메타데이터를 결합하여 Astro 프레임워크 규격에 맞는 마크다운 파일을 시스템에 기록합니다.
 
 ---
 
@@ -185,30 +185,30 @@ classDiagram
 
 ### 4.1. Data Pipeline (Python + GitHub Actions)
 
-* **실행 환경:** GitHub Actions 워크플로우 (Cron 스케줄러)
-* **수집 모듈:** `feedparser` 및 `requests`를 통한 외부 RSS/API 원문 데이터 수집.
-* **가공 모듈:** `google-generativeai` 라이브러리를 통해 Gemini API 호출. 아키텍처 및 로보틱스 관점에서의 시사점을 도출하도록 프롬프트를 구성.
+- **실행 환경:** GitHub Actions 워크플로우 (Cron 스케줄러)
+- **수집 모듈:** `feedparser` 및 `requests`를 통한 외부 RSS/API 원문 데이터 수집.
+- **가공 모듈:** `google-generativeai` 라이브러리를 통해 Gemini API 호출. 아키텍처 및 로보틱스 관점에서의 시사점을 도출하도록 프롬프트를 구성.
 
 ### 4.2. Data Storage (Markdown Content Collections)
 
-* **저장 방식:** 파이프라인 스크립트 종료 시, Astro가 파싱할 수 있는 Frontmatter를 최상단에 포함한 `.md` 파일 동적 생성.
-* **저장 경로:** `src/content/curation/YYYY-MM-DD.md`
-* **자동화:** 생성 후 봇(Bot) 계정을 통해 리포지토리에 자동 Commit & Push.
+- **저장 방식:** 파이프라인 스크립트 종료 시, Astro가 파싱할 수 있는 Frontmatter를 최상단에 포함한 `.md` 파일 동적 생성.
+- **저장 경로:** `src/content/curation/YYYY-MM-DD.md`
+- **자동화:** 생성 후 봇(Bot) 계정을 통해 리포지토리에 자동 Commit & Push.
 
 **생성 마크다운 포맷 예시:**
 
 ```yaml
 ---
-title: "2026-04-23 데일리 큐레이션"
+title: '2026-04-23 데일리 큐레이션'
 pubDate: 2026-04-23
-tags: ["ros2", "ai"]
-sources: ["ArXiv", "ROS Discourse"]
+tags: ['ros2', 'ai']
+sources: ['ArXiv', 'ROS Discourse']
 ---
 (AI 요약 본문 데이터)
 ```
 
 ### 4.3. Frontend (Astro)
 
-* **렌더링 방식:** 정적 사이트 생성(SSG).
-* **데이터 연동:** Astro의 Content Collections API를 사용하여 빌드 타임에 마크다운을 HTML로 변환.
-* **호스팅:** 빌드된 정적 에셋은 GitHub Pages(`gh-pages` 브랜치)를 통해 무료 서빙.
+- **렌더링 방식:** 정적 사이트 생성(SSG).
+- **데이터 연동:** Astro의 Content Collections API를 사용하여 빌드 타임에 마크다운을 HTML로 변환.
+- **호스팅:** 빌드된 정적 에셋은 GitHub Pages(`gh-pages` 브랜치)를 통해 무료 서빙.

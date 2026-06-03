@@ -4,55 +4,85 @@ import CategoryBadge from '../../components/CategoryBadge.astro';
 import SeriesCard from '../../components/SeriesCard.astro';
 import TagFilter from '../../components/TagFilter.astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import { formatDate, getBlogPath, getBlogTagSummaries, getFeaturedBlogSeries, sortBlogPosts } from '../../lib/blog';
+import {
+  formatDate,
+  getBlogPath,
+  getBlogTagSummaries,
+  getFeaturedBlogSeries,
+  sortBlogPosts,
+} from '../../lib/blog';
 
 const allPosts = await getCollection('blog');
-const posts = sortBlogPosts(allPosts.filter((post) => post.data.draft !== true));
+const posts = sortBlogPosts(
+  allPosts.filter((post) => post.data.draft !== true),
+);
 const featuredSeries = getFeaturedBlogSeries(posts);
 const tagSummaries = getBlogTagSummaries(posts);
 ---
 
-<BaseLayout title="Blog — jwsung91" description="Writing about systems, robotics, and software architecture.">
+<BaseLayout
+  title="Blog — jwsung91"
+  description="Writing about systems, robotics, and software architecture."
+>
   <main class="page-layout">
     <section class="mb-16">
-      <h1 class="mb-3 text-3xl font-bold text-zinc-900 dark:text-zinc-100 md:text-4xl">Writing</h1>
+      <h1
+        class="mb-3 text-3xl font-bold text-zinc-900 dark:text-zinc-100 md:text-4xl"
+      >
+        Writing
+      </h1>
       <p class="text-base leading-relaxed text-zinc-600 dark:text-zinc-400">
-        Development notes, study logs, and architecture records from ongoing work.
+        Development notes, study logs, and architecture records from ongoing
+        work.
       </p>
     </section>
 
     <TagFilter tags={tagSummaries} showCategories />
 
     <section class="mb-16">
-      <h2 class="mb-6 font-mono text-xs uppercase tracking-wider text-zinc-500">처음 읽는다면</h2>
+      <h2 class="mb-6 font-mono text-xs uppercase tracking-wider text-zinc-500">
+        처음 읽는다면
+      </h2>
       <div class="grid gap-4 md:grid-cols-3">
-        {featuredSeries.map((series) => (
-          <SeriesCard title={series.title} description={series.description} firstPost={series.firstPost} />
-        ))}
+        {
+          featuredSeries.map((series) => (
+            <SeriesCard
+              title={series.title}
+              description={series.description}
+              firstPost={series.firstPost}
+            />
+          ))
+        }
       </div>
     </section>
 
     <section>
-      <h2 class="mb-6 font-mono text-xs uppercase tracking-wider text-zinc-500">Latest</h2>
+      <h2 class="mb-6 font-mono text-xs uppercase tracking-wider text-zinc-500">
+        Latest
+      </h2>
       <ul>
-        {posts.map((post) => (
-          <li class="border-b border-zinc-200 dark:border-zinc-800 py-6 first:pt-0 last:border-b-0 last:pb-0">
-            <a href={getBlogPath(post)} class="group block">
-              <div class="mb-3 flex flex-wrap items-center gap-3">
-                <span class="font-mono text-xs uppercase tracking-wider text-zinc-500">
-                  {formatDate(post.data.date)}
-                </span>
-                <CategoryBadge category={post.data.category} />
-              </div>
-              <h2 class="text-xl font-semibold text-zinc-900 dark:text-zinc-100 transition-colors duration-200 group-hover:text-zinc-700 dark:group-hover:text-zinc-300 md:text-2xl">
-                {post.data.title}
-              </h2>
-              {post.data.description && (
-                <p class="mt-2 text-base leading-relaxed text-zinc-600 dark:text-zinc-400">{post.data.description}</p>
-              )}
-            </a>
-          </li>
-        ))}
+        {
+          posts.map((post) => (
+            <li class="border-b border-zinc-200 dark:border-zinc-800 py-6 first:pt-0 last:border-b-0 last:pb-0">
+              <a href={getBlogPath(post)} class="group block">
+                <div class="mb-3 flex flex-wrap items-center gap-3">
+                  <span class="font-mono text-xs uppercase tracking-wider text-zinc-500">
+                    {formatDate(post.data.date)}
+                  </span>
+                  <CategoryBadge category={post.data.category} />
+                </div>
+                <h2 class="text-xl font-semibold text-zinc-900 dark:text-zinc-100 transition-colors duration-200 group-hover:text-zinc-700 dark:group-hover:text-zinc-300 md:text-2xl">
+                  {post.data.title}
+                </h2>
+                {post.data.description && (
+                  <p class="mt-2 text-base leading-relaxed text-zinc-600 dark:text-zinc-400">
+                    {post.data.description}
+                  </p>
+                )}
+              </a>
+            </li>
+          ))
+        }
       </ul>
     </section>
   </main>

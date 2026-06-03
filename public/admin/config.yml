@@ -10,6 +10,13 @@ public_folder: "/images"
 site_url: https://jwsung91.github.io
 display_url: https://jwsung91.github.io
 
+output:
+  omit_empty_optional_fields: true
+  yaml:
+    quote: none
+    indent_size: 2
+    indent_sequences: true
+
 collections:
   - name: "blog"
     label: "Blog"
@@ -18,22 +25,102 @@ collections:
     slug: "{{year}}-{{month}}-{{day}}-{{slug}}"
     extension: "md"
     format: "frontmatter"
+    summary: "{{title}} - {{date}}"
+    sortable_fields:
+      - title
+      - date
+      - category
+      - series
+      - seriesOrder
     fields:
-      - { label: "Title", name: "title", widget: "string" }
-      - { label: "Date", name: "date", widget: "datetime",
-          format: "YYYY-MM-DD", date_format: "YYYY-MM-DD",
-          time_format: false }
-      - { label: "Category", name: "category", widget: "select",
-          options: ["devlog", "study", "adr", "note"] }
-      - { label: "Tags", name: "tags", widget: "list", required: false }
-      - { label: "Description", name: "description", widget: "string",
-          required: false }
-      - { label: "Draft", name: "draft", widget: "boolean", default: false }
+      - label: "Title"
+        name: "title"
+        widget: "string"
+        required: true
+
+      - label: "Date"
+        name: "date"
+        widget: "datetime"
+        format: "YYYY-MM-DD"
+        date_format: "YYYY-MM-DD"
+        time_format: false
+        required: true
+
+      - label: "Updated At"
+        name: "updatedAt"
+        widget: "datetime"
+        format: "YYYY-MM-DD"
+        date_format: "YYYY-MM-DD"
+        time_format: false
+        required: false
+        hint: "실질적으로 내용을 수정한 경우에만 입력합니다."
+
+      - label: "Category"
+        name: "category"
+        widget: "select"
+        required: true
+        options:
+          - { label: "Devlog", value: "devlog" }
+          - { label: "Study", value: "study" }
+          - { label: "ADR", value: "adr" }
+          - { label: "Note", value: "note" }
+
+      - label: "Tags"
+        name: "tags"
+        widget: "list"
+        required: false
+        hint: "권장 태그: unilink, cpp, async-io, architecture, robotics, ai-curator, stl"
+
+      - label: "Description"
+        name: "description"
+        widget: "string"
+        required: true
+        hint: "검색 결과와 글 목록에 표시됩니다. 40~180자로 작성하세요."
+        pattern:
+          - "^.{40,180}$"
+          - "description은 40~180자로 작성해주세요."
+
+      - label: "Series"
+        name: "series"
+        widget: "select"
+        required: false
+        hint: "연속 글이 아니라면 비워둡니다."
+        options:
+          - { label: "unilink 설계 노트", value: "unilink-design" }
+          - {
+              label: "AI Curator 파이프라인 구축기",
+              value: "ai-curator-pipeline",
+            }
+          - { label: "C++ STL Study", value: "cpp-stl-study" }
+
+      - label: "Series Title"
+        name: "seriesTitle"
+        widget: "string"
+        required: false
+        hint: "예: unilink 설계 노트"
+
+      - label: "Series Order"
+        name: "seriesOrder"
+        widget: "number"
+        value_type: "int"
+        min: 1
+        step: 1
+        required: false
+        hint: "같은 시리즈 안에서 읽을 순서입니다."
+
+      - label: "Draft"
+        name: "draft"
+        widget: "boolean"
+        default: false
+        required: false
+
       - label: "Body"
         name: "body"
-        widget: "richtext"
-        modes: ["raw"]
-        editor_components: ["code-block", "image"]
+        widget: "markdown"
+        required: true
+        editor_components:
+          - "code-block"
+          - "image"
 
   - name: "now"
     label: "Now"
@@ -42,10 +129,13 @@ collections:
         name: "now"
         file: "src/content/now.md"
         fields:
-          - { label: "Title", name: "title", widget: "hidden",
-              default: "Now" }
-          - { label: "Updated At", name: "updatedAt", widget: "string",
-              required: false }
+          - { label: "Title", name: "title", widget: "hidden", default: "Now" }
+          - {
+              label: "Updated At",
+              name: "updatedAt",
+              widget: "string",
+              required: false,
+            }
           - { label: "Body", name: "body", widget: "markdown" }
 
   - name: "projects"
@@ -57,11 +147,18 @@ collections:
     fields:
       - { label: "Title", name: "title", widget: "string" }
       - { label: "Description", name: "description", widget: "string" }
-      - { label: "Status", name: "status", widget: "select",
-          options: ["active", "wip", "archived"] }
-      - { label: "Repository URL", name: "repo", widget: "string",
-          required: false }
-      - { label: "Project URL", name: "url", widget: "string",
-          required: false }
+      - {
+          label: "Status",
+          name: "status",
+          widget: "select",
+          options: ["active", "wip", "archived"],
+        }
+      - {
+          label: "Repository URL",
+          name: "repo",
+          widget: "string",
+          required: false,
+        }
+      - { label: "Project URL", name: "url", widget: "string", required: false }
       - { label: "Tags", name: "tags", widget: "list", required: false }
       - { label: "Order", name: "order", widget: "number", default: 99 }

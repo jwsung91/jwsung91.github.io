@@ -10,9 +10,9 @@ tags:
   - queue
   - realtime
   - architecture
-description: "Reliable / BestEffort 채널에서 send(), queue pressure, drop 정책, backpressure 처리 기준을 정리합니다."
-series: "unilink-design"
-seriesTitle: "unilink 설계 노트"
+description: 'Reliable / BestEffort 채널에서 send(), queue pressure, drop 정책, backpressure 처리 기준을 정리합니다.'
+series: 'unilink-design'
+seriesTitle: 'unilink 설계 노트'
 seriesOrder: 11
 draft: false
 ---
@@ -489,14 +489,14 @@ mindmap
 
 정리하면 다음과 같다.
 
-* Backpressure는 생산 속도와 전송 속도 차이를 다룬다.
-* Reliable은 completeness를 우선하고, BestEffort는 freshness를 우선한다.
-* Reliable도 무한 queue를 의미하지 않으며 hard limit이 필요하다.
-* BestEffort는 오래된 데이터를 버려 최신성을 유지한다.
-* `send`, `try_send`, `send_blocking`은 호출자가 원하는 전송 의미를 구분한다.
-* `send_blocking`은 event-loop critical path에서 남용하면 응답성을 떨어뜨릴 수 있다.
-* UDP에서 Reliable은 network delivery 보장이 아니라 sender-side queue 정책이다.
-* Backpressure event와 RuntimeStats는 운영 중 queue pressure를 진단하기 위한 관측성이다.
+- Backpressure는 생산 속도와 전송 속도 차이를 다룬다.
+- Reliable은 completeness를 우선하고, BestEffort는 freshness를 우선한다.
+- Reliable도 무한 queue를 의미하지 않으며 hard limit이 필요하다.
+- BestEffort는 오래된 데이터를 버려 최신성을 유지한다.
+- `send`, `try_send`, `send_blocking`은 호출자가 원하는 전송 의미를 구분한다.
+- `send_blocking`은 event-loop critical path에서 남용하면 응답성을 떨어뜨릴 수 있다.
+- UDP에서 Reliable은 network delivery 보장이 아니라 sender-side queue 정책이다.
+- Backpressure event와 RuntimeStats는 운영 중 queue pressure를 진단하기 위한 관측성이다.
 
 Backpressure 설계의 핵심은 단순히 queue overflow를 막는 것이 아니다.
 부하 상황에서 라이브러리가 어떤 방식으로 실패하거나 버틸지를 명확히 정의하는 것이다.

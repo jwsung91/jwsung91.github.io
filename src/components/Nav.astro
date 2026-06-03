@@ -1,14 +1,20 @@
 ---
-const pathname = Astro.url.pathname.endsWith('/') && Astro.url.pathname !== '/'
-  ? Astro.url.pathname.slice(0, -1)
-  : Astro.url.pathname;
+const pathname =
+  Astro.url.pathname.endsWith('/') && Astro.url.pathname !== '/'
+    ? Astro.url.pathname.slice(0, -1)
+    : Astro.url.pathname;
 
 const items = [
   { label: 'About', href: '/about', key: 'about' },
   { label: 'Now', href: '/now', key: 'now' },
   { label: 'Projects', href: '/#projects', key: 'projects' },
   { label: 'Blog', href: '/blog', key: 'blog' },
-  { label: 'AI Curator', href: 'https://jwsung91.github.io/ai-curator/', key: 'ai-curator', external: true },
+  {
+    label: 'AI Curator',
+    href: 'https://jwsung91.github.io/ai-curator/',
+    key: 'ai-curator',
+    external: true,
+  },
 ];
 
 const isRouteActive = (key: string) => {
@@ -28,8 +34,12 @@ const isRouteActive = (key: string) => {
 };
 ---
 
-<header class="sticky top-0 z-50 border-b border-zinc-200 dark:border-zinc-800 bg-white/80 dark:bg-zinc-950/80 backdrop-blur-md">
-  <div class="mx-auto flex h-14 w-full max-w-[1040px] items-center justify-between px-5 sm:px-6 md:px-8 lg:px-10">
+<header
+  class="sticky top-0 z-50 border-b border-zinc-200 dark:border-zinc-800 bg-white/80 dark:bg-zinc-950/80 backdrop-blur-md"
+>
+  <div
+    class="mx-auto flex h-14 w-full max-w-[1040px] items-center justify-between px-5 sm:px-6 md:px-8 lg:px-10"
+  >
     <a
       href="/"
       class="font-mono text-sm font-semibold text-zinc-600 dark:text-zinc-400 transition-colors duration-200 hover:text-zinc-900 dark:hover:text-zinc-100"
@@ -38,33 +48,38 @@ const isRouteActive = (key: string) => {
     </a>
 
     <div class="flex items-center gap-4">
-      <nav class="hidden items-center gap-6 text-sm font-mono md:flex" aria-label="Primary">
-        {items.map((item) => {
-          const active = isRouteActive(item.key);
+      <nav
+        class="hidden items-center gap-6 text-sm font-mono md:flex"
+        aria-label="Primary"
+      >
+        {
+          items.map((item) => {
+            const active = isRouteActive(item.key);
 
-          return (
-            <a
-              href={item.href}
-              data-nav-item={item.key}
-              target={item.external ? '_blank' : undefined}
-              rel={item.external ? 'noopener noreferrer' : undefined}
-              class:list={[
-                'relative pb-1 text-zinc-600 dark:text-zinc-400 transition-colors duration-200 hover:text-zinc-900 dark:hover:text-zinc-100',
-                active && 'text-zinc-900 dark:text-zinc-100',
-              ]}
-              aria-current={active ? 'page' : undefined}
-            >
-              {item.label}
-              <span
-                data-nav-underline={item.key}
+            return (
+              <a
+                href={item.href}
+                data-nav-item={item.key}
+                target={item.external ? '_blank' : undefined}
+                rel={item.external ? 'noopener noreferrer' : undefined}
                 class:list={[
-                  'pointer-events-none absolute inset-x-0 -bottom-[18px] h-px bg-zinc-900 dark:bg-zinc-100',
-                  active ? 'block' : 'hidden',
+                  'relative pb-1 text-zinc-600 dark:text-zinc-400 transition-colors duration-200 hover:text-zinc-900 dark:hover:text-zinc-100',
+                  active && 'text-zinc-900 dark:text-zinc-100',
                 ]}
-              />
-            </a>
-          );
-        })}
+                aria-current={active ? 'page' : undefined}
+              >
+                {item.label}
+                <span
+                  data-nav-underline={item.key}
+                  class:list={[
+                    'pointer-events-none absolute inset-x-0 -bottom-[18px] h-px bg-zinc-900 dark:bg-zinc-100',
+                    active ? 'block' : 'hidden',
+                  ]}
+                />
+              </a>
+            );
+          })
+        }
       </nav>
 
       <button
@@ -73,11 +88,33 @@ const isRouteActive = (key: string) => {
         class="text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 transition-colors"
         aria-label="Toggle theme"
       >
-        <svg id="theme-toggle-light-icon" class="hidden h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+        <svg
+          id="theme-toggle-light-icon"
+          class="hidden h-5 w-5"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"
+          ></path>
         </svg>
-        <svg id="theme-toggle-dark-icon" class="hidden h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+        <svg
+          id="theme-toggle-dark-icon"
+          class="hidden h-5 w-5"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"
+          ></path>
         </svg>
       </button>
 
@@ -98,27 +135,34 @@ const isRouteActive = (key: string) => {
     class="fixed inset-0 top-14 z-40 hidden bg-white/95 dark:bg-zinc-950/95 backdrop-blur-md md:hidden"
     data-nav-overlay
   >
-    <div class="mx-auto border-b border-zinc-200 bg-white px-5 py-6 dark:border-zinc-800 dark:bg-zinc-950 sm:px-6 md:px-8 lg:px-10">
-      <nav class="mx-auto flex w-full max-w-[1040px] flex-col gap-4 text-base font-mono" aria-label="Mobile Primary">
-        {items.map((item) => {
-          const active = isRouteActive(item.key);
+    <div
+      class="mx-auto border-b border-zinc-200 bg-white px-5 py-6 dark:border-zinc-800 dark:bg-zinc-950 sm:px-6 md:px-8 lg:px-10"
+    >
+      <nav
+        class="mx-auto flex w-full max-w-[1040px] flex-col gap-4 text-base font-mono"
+        aria-label="Mobile Primary"
+      >
+        {
+          items.map((item) => {
+            const active = isRouteActive(item.key);
 
-          return (
-            <a
-              href={item.href}
-              data-mobile-nav-item={item.key}
-              target={item.external ? '_blank' : undefined}
-              rel={item.external ? 'noopener noreferrer' : undefined}
-              class:list={[
-                'border-b border-zinc-200 dark:border-zinc-800 pb-4 text-zinc-600 dark:text-zinc-400 transition-colors duration-200 hover:text-zinc-900 dark:hover:text-zinc-100',
-                active && 'text-zinc-900 dark:text-zinc-100',
-              ]}
-              aria-current={active ? 'page' : undefined}
-            >
-              {item.label}
-            </a>
-          );
-        })}
+            return (
+              <a
+                href={item.href}
+                data-mobile-nav-item={item.key}
+                target={item.external ? '_blank' : undefined}
+                rel={item.external ? 'noopener noreferrer' : undefined}
+                class:list={[
+                  'border-b border-zinc-200 dark:border-zinc-800 pb-4 text-zinc-600 dark:text-zinc-400 transition-colors duration-200 hover:text-zinc-900 dark:hover:text-zinc-100',
+                  active && 'text-zinc-900 dark:text-zinc-100',
+                ]}
+                aria-current={active ? 'page' : undefined}
+              >
+                {item.label}
+              </a>
+            );
+          })
+        }
       </nav>
     </div>
   </div>
@@ -154,19 +198,21 @@ const isRouteActive = (key: string) => {
         }
       });
 
-      window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
-        if (!localStorage.getItem('theme')) {
-          if (e.matches) {
-            document.documentElement.classList.add('dark');
-            lightIcon?.classList.add('hidden');
-            darkIcon?.classList.remove('hidden');
-          } else {
-            document.documentElement.classList.remove('dark');
-            darkIcon?.classList.add('hidden');
-            lightIcon?.classList.remove('hidden');
+      window
+        .matchMedia('(prefers-color-scheme: dark)')
+        .addEventListener('change', (e) => {
+          if (!localStorage.getItem('theme')) {
+            if (e.matches) {
+              document.documentElement.classList.add('dark');
+              lightIcon?.classList.add('hidden');
+              darkIcon?.classList.remove('hidden');
+            } else {
+              document.documentElement.classList.remove('dark');
+              darkIcon?.classList.add('hidden');
+              lightIcon?.classList.remove('hidden');
+            }
           }
-        }
-      });
+        });
     }
 
     if (toggle instanceof HTMLButtonElement && overlay instanceof HTMLElement) {
@@ -215,7 +261,10 @@ const isRouteActive = (key: string) => {
       });
 
       document.addEventListener('keydown', (event) => {
-        if (event.key === 'Escape' && toggle.getAttribute('aria-expanded') === 'true') {
+        if (
+          event.key === 'Escape' &&
+          toggle.getAttribute('aria-expanded') === 'true'
+        ) {
           closeMenu({ restoreFocus: true });
         }
       });
@@ -235,9 +284,15 @@ const isRouteActive = (key: string) => {
       return;
     }
 
-    const desktopLinks = Array.from(document.querySelectorAll('[data-nav-item]'));
-    const mobileLinks = Array.from(document.querySelectorAll('[data-mobile-nav-item]'));
-    const underlines = Array.from(document.querySelectorAll('[data-nav-underline]'));
+    const desktopLinks = Array.from(
+      document.querySelectorAll('[data-nav-item]'),
+    );
+    const mobileLinks = Array.from(
+      document.querySelectorAll('[data-mobile-nav-item]'),
+    );
+    const underlines = Array.from(
+      document.querySelectorAll('[data-nav-underline]'),
+    );
     const sections = ['projects']
       .map((key) => ({ key, element: document.getElementById(key) }))
       .filter((section) => section.element instanceof HTMLElement);
@@ -257,7 +312,8 @@ const isRouteActive = (key: string) => {
       });
 
       mobileLinks.forEach((link) => {
-        const isActive = link.getAttribute('data-mobile-nav-item') === activeKey;
+        const isActive =
+          link.getAttribute('data-mobile-nav-item') === activeKey;
         link.classList.toggle('text-zinc-900', isActive);
         link.classList.toggle('dark:text-zinc-100', isActive);
         link.classList.toggle('text-zinc-600', !isActive);
@@ -270,7 +326,8 @@ const isRouteActive = (key: string) => {
       });
 
       underlines.forEach((underline) => {
-        const isActive = underline.getAttribute('data-nav-underline') === activeKey;
+        const isActive =
+          underline.getAttribute('data-nav-underline') === activeKey;
         underline.classList.toggle('hidden', !isActive);
         underline.classList.toggle('block', isActive);
       });
@@ -294,7 +351,7 @@ const isRouteActive = (key: string) => {
       {
         rootMargin: '-80px 0px -45% 0px',
         threshold: [0.2, 0.4, 0.6],
-      }
+      },
     );
 
     sections.forEach((section) => observer.observe(section.element));

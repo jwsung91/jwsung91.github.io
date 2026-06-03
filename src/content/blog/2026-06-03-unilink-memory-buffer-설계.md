@@ -12,8 +12,8 @@ tags:
   - ownership
   - architecture
 description: 비동기 통신에서 buffer lifetime, ownership, zero-copy 선택이 안전성과 성능에 미치는 영향을 기준으로 정리했다.
-series: "unilink-design"
-seriesTitle: "unilink 설계 노트"
+series: 'unilink-design'
+seriesTitle: 'unilink 설계 노트'
 seriesOrder: 9
 draft: false
 ---
@@ -121,10 +121,10 @@ flowchart TD
 
 View 기반 API의 장점은 명확하다.
 
-* 복사가 없다.
-* 할당이 없다.
-* pointer와 size가 함께 이동하므로 raw pointer보다 안전하다.
-* callback 경로에서 가볍게 전달할 수 있다.
+- 복사가 없다.
+- 할당이 없다.
+- pointer와 size가 함께 이동하므로 raw pointer보다 안전하다.
+- callback 경로에서 가볍게 전달할 수 있다.
 
 하지만 단점도 분명하다.
 view는 데이터를 소유하지 않기 때문에, view를 callback 밖으로 저장하면 위험할 수 있다. 원본 buffer의 lifetime이 끝나면 view는 무효가 된다.
@@ -362,10 +362,10 @@ flowchart TD
 
 다만 memory pool이 항상 이득인 것은 아니다.
 
-* pool 관리 비용이 있다.
-* 잘못된 bucket 크기는 memory 낭비를 만들 수 있다.
-* 사용 패턴에 따라 hit rate가 낮을 수 있다.
-* 멀티스레드 환경에서는 bucket lock 경합이 생길 수 있다.
+- pool 관리 비용이 있다.
+- 잘못된 bucket 크기는 memory 낭비를 만들 수 있다.
+- 사용 패턴에 따라 hit rate가 낮을 수 있다.
+- 멀티스레드 환경에서는 bucket lock 경합이 생길 수 있다.
 
 특히 high-throughput 환경에서는 memory pool 자체가 병목이 될 수도 있다.
 여러 transport thread가 같은 bucket을 자주 acquire/release하면 mutex 경합이 발생할 수 있고, 이 경우 allocation 비용을 줄이려던 구조가 오히려 latency jitter를 만들 수 있다.
@@ -397,9 +397,9 @@ Framer가 현재 chunk 안에서 메시지를 바로 찾을 수 있다면, `Cons
 
 즉, 수신 경로의 원칙은 다음과 같다.
 
-* 즉시 처리 가능한 데이터는 view로 처리한다.
-* 이후에도 필요한 partial data는 owning buffer로 복사한다.
-* 사용자 callback 이후에도 보관해야 한다면 명시적으로 copy한다.
+- 즉시 처리 가능한 데이터는 view로 처리한다.
+- 이후에도 필요한 partial data는 owning buffer로 복사한다.
+- 사용자 callback 이후에도 보관해야 한다면 명시적으로 copy한다.
 
 이 원칙을 지키면 zero-copy 가능성과 lifetime safety를 동시에 확보할 수 있다.
 
@@ -551,19 +551,20 @@ mindmap
 
 정리하면 다음과 같다.
 
-* `ConstByteSpan`은 소유권 없는 view로, callback 경로에서 불필요한 copy를 줄인다.
-* `SafeDataBuffer`는 데이터를 소유하는 안전한 buffer로, callback 이후에도 보관 가능한 데이터를 제공한다.
-* 비동기 write에서는 buffer가 완료 시점까지 살아 있어야 하므로 ownership 모델이 명확해야 한다.
-* `copy`, `move`, `shared` 송신 API는 서로 다른 lifetime / performance trade-off를 표현한다.
-* `PooledBuffer`와 `MemoryPool`은 반복 allocation을 줄이기 위한 최적화 기반이다.
-* MemoryPool은 allocation 비용을 줄일 수 있지만, 멀티스레드 환경에서는 bucket lock 경합도 함께 고려해야 한다.
-* Framer는 즉시 처리 가능한 데이터는 view로 처리하고, partial message는 내부 buffer로 보관한다.
-* Zero-copy는 절대 원칙이 아니라, 안전성이 확보되는 범위에서 불필요한 복사를 줄이는 전략이다.
+- `ConstByteSpan`은 소유권 없는 view로, callback 경로에서 불필요한 copy를 줄인다.
+- `SafeDataBuffer`는 데이터를 소유하는 안전한 buffer로, callback 이후에도 보관 가능한 데이터를 제공한다.
+- 비동기 write에서는 buffer가 완료 시점까지 살아 있어야 하므로 ownership 모델이 명확해야 한다.
+- `copy`, `move`, `shared` 송신 API는 서로 다른 lifetime / performance trade-off를 표현한다.
+- `PooledBuffer`와 `MemoryPool`은 반복 allocation을 줄이기 위한 최적화 기반이다.
+- MemoryPool은 allocation 비용을 줄일 수 있지만, 멀티스레드 환경에서는 bucket lock 경합도 함께 고려해야 한다.
+- Framer는 즉시 처리 가능한 데이터는 view로 처리하고, partial message는 내부 buffer로 보관한다.
+- Zero-copy는 절대 원칙이 아니라, 안전성이 확보되는 범위에서 불필요한 복사를 줄이는 전략이다.
 
 통신 라이브러리에서 buffer 설계는 단순한 성능 최적화가 아니다.
 비동기 실행 모델에서 데이터가 언제까지 살아 있어야 하는지, 누가 소유하는지, 언제 복사해야 하는지를 명확히 하는 안정성 설계다.
 
 unilink는 view, owning buffer, move ownership, shared ownership, memory pool을 구분함으로써 성능과 안전성 사이의 선택지를 API와 내부 구조에 반영한다.
+
 # unilink Memory / Buffer 설계
 
 > 비동기 통신에서 Lifetime과 Ownership을 명확히 하기
@@ -664,10 +665,10 @@ flowchart TD
 
 View 기반 API의 장점은 명확하다.
 
-* 복사가 없다.
-* 할당이 없다.
-* pointer와 size가 함께 이동하므로 raw pointer보다 안전하다.
-* callback 경로에서 가볍게 전달할 수 있다.
+- 복사가 없다.
+- 할당이 없다.
+- pointer와 size가 함께 이동하므로 raw pointer보다 안전하다.
+- callback 경로에서 가볍게 전달할 수 있다.
 
 하지만 단점도 분명하다.
 view는 데이터를 소유하지 않기 때문에, view를 callback 밖으로 저장하면 위험할 수 있다. 원본 buffer의 lifetime이 끝나면 view는 무효가 된다.
@@ -905,10 +906,10 @@ flowchart TD
 
 다만 memory pool이 항상 이득인 것은 아니다.
 
-* pool 관리 비용이 있다.
-* 잘못된 bucket 크기는 memory 낭비를 만들 수 있다.
-* 사용 패턴에 따라 hit rate가 낮을 수 있다.
-* 멀티스레드 환경에서는 bucket lock 경합이 생길 수 있다.
+- pool 관리 비용이 있다.
+- 잘못된 bucket 크기는 memory 낭비를 만들 수 있다.
+- 사용 패턴에 따라 hit rate가 낮을 수 있다.
+- 멀티스레드 환경에서는 bucket lock 경합이 생길 수 있다.
 
 특히 high-throughput 환경에서는 memory pool 자체가 병목이 될 수도 있다.
 여러 transport thread가 같은 bucket을 자주 acquire/release하면 mutex 경합이 발생할 수 있고, 이 경우 allocation 비용을 줄이려던 구조가 오히려 latency jitter를 만들 수 있다.
@@ -940,9 +941,9 @@ Framer가 현재 chunk 안에서 메시지를 바로 찾을 수 있다면, `Cons
 
 즉, 수신 경로의 원칙은 다음과 같다.
 
-* 즉시 처리 가능한 데이터는 view로 처리한다.
-* 이후에도 필요한 partial data는 owning buffer로 복사한다.
-* 사용자 callback 이후에도 보관해야 한다면 명시적으로 copy한다.
+- 즉시 처리 가능한 데이터는 view로 처리한다.
+- 이후에도 필요한 partial data는 owning buffer로 복사한다.
+- 사용자 callback 이후에도 보관해야 한다면 명시적으로 copy한다.
 
 이 원칙을 지키면 zero-copy 가능성과 lifetime safety를 동시에 확보할 수 있다.
 
@@ -1094,14 +1095,14 @@ mindmap
 
 정리하면 다음과 같다.
 
-* `ConstByteSpan`은 소유권 없는 view로, callback 경로에서 불필요한 copy를 줄인다.
-* `SafeDataBuffer`는 데이터를 소유하는 안전한 buffer로, callback 이후에도 보관 가능한 데이터를 제공한다.
-* 비동기 write에서는 buffer가 완료 시점까지 살아 있어야 하므로 ownership 모델이 명확해야 한다.
-* `copy`, `move`, `shared` 송신 API는 서로 다른 lifetime / performance trade-off를 표현한다.
-* `PooledBuffer`와 `MemoryPool`은 반복 allocation을 줄이기 위한 최적화 기반이다.
-* MemoryPool은 allocation 비용을 줄일 수 있지만, 멀티스레드 환경에서는 bucket lock 경합도 함께 고려해야 한다.
-* Framer는 즉시 처리 가능한 데이터는 view로 처리하고, partial message는 내부 buffer로 보관한다.
-* Zero-copy는 절대 원칙이 아니라, 안전성이 확보되는 범위에서 불필요한 복사를 줄이는 전략이다.
+- `ConstByteSpan`은 소유권 없는 view로, callback 경로에서 불필요한 copy를 줄인다.
+- `SafeDataBuffer`는 데이터를 소유하는 안전한 buffer로, callback 이후에도 보관 가능한 데이터를 제공한다.
+- 비동기 write에서는 buffer가 완료 시점까지 살아 있어야 하므로 ownership 모델이 명확해야 한다.
+- `copy`, `move`, `shared` 송신 API는 서로 다른 lifetime / performance trade-off를 표현한다.
+- `PooledBuffer`와 `MemoryPool`은 반복 allocation을 줄이기 위한 최적화 기반이다.
+- MemoryPool은 allocation 비용을 줄일 수 있지만, 멀티스레드 환경에서는 bucket lock 경합도 함께 고려해야 한다.
+- Framer는 즉시 처리 가능한 데이터는 view로 처리하고, partial message는 내부 buffer로 보관한다.
+- Zero-copy는 절대 원칙이 아니라, 안전성이 확보되는 범위에서 불필요한 복사를 줄이는 전략이다.
 
 통신 라이브러리에서 buffer 설계는 단순한 성능 최적화가 아니다.
 비동기 실행 모델에서 데이터가 언제까지 살아 있어야 하는지, 누가 소유하는지, 언제 복사해야 하는지를 명확히 하는 안정성 설계다.
