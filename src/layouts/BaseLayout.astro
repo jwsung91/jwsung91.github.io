@@ -55,8 +55,11 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site ?? 'https://jwsung91
     </script>
   </head>
   <body class="min-h-screen bg-white font-sans text-base leading-relaxed text-zinc-700 transition-colors duration-200 dark:bg-zinc-950 dark:text-zinc-300">
+    <a href="#main" class="skip-link">본문으로 건너뛰기</a>
     <Nav />
-    <slot />
+    <div id="main" tabindex="-1">
+      <slot />
+    </div>
     <script>
       const copyIcon = `
         <svg viewBox="0 0 24 24" aria-hidden="true" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">

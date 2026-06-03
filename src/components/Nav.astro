@@ -170,15 +170,54 @@ const isRouteActive = (key: string) => {
     }
 
     if (toggle instanceof HTMLButtonElement && overlay instanceof HTMLElement) {
-      const closeMenu = () => {
+      const mobileNavLinks = Array.from(overlay.querySelectorAll('a'));
+
+      const closeMenu = ({ restoreFocus = false } = {}) => {
         overlay.classList.add('hidden');
         toggle.setAttribute('aria-expanded', 'false');
+
+        if (restoreFocus) {
+          toggle.focus();
+        }
+      };
+
+      const openMenu = () => {
+        overlay.classList.remove('hidden');
+        toggle.setAttribute('aria-expanded', 'true');
+
+        const firstLink = mobileNavLinks[0];
+
+        if (firstLink instanceof HTMLAnchorElement) {
+          firstLink.focus();
+        }
+      };
+
+      const toggleMenu = () => {
+        const isOpen = toggle.getAttribute('aria-expanded') === 'true';
+
+        if (isOpen) {
+          closeMenu();
+          return;
+        }
+
+        openMenu();
       };
 
       toggle.addEventListener('click', () => {
-        const isOpen = toggle.getAttribute('aria-expanded') === 'true';
-        toggle.setAttribute('aria-expanded', String(!isOpen));
-        overlay.classList.toggle('hidden', isOpen);
+        toggleMenu();
+      });
+
+      toggle.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          toggleMenu();
+        }
+      });
+
+      document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && toggle.getAttribute('aria-expanded') === 'true') {
+          closeMenu({ restoreFocus: true });
+        }
       });
 
       overlay.addEventListener('click', (event) => {
@@ -187,8 +226,8 @@ const isRouteActive = (key: string) => {
         }
       });
 
-      overlay.querySelectorAll('a').forEach((link) => {
-        link.addEventListener('click', closeMenu);
+      mobileNavLinks.forEach((link) => {
+        link.addEventListener('click', () => closeMenu());
       });
     }
 
