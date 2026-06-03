@@ -68,6 +68,41 @@ export const getFeaturedBlogSeries = (posts: CollectionEntry<'blog'>[]) => {
     .filter((series): series is NonNullable<typeof series> => series !== null);
 };
 
+export const formatSeriesTitle = (series: string) =>
+  series
+    .split('-')
+    .filter(Boolean)
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+
+export const getBlogSeriesNav = (post: CollectionEntry<'blog'>, posts: CollectionEntry<'blog'>[]) => {
+  const series = post.data.series;
+
+  if (!series) {
+    return null;
+  }
+
+  const seriesPosts = sortBlogSeriesPosts(posts.filter((candidate) => candidate.data.series === series));
+
+  if (seriesPosts.length < 2) {
+    return null;
+  }
+
+  const currentIndex = seriesPosts.findIndex((candidate) => candidate.id === post.id);
+
+  if (currentIndex === -1) {
+    return null;
+  }
+
+  return {
+    title: post.data.seriesTitle ?? formatSeriesTitle(series),
+    current: currentIndex + 1,
+    total: seriesPosts.length,
+    previousPost: seriesPosts[currentIndex - 1] ?? null,
+    nextPost: seriesPosts[currentIndex + 1] ?? null,
+  };
+};
+
 export const formatDate = (date: Date) => {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, '0');
