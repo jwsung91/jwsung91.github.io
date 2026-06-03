@@ -38,6 +38,16 @@ title: About
 
 ---
 
+## 관심 있는 대화 주제
+
+- Robotics middleware architecture
+- AMR / FMS platform design
+- C++ async runtime and communication layer
+- ROS 2 기반 시스템 구조화
+- 로보틱스 팀을 위한 개발자 도구와 자동화
+
+---
+
 ## Contact
 
 기술적인 교류나 협업 제안은 언제든 환영합니다. 편하게 메시지 남겨주세요!
