@@ -17,13 +17,6 @@ seriesOrder: 4
 draft: false
 ---
 
-## TL;DR
-
-- 문제: 사용자는 transport 객체가 아니라 start, send, stop 같은 실행 의미를 가진 객체를 다루고 싶다.
-- 선택: Wrapper가 public API와 transport 구현 사이에서 lifecycle, callback, framer, stats 연결을 조율한다.
-- 포기한 것: 사용자가 io_context, socket, read/write pipeline을 직접 조합하는 저수준 API를 기본 경로로 두지 않는다.
-- 확인할 지표: start/stop 상태 전이, callback 전달 경로, PImpl 경계, wrapper가 transport 세부사항을 숨기는 정도.
-
 ## 도입: 실행 객체로서의 Wrapper
 
 통신 라이브러리에서 사용자가 실제로 다루는 객체는 내부 transport 구현체가 아니다.

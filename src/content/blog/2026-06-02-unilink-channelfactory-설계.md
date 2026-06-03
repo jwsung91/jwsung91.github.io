@@ -17,13 +17,6 @@ seriesOrder: 6
 draft: false
 ---
 
-## TL;DR
-
-- 문제: Wrapper가 Channel 계약만 알면 실제 TCP, UDP, Serial, UDS 구현체를 누가 선택할지 결정해야 한다.
-- 선택: ChannelFactory가 config를 해석해 concrete Channel 생성을 담당하고 Wrapper는 생성 정책에서 분리한다.
-- 포기한 것: Wrapper 내부에 transport 선택 로직과 생성 조건을 모두 넣어 책임을 키우지 않는다.
-- 확인할 지표: config 검증, factory 분기 복잡도, 새 transport 추가 시 수정 범위, dependency injection 용이성.
-
 ## 도입: Channel 구현체는 누가 선택하는가
 
 Channel은 transport 차이를 흡수하기 위한 공통 통신 계약이다.

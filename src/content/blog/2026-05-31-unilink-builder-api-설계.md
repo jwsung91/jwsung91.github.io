@@ -17,13 +17,6 @@ seriesOrder: 3
 draft: false
 ---
 
-## TL;DR
-
-- 문제: 통신 객체 생성에는 callback, reconnect, queue, transport option이 얽혀 생성자 인자만으로 관리하기 어렵다.
-- 선택: CRTP와 Concepts 기반 fluent builder로 필수 설정과 transport별 옵션을 단계적으로 구성한다.
-- 포기한 것: 런타임에 모든 설정 오류를 발견하는 느슨한 map 기반 configuration을 선택하지 않는다.
-- 확인할 지표: 컴파일 타임 제약, builder 체인 가독성, 필수 callback 누락 여부, transport option 확장성.
-
 ## 도입: 통신 객체 생성의 복잡성
 
 통신 객체는 단순한 값 객체와 다르다.

@@ -17,13 +17,6 @@ seriesOrder: 8
 draft: false
 ---
 
-## TL;DR
-
-- 문제: 통신 문제가 생겼을 때 내부 상태를 볼 수 없으면 원인을 애플리케이션 레벨에서 추측해야 한다.
-- 선택: RuntimeStats와 Diagnostics로 연결 상태, queue pressure, drop, 송수신량을 관측 가능한 계약으로 만든다.
-- 포기한 것: 로그 문자열만 남기고 구조화된 runtime 지표를 제공하지 않는 방식을 선택하지 않는다.
-- 확인할 지표: bytes sent/received, reconnect count, queue depth, drop count, last error.
-
 ## 도입: 통신 라이브러리는 문제가 생겼을 때 더 중요하다
 
 통신 라이브러리는 정상 상황에서는 단순해 보인다.

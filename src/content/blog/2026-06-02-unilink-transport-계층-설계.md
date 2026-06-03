@@ -17,13 +17,6 @@ seriesOrder: 5
 draft: false
 ---
 
-## TL;DR
-
-- 문제: Channel 계약만으로는 실제 socket, serial port, event loop, error mapping을 수행할 수 없다.
-- 선택: Transport 계층이 Boost.Asio 기반 비동기 I/O와 reconnect, send queue, runtime stats를 담당한다.
-- 포기한 것: public API 계층이 실제 I/O 객체와 OS별 처리 차이를 직접 소유하지 않게 한다.
-- 확인할 지표: async operation 수명, reconnect 동작, error mapping 품질, queue pressure와 I/O 처리량.
-
 ## 도입: 추상화된 Channel에서 실제 I/O로
 
 Channel은 통신 행위를 추상화한 공통 계약이다.

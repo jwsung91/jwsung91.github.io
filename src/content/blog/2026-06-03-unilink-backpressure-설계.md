@@ -17,13 +17,6 @@ seriesOrder: 11
 draft: false
 ---
 
-## TL;DR
-
-- 문제: 생산 속도가 전송 속도보다 빠르면 송신 queue가 증가하고 latency가 커진다.
-- 선택: unilink는 Reliable과 BestEffort 전략을 분리해 데이터 성격에 따라 다른 queue 정책을 적용한다.
-- 포기한 것: 모든 메시지를 항상 즉시 전송하거나, 모든 transport에서 동일한 전달 보장을 제공하지 않는다.
-- 확인할 지표: queue depth, drop count, send latency, pending queue size.
-
 ## 도입: send가 항상 즉시 전송을 의미하지는 않는다
 
 통신 라이브러리에서 `send()`라는 이름은 단순해 보인다.

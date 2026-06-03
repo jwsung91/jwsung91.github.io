@@ -18,13 +18,6 @@ seriesOrder: 10
 draft: false
 ---
 
-## TL;DR
-
-- 문제: TCP와 Serial은 stream 기반이라 read callback 한 번이 애플리케이션 메시지 하나를 의미하지 않는다.
-- 선택: Framer 계층이 raw byte stream을 delimiter, length-prefix 같은 protocol 기준으로 message 단위로 나눈다.
-- 포기한 것: transport 계층이나 사용자 callback이 부분 메시지 조립 책임을 직접 떠안게 하지 않는다.
-- 확인할 지표: incomplete buffer size, frame decode 실패 수, message boundary 정확도, copy 비용.
-
 ## 도입: 수신 데이터는 곧 메시지가 아니다
 
 통신 라이브러리에서 데이터를 수신했다고 해서, 그 데이터가 곧 하나의 완성된 메시지라는 보장은 없다.

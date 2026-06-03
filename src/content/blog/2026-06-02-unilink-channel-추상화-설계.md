@@ -17,13 +17,6 @@ seriesOrder: 7
 draft: false
 ---
 
-## TL;DR
-
-- 문제: transport는 서로 다르지만 애플리케이션이 기대하는 start, send, receive, stop 의미는 반복된다.
-- 선택: Channel을 transport 구현 차이를 흡수하는 공통 통신 계약으로 두고 상위 계층은 이 계약에만 의존한다.
-- 포기한 것: TCP나 Serial 같은 구체 타입을 상위 API가 직접 참조하는 구조를 선택하지 않는다.
-- 확인할 지표: Channel 메서드 최소성, 상태 이벤트 일관성, send 의미, 테스트 double 작성 난이도.
-
 ## 도입: Transport가 아니라 통신 행위를 추상화하기
 
 TCP, UDP, Serial, Unix Domain Socket은 서로 다른 특성을 가진다.
