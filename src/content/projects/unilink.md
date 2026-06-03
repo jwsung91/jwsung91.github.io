@@ -1,6 +1,6 @@
 ---
 title: unilink
-description: TCP, UDP, Serial, UDS를 단일 인터페이스로 추상화한 C++ 비동기 통신 라이브러리
+description: TCP, UDP, Serial, UDS를 단일 C++ 비동기 인터페이스로 다루기 위한 통신 라이브러리와 설계 문서 모음입니다.
 tags:
   - c++
   - async

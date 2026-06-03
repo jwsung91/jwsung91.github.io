@@ -3,6 +3,7 @@ import '../styles/global.css';
 import 'pretendard/dist/web/variable/pretendardvariable.css';
 import '@fontsource/jetbrains-mono/400.css';
 import '@fontsource/jetbrains-mono/600.css';
+import Analytics from '../components/Analytics.astro';
 import Nav from '../components/Nav.astro';
 
 interface Props {
@@ -23,6 +24,7 @@ const canonicalURL = new URL(
   Astro.url.pathname,
   Astro.site ?? 'https://jwsung91.github.io',
 );
+const googleSiteVerification = import.meta.env.PUBLIC_GOOGLE_SITE_VERIFICATION;
 ---
 
 <!doctype html>
@@ -34,6 +36,14 @@ const canonicalURL = new URL(
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content={description} />
+    {
+      googleSiteVerification && (
+        <meta
+          name="google-site-verification"
+          content={googleSiteVerification}
+        />
+      )
+    }
     <link rel="canonical" href={canonicalURL} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link
@@ -53,6 +63,7 @@ const canonicalURL = new URL(
     <meta name="twitter:card" content="summary" />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
+    <Analytics />
     {
       structuredData && (
         <script

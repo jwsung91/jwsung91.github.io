@@ -18,6 +18,7 @@
 | `/now`         | 현재 작업 및 관심사                             |
 | `/blog`        | 포스트 목록                                     |
 | `/blog/[slug]` | 포스트 상세                                     |
+| `/projects`    | 프로젝트 문서 허브                              |
 | `/about`       | 소개 및 경력                                    |
 | `/rss.xml`     | RSS 피드                                        |
 
@@ -71,6 +72,16 @@ OS 설정(`prefers-color-scheme`)을 기본으로 따르고, 토글 버튼으로
 ## Writing
 
 - [CMS Writing Guide](docs/cms-writing-guide.md)
+
+## Site Policy
+
+This site is ad-free and maintained as an open technical writing and project documentation hub.
+
+- [Site Policy](docs/site-policy.md)
+
+## Search
+
+- [Google Search Console Setup](docs/search-console.md)
 
 ## 개발
 

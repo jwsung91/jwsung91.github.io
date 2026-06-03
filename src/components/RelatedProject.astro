@@ -1,0 +1,56 @@
+---
+import { getCollection } from 'astro:content';
+import { projectLabels, type BlogProject } from '../lib/blog';
+import { getProjectPath, getProjectSlug } from '../lib/projects';
+
+interface Props {
+  project: BlogProject;
+}
+
+const { project } = Astro.props;
+const projects = await getCollection('projects');
+const projectEntry = projects.find(
+  (entry) => getProjectSlug(entry) === project,
+);
+---
+
+{
+  projectEntry && (
+    <aside class="mt-12 rounded-lg border border-zinc-200 bg-zinc-100/50 p-5 dark:border-zinc-800 dark:bg-zinc-900/50">
+      <p class="mb-3 font-mono text-xs uppercase tracking-wider text-zinc-500">
+        Related project
+      </p>
+      <h2 class="text-xl font-semibold text-zinc-900 dark:text-zinc-100">
+        {projectEntry.data.title}
+      </h2>
+      <p class="mt-2 text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
+        {projectEntry.data.description}
+      </p>
+      <p class="mt-4 text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
+        이 글은 {projectLabels[project]} 프로젝트 문서의 일부입니다. 프로젝트
+        개요와 관련 글은 프로젝트 허브에서 확인할 수 있습니다.
+      </p>
+      <div class="mt-4 flex flex-wrap gap-4 font-mono text-sm">
+        <a
+          href={getProjectPath(projectEntry)}
+          class="text-blue-400 hover:underline"
+        >
+          Project page
+        </a>
+        {projectEntry.data.repo && (
+          <a
+            href={projectEntry.data.repo}
+            class="text-blue-400 hover:underline"
+          >
+            GitHub repository
+          </a>
+        )}
+        {projectEntry.data.url && (
+          <a href={projectEntry.data.url} class="text-blue-400 hover:underline">
+            Documentation
+          </a>
+        )}
+      </div>
+    </aside>
+  )
+}

@@ -1,6 +1,7 @@
 ---
 import { getCollection, render } from 'astro:content';
 import PostMetaBadges from '../../components/PostMetaBadges.astro';
+import RelatedProject from '../../components/RelatedProject.astro';
 import SeriesNav from '../../components/SeriesNav.astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import {
@@ -42,6 +43,14 @@ const blogPostingStructuredData = {
     '@type': 'WebPage',
     '@id': Astro.url.href,
   },
+  ...(post.data.project
+    ? {
+        about: {
+          '@type': 'SoftwareSourceCode',
+          name: post.data.project,
+        },
+      }
+    : {}),
 };
 ---
 
@@ -97,6 +106,8 @@ const blogPostingStructuredData = {
           />
         )
       }
+
+      {post.data.project && <RelatedProject project={post.data.project} />}
 
       <footer class="mt-12">
         {
