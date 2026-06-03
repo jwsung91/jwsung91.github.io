@@ -10,7 +10,10 @@ tags:
   - runtime-stats
   - observability
   - architecture
-description: 동작하는 통신에서 관측 가능한 통신으로
+description: 연결 상태, 송수신량, drop, queue pressure를 RuntimeStats와 Diagnostics로 관측 가능하게 만드는 설계를 정리했다.
+series: unilink-design
+seriesTitle: unilink 설계
+seriesOrder: 11
 draft: false
 ---
 

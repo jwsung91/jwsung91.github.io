@@ -11,7 +11,10 @@ tags:
   - protocol
   - zero-copy
   - architecture
-description: Raw Byte Stream을 Message 단위로 변환하는 경계
+description: TCP와 Serial의 raw byte stream을 애플리케이션이 처리할 message 단위로 나누는 Framer 계층의 경계를 정리했다.
+series: unilink-design
+seriesTitle: unilink 설계
+seriesOrder: 8
 draft: false
 ---
 

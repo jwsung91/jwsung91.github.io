@@ -19,9 +19,13 @@ const blog = defineCollection({
   schema: z.object({
     title: z.string(),
     date: z.date(),
+    updatedAt: z.date().optional(),
     category: z.enum(['devlog', 'study', 'adr', 'note']),
     tags: z.array(z.string()).default([]),
-    description: z.string().optional(),
+    description: z.string().min(40).max(180),
+    series: z.string().optional(),
+    seriesTitle: z.string().optional(),
+    seriesOrder: z.number().int().positive().optional(),
     draft: z.boolean().default(false),
   }),
 });

@@ -10,7 +10,10 @@ tags:
   - architecture
   - facade
   - builder
-description: Facade, Builder, Wrapper로 구성한 Public API
+description: Facade, Builder, Wrapper를 조합해 여러 transport를 일관된 public API로 다루는 설계 방향을 정리했다.
+series: unilink-design
+seriesTitle: unilink 설계
+seriesOrder: 2
 draft: false
 ---
 

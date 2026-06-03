@@ -10,7 +10,10 @@ tags:
   - queue
   - realtime
   - architecture
-description: 신뢰성과 최신성 사이의 송신 Queue 정책
+description: 송신 queue가 쌓이는 상황에서 reliable과 best-effort 정책을 나누고 backpressure를 API 의미로 정리한 글이다.
+series: unilink-design
+seriesTitle: unilink 설계
+seriesOrder: 10
 draft: false
 ---
 

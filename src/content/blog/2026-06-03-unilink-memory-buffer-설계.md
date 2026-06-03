@@ -11,7 +11,10 @@ tags:
   - zero-copy
   - ownership
   - architecture
-description: 비동기 통신에서 Lifetime과 Ownership을 명확히 하기
+description: 비동기 통신에서 buffer lifetime, ownership, zero-copy 선택이 안전성과 성능에 미치는 영향을 기준으로 정리했다.
+series: unilink-design
+seriesTitle: unilink 설계
+seriesOrder: 9
 draft: false
 ---
 

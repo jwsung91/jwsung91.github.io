@@ -5,7 +5,10 @@ category: devlog
 tags:
   - ai-curator
   - astro
-description: Astro를 활용한 서버리스 정적 큐레이션 시스템 아키텍처 구성
+description: Astro와 GitHub Actions를 활용해 서버리스 정적 큐레이션 시스템을 구성하는 초기 아키텍처와 운영 원칙을 정리했다.
+series: ai-curator-pipeline
+seriesTitle: AI Curator 파이프라인
+seriesOrder: 1
 draft: false
 ---
 

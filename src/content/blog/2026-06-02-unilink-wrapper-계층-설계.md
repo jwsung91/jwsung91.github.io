@@ -10,7 +10,10 @@ tags:
   - pimpl
   - api-design
   - architecture
-description: Public API와 Transport 구현 사이의 완충 계층
+description: Public API와 transport 구현 사이에서 수명, callback, 실행 상태를 조율하는 Wrapper 계층의 역할과 책임을 정리했다.
+series: unilink-design
+seriesTitle: unilink 설계
+seriesOrder: 7
 draft: false
 ---
 

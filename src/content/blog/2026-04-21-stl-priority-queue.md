@@ -6,7 +6,7 @@ tags:
   - STL
   - C++
   - 자료구조
-description: STL 우선순위 큐 개념정리 및 예시코드
+description: C++ STL priority_queue의 기본 동작, 내부 힙 구조, 정렬 기준 커스터마이징 방법을 예시 코드와 함께 정리했다.
 draft: false
 ---
 

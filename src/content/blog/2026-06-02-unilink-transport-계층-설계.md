@@ -10,7 +10,10 @@ tags:
   - boost-asio
   - architecture
   - concurrency
-description: Channel 계약을 실제 비동기 I/O로 구현하는 계층
+description: Channel 추상화를 실제 socket, serial port, event loop 기반 비동기 I/O 구현으로 연결하는 transport 계층을 정리했다.
+series: unilink-design
+seriesTitle: unilink 설계
+seriesOrder: 5
 draft: false
 ---
 
