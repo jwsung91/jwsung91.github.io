@@ -7,10 +7,9 @@ tags:
   - STL
   - C++
   - 자료구조
-description: 'C++ std::priority_queue의 동작 방식, 최대 힙과 최소 힙 사용법, 사용자 정의 비교 함수 예제를 정리합니다.'
-series: 'cpp-stl-study'
+description: C++ std::priority_queue의 동작 방식, 최대 힙과 최소 힙 사용법, 사용자 정의 비교 함수 예제를 정리합니다.
 seriesOrder: 1
-draft: false
+draft: true
 ---
 
 ## 정의
@@ -25,7 +24,7 @@ draft: false
 
 - C++의 `std::priority_queue`는 기본적으로 힙(Heap) 자료구조를 기반으로 동작
 - 내부적으로 `std::vector`를 사용하며, 힙 연산을 활용하여 정렬
-  - `std::make_heap`, `std::push_heap`, `std::pop_heap`
+    - `std::make_heap`, `std::push_heap`, `std::pop_heap`
 
 ### 시간복잡도
 
