@@ -24,7 +24,7 @@ draft: true
 
 - C++의 `std::priority_queue`는 기본적으로 힙(Heap) 자료구조를 기반으로 동작
 - 내부적으로 `std::vector`를 사용하며, 힙 연산을 활용하여 정렬
-    - `std::make_heap`, `std::push_heap`, `std::pop_heap`
+  - `std::make_heap`, `std::push_heap`, `std::pop_heap`
 
 ### 시간복잡도
 
