@@ -18,6 +18,13 @@ seriesOrder: 9
 draft: false
 ---
 
+## TL;DR
+
+- 문제: 비동기 I/O에서는 buffer를 넘긴 시점과 실제 전송 완료 시점이 달라 lifetime 오류가 쉽게 발생한다.
+- 선택: ownership과 lifetime을 명확히 하고 필요한 곳에서 shared ownership 또는 zero-copy 경계를 구분한다.
+- 포기한 것: 성능을 이유로 raw pointer lifetime을 호출자에게 암묵적으로 맡기는 방식을 선택하지 않는다.
+- 확인할 지표: copy 횟수, allocation 수, pending buffer size, dangling reference 가능성.
+
 ## 도입: 통신 데이터는 단순한 byte 배열이 아니다
 
 통신 라이브러리에서 데이터는 대부분 byte 배열로 표현된다.

@@ -17,6 +17,13 @@ seriesOrder: 2
 draft: false
 ---
 
+## TL;DR
+
+- 문제: public API가 transport별로 갈라지면 사용자는 내부 구현 차이를 계속 의식해야 한다.
+- 선택: Facade, Builder, Wrapper를 분리해 생성과 실행, 내부 구현 의존성을 각각 다른 계층에 둔다.
+- 포기한 것: 모든 설정을 생성자와 free function에 직접 노출하는 단순하지만 커지는 API를 피한다.
+- 확인할 지표: 진입점 수, builder 사용성, wrapper 책임 범위, transport-specific 옵션의 격리 정도.
+
 ## 도입: 설계 배경에서 Public API로
 
 이전 글에서는 unilink를 만든 배경과 설계 방향을 정리했다.
