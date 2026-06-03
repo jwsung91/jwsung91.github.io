@@ -11,8 +11,8 @@ tags:
   - concepts
   - api-design
 description: CRTP, Concepts, Fluent API를 활용해 복잡한 통신 객체 설정을 안전하고 읽기 쉬운 생성 흐름으로 구성한 과정을 정리했다.
-series: unilink-design
-seriesTitle: unilink 설계
+series: "unilink-design"
+seriesTitle: "unilink 설계 노트"
 seriesOrder: 3
 draft: false
 ---

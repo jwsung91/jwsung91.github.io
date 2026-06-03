@@ -4,9 +4,9 @@ date: 2026-04-25
 category: devlog
 tags:
   - ai-curator
-description: GitHub Actions와 Gemini API로 매일 기술 뉴스를 자동 수집, 요약하고 정적 사이트로 배포하는 구현 과정을 정리했다.
-series: ai-curator-pipeline
-seriesTitle: AI Curator 파이프라인
+description: "GitHub Actions와 Gemini API를 활용해 기술 뉴스를 자동 수집·요약하고 Astro 정적 사이트로 배포하는 과정을 정리합니다."
+series: "ai-curator-pipeline"
+seriesTitle: "AI Curator 파이프라인 구축기"
 seriesOrder: 2
 draft: false
 ---

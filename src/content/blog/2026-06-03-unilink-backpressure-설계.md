@@ -10,10 +10,10 @@ tags:
   - queue
   - realtime
   - architecture
-description: 송신 queue가 쌓이는 상황에서 reliable과 best-effort 정책을 나누고 backpressure를 API 의미로 정리한 글이다.
-series: unilink-design
-seriesTitle: unilink 설계
-seriesOrder: 10
+description: "Reliable / BestEffort 채널에서 send(), queue pressure, drop 정책, backpressure 처리 기준을 정리합니다."
+series: "unilink-design"
+seriesTitle: "unilink 설계 노트"
+seriesOrder: 11
 draft: false
 ---
 

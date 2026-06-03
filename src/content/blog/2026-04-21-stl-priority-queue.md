@@ -6,7 +6,10 @@ tags:
   - STL
   - C++
   - 자료구조
-description: C++ STL priority_queue의 기본 동작, 내부 힙 구조, 정렬 기준 커스터마이징 방법을 예시 코드와 함께 정리했다.
+description: "C++ std::priority_queue의 동작 방식, 최대 힙과 최소 힙 사용법, 사용자 정의 비교 함수 예제를 정리합니다."
+series: "cpp-stl-study"
+seriesTitle: "C++ STL Study"
+seriesOrder: 1
 draft: false
 ---
 
