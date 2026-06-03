@@ -6,11 +6,8 @@ tags:
   - STL
   - C++
   - 자료구조
-description: "C++ std::priority_queue의 동작 방식, 최대 힙과 최소 힙 사용법, 사용자 정의 비교 함수 예제를 정리합니다."
-series: "cpp-stl-study"
-seriesTitle: "C++ STL Study"
-seriesOrder: 1
-draft: false
+description: STL 우선순위 큐 개념정리 및 예시코드
+draft: true
 ---
 
 ## 정의
