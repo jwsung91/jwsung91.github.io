@@ -22,11 +22,21 @@ function remarkMermaid() {
         const language = typeof child?.lang === 'string' ? child.lang.trim().toLowerCase() : '';
 
         if (child?.type === 'code' && language === 'mermaid') {
-          node.children.splice(index + 1, 0, {
+          const escaped = escapeHtml(child.value);
+
+          node.children[index] = {
             type: 'html',
-            value: `<div class="mermaid not-prose">\n${escapeHtml(child.value)}\n</div>`,
-          });
-          index += 1;
+            value: `
+<figure class="mermaid-figure not-prose">
+  <div class="mermaid">${escaped}</div>
+</figure>
+<details class="mermaid-source not-prose">
+  <summary>Mermaid source</summary>
+  <pre><code class="language-mermaid">${escaped}</code></pre>
+</details>
+`,
+          };
+
           continue;
         }
 

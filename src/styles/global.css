@@ -38,7 +38,7 @@
     max-width: 100%;
   }
 
-  .blog-post-content > :where(pre, .code-copy-wrapper, .mermaid, .mermaid-tabs, table) {
+  .blog-post-content > :where(pre, .code-copy-wrapper, .mermaid-figure, .mermaid-source, .mermaid-tabs, table) {
     max-width: 100%;
   }
 
@@ -62,12 +62,32 @@
     @apply border-amber-700 bg-amber-900/85 text-amber-100 hover:bg-amber-900;
   }
 
+  .mermaid-figure {
+    @apply my-8 overflow-x-auto rounded border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-950;
+  }
+
   .mermaid {
-    @apply my-6 overflow-x-auto rounded border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-950;
+    @apply flex min-w-0 justify-center;
+  }
+
+  .mermaid:not([data-processed='true']) {
+    visibility: hidden;
   }
 
   .mermaid svg {
     @apply mx-auto max-w-full;
+  }
+
+  .mermaid-source {
+    @apply -mt-4 mb-8 text-sm;
+  }
+
+  .mermaid-source summary {
+    @apply cursor-pointer text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100;
+  }
+
+  .mermaid-source pre {
+    @apply mt-3 overflow-x-auto rounded border border-zinc-200 bg-zinc-950 p-4 text-zinc-100 dark:border-zinc-800;
   }
 
   .mermaid-tabs {
