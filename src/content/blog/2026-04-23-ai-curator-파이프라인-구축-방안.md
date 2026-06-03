@@ -1,13 +1,13 @@
 ---
 title: '[AI Curator] 파이프라인 구축 방안'
 date: 2026-04-23
-category: devlog
+project: ai-curator
+kind: design
 tags:
   - ai-curator
   - astro
 description: 'Astro와 GitHub Actions를 활용해 서버리스 정적 큐레이션 시스템의 초기 아키텍처와 운영 원칙을 정리합니다.'
 series: 'ai-curator-pipeline'
-seriesTitle: 'AI Curator 파이프라인 구축기'
 seriesOrder: 1
 draft: false
 ---

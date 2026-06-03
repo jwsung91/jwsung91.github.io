@@ -1,35 +1,55 @@
 import type { CollectionEntry } from 'astro:content';
+import { getSeriesMeta, SERIES_META } from './series';
 
-export const blogCategories = ['devlog', 'study', 'adr', 'note'] as const;
+export const blogProjects = ['unilink', 'ai-curator', 'site'] as const;
+export const blogKinds = [
+  'design',
+  'implementation',
+  'release',
+  'retrospective',
+  'study',
+  'note',
+] as const;
+export const blogTopics = [
+  'cpp',
+  'ros2',
+  'system-design',
+  'tooling',
+  'cms-site',
+] as const;
 
 export type BlogPost = CollectionEntry<'blog'>;
-export type BlogCategory = (typeof blogCategories)[number];
+export type BlogProject = (typeof blogProjects)[number];
+export type BlogKind = (typeof blogKinds)[number];
+export type BlogTopic = (typeof blogTopics)[number];
 export type BlogTagSummary = {
   tag: string;
   slug: string;
   count: number;
 };
 
-export const featuredBlogSeries = [
-  {
-    series: 'unilink-design',
-    title: 'unilink 설계 노트',
-    description:
-      'C++ 비동기 통신 라이브러리를 설계하며 정리한 아키텍처 기록입니다.',
-  },
-  {
-    series: 'ai-curator-pipeline',
-    title: 'AI Curator 파이프라인 구축기',
-    description:
-      'GitHub Actions, Gemini API, Astro를 활용한 자동 큐레이션 시스템 구축 기록입니다.',
-  },
-  {
-    series: 'cpp-stl-study',
-    title: 'C++ STL Study',
-    description:
-      '자료구조와 STL 사용법을 실무 관점에서 정리한 학습 노트입니다.',
-  },
-] as const;
+export const projectLabels: Record<BlogProject, string> = {
+  unilink: 'unilink',
+  'ai-curator': 'AI Curator',
+  site: 'Site',
+};
+
+export const kindLabels: Record<BlogKind, string> = {
+  design: 'Design',
+  implementation: 'Implementation',
+  release: 'Release',
+  retrospective: 'Retrospective',
+  study: 'Study',
+  note: 'Note',
+};
+
+export const topicLabels: Record<BlogTopic, string> = {
+  cpp: 'C++',
+  ros2: 'ROS 2',
+  'system-design': 'System Design',
+  tooling: 'Tooling',
+  'cms-site': 'CMS / Site',
+};
 
 const tagDisplayLabels: Record<string, string> = {
   'ai-curator': 'AI Curator',
@@ -70,11 +90,9 @@ export const groupBlogPostsBySeries = (posts: BlogPost[]) => {
 export const getFeaturedBlogSeries = (posts: CollectionEntry<'blog'>[]) => {
   const groupedPosts = groupBlogPostsBySeries(posts);
 
-  return featuredBlogSeries
-    .map((series) => {
-      const seriesPosts = sortBlogSeriesPosts(
-        groupedPosts.get(series.series) ?? [],
-      );
+  return Object.entries(SERIES_META)
+    .map(([series, meta]) => {
+      const seriesPosts = sortBlogSeriesPosts(groupedPosts.get(series) ?? []);
       const firstPost = seriesPosts[0];
 
       if (!firstPost) {
@@ -82,7 +100,8 @@ export const getFeaturedBlogSeries = (posts: CollectionEntry<'blog'>[]) => {
       }
 
       return {
-        ...series,
+        series,
+        ...meta,
         posts: seriesPosts,
         firstPost,
       };
@@ -101,9 +120,6 @@ export const slugifyBlogFilterValue = (value: string) =>
 
 export const getTagPath = (tag: string) =>
   `/blog/tags/${slugifyBlogFilterValue(tag)}/`;
-
-export const getCategoryPath = (category: BlogCategory) =>
-  `/blog/categories/${category}/`;
 
 export const getBlogTagSummaries = (posts: BlogPost[]) => {
   const tags = new Map<string, BlogTagSummary>();
@@ -141,10 +157,50 @@ export const filterPostsByTagSlug = (posts: BlogPost[], tagSlug: string) =>
     post.data.tags.some((tag) => slugifyBlogFilterValue(tag) === tagSlug),
   );
 
-export const filterPostsByCategory = (
-  posts: BlogPost[],
-  category: BlogCategory,
-) => posts.filter((post) => post.data.category === category);
+export const getStudyPosts = (posts: BlogPost[]) =>
+  posts.filter((post) => post.data.kind === 'study');
+
+export const getNotePosts = (posts: BlogPost[]) =>
+  posts.filter((post) => post.data.kind === 'note');
+
+export const getProjectPosts = (posts: BlogPost[], project: BlogProject) =>
+  posts.filter((post) => post.data.project === project);
+
+export const getSitePosts = (posts: BlogPost[]) =>
+  posts.filter(
+    (post) => post.data.project === 'site' || post.data.topic === 'cms-site',
+  );
+
+export const groupPostsByProject = (posts: BlogPost[]) => {
+  const groups = new Map<BlogProject, BlogPost[]>();
+
+  posts.forEach((post) => {
+    if (!post.data.project) {
+      return;
+    }
+
+    groups.set(post.data.project, [
+      ...(groups.get(post.data.project) ?? []),
+      post,
+    ]);
+  });
+
+  return groups;
+};
+
+export const groupPostsByTopic = (posts: BlogPost[]) => {
+  const groups = new Map<BlogTopic, BlogPost[]>();
+
+  posts.forEach((post) => {
+    if (!post.data.topic) {
+      return;
+    }
+
+    groups.set(post.data.topic, [...(groups.get(post.data.topic) ?? []), post]);
+  });
+
+  return groups;
+};
 
 export const formatSeriesTitle = (series: string) =>
   series
@@ -180,7 +236,7 @@ export const getBlogSeriesNav = (
   }
 
   return {
-    title: post.data.seriesTitle ?? formatSeriesTitle(series),
+    title: getSeriesMeta(series)?.title ?? formatSeriesTitle(series),
     current: currentIndex + 1,
     total: seriesPosts.length,
     previousPost: seriesPosts[currentIndex - 1] ?? null,

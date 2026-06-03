@@ -1,0 +1,167 @@
+---
+import { getCollection } from 'astro:content';
+import PostMetaBadges from '../../components/PostMetaBadges.astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import {
+  formatDate,
+  getBlogPath,
+  sortBlogPosts,
+  sortBlogSeriesPosts,
+  type BlogProject,
+} from '../../lib/blog';
+import { getProjectSlug, sortProjects } from '../../lib/projects';
+import { getSeriesMeta } from '../../lib/series';
+
+export async function getStaticPaths() {
+  const projects = sortProjects(await getCollection('projects'));
+  const posts = sortBlogPosts(
+    await getCollection('blog', ({ data }) => !data.draft),
+  );
+
+  return projects.map((project) => {
+    const slug = getProjectSlug(project) as BlogProject;
+    const relatedPosts = posts.filter((post) => post.data.project === slug);
+    const seriesPosts = sortBlogSeriesPosts(
+      relatedPosts.filter((post) => post.data.series),
+    );
+
+    return {
+      params: { slug },
+      props: { project, relatedPosts, seriesPosts },
+    };
+  });
+}
+
+const { project, relatedPosts, seriesPosts } = Astro.props;
+const latestPost = relatedPosts[0];
+---
+
+<BaseLayout
+  title={`${project.data.title} — jwsung91`}
+  description={project.data.description}
+>
+  <main class="page-layout">
+    <section class="mb-12">
+      <p class="mb-2 font-mono text-sm text-zinc-500">Project</p>
+      <h1
+        class="mb-3 text-3xl font-bold text-zinc-900 dark:text-zinc-100 md:text-4xl"
+      >
+        {project.data.title}
+      </h1>
+      <p
+        class="max-w-2xl text-base leading-relaxed text-zinc-600 dark:text-zinc-400"
+      >
+        {project.data.description}
+      </p>
+      <div class="mt-5 flex flex-wrap items-center gap-4 font-mono text-sm">
+        <span
+          class="rounded bg-zinc-200 px-2 py-1 text-xs uppercase tracking-wider text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400"
+        >
+          {project.data.status}
+        </span>
+        {
+          project.data.url && (
+            <a href={project.data.url} class="text-blue-400 hover:underline">
+              docs / live
+            </a>
+          )
+        }
+        {
+          project.data.repo && (
+            <a href={project.data.repo} class="text-blue-400 hover:underline">
+              repository
+            </a>
+          )
+        }
+      </div>
+      {
+        latestPost && (
+          <p class="mt-4 text-sm text-zinc-500 dark:text-zinc-600">
+            최신 업데이트: {formatDate(latestPost.data.date)}
+          </p>
+        )
+      }
+    </section>
+
+    {
+      seriesPosts.length > 0 && (
+        <section class="mb-16">
+          <h2 class="mb-6 font-mono text-xs uppercase tracking-wider text-zinc-500">
+            Series
+          </h2>
+          <ul class="space-y-3">
+            {seriesPosts.map((post) => (
+              <li>
+                <a
+                  href={getBlogPath(post)}
+                  class="group flex flex-col gap-2 rounded-lg border border-zinc-200 bg-zinc-100/50 p-4 dark:border-zinc-800 dark:bg-zinc-900/50 sm:flex-row sm:items-center sm:justify-between"
+                >
+                  <div>
+                    <p class="font-mono text-xs uppercase tracking-wider text-zinc-500">
+                      {getSeriesMeta(post.data.series ?? '')?.title ??
+                        post.data.series}
+                      {post.data.seriesOrder ? ` ${post.data.seriesOrder}` : ''}
+                    </p>
+                    <h3 class="mt-1 text-base font-semibold text-zinc-900 transition-colors duration-200 group-hover:text-zinc-700 dark:text-zinc-100 dark:group-hover:text-zinc-300">
+                      {post.data.title}
+                    </h3>
+                  </div>
+                  <span class="font-mono text-xs uppercase tracking-wider text-zinc-500">
+                    {formatDate(post.data.date)}
+                  </span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )
+    }
+
+    <section>
+      <h2 class="mb-6 font-mono text-xs uppercase tracking-wider text-zinc-500">
+        Related Writing
+      </h2>
+      {
+        relatedPosts.length > 0 ? (
+          <ul class="space-y-4">
+            {relatedPosts.map((post) => (
+              <li class="border-b border-zinc-200 py-6 first:pt-0 last:border-b-0 last:pb-0 dark:border-zinc-800">
+                <a href={getBlogPath(post)} class="group block">
+                  <div class="mb-3 flex flex-wrap items-center gap-3">
+                    <span class="font-mono text-xs uppercase tracking-wider text-zinc-500">
+                      {formatDate(post.data.date)}
+                    </span>
+                    <PostMetaBadges
+                      project={post.data.project}
+                      kind={post.data.kind}
+                      topic={post.data.topic}
+                    />
+                  </div>
+                  <h3 class="text-xl font-semibold text-zinc-900 transition-colors duration-200 group-hover:text-zinc-700 dark:text-zinc-100 dark:group-hover:text-zinc-300">
+                    {post.data.title}
+                  </h3>
+                  <p class="mt-2 text-base leading-relaxed text-zinc-600 dark:text-zinc-400">
+                    {post.data.description}
+                  </p>
+                </a>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p class="text-base leading-relaxed text-zinc-600 dark:text-zinc-400">
+            관련 글이 아직 없습니다.
+          </p>
+        )
+      }
+    </section>
+
+    <footer class="mt-12">
+      <a
+        href="/projects/"
+        class="font-mono text-sm text-blue-400 hover:underline"
+      >
+        ← all projects
+      </a>
+    </footer>
+  </main>
+</BaseLayout>

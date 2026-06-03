@@ -1,7 +1,8 @@
 ---
 title: '[unilink] RuntimeStats와 Diagnostics 설계'
 date: 2026-06-03
-category: devlog
+project: unilink
+kind: design
 tags:
   - unilink
   - cpp
@@ -12,7 +13,6 @@ tags:
   - architecture
 description: 연결 상태, 송수신량, drop, queue pressure를 RuntimeStats와 Diagnostics로 관측 가능하게 만드는 설계를 정리했다.
 series: 'unilink-design'
-seriesTitle: 'unilink 설계 노트'
 seriesOrder: 8
 draft: false
 ---

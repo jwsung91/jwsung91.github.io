@@ -1,7 +1,8 @@
 ---
 title: '[unilink] channel 추상화 설계'
 date: 2026-06-02
-category: devlog
+project: unilink
+kind: design
 tags:
   - unilink
   - cpp
@@ -12,7 +13,6 @@ tags:
   - dependency-injection
 description: TCP, UDP, Serial, UDS의 차이를 숨기고 애플리케이션이 의존할 공통 Channel 계약을 설계한 기준을 정리했다.
 series: 'unilink-design'
-seriesTitle: 'unilink 설계 노트'
 seriesOrder: 7
 draft: false
 ---

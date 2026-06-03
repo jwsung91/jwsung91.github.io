@@ -1,7 +1,8 @@
 ---
 title: '[unilink] wrapper 계층 설계'
 date: 2026-06-02
-category: devlog
+project: unilink
+kind: design
 tags:
   - unilink
   - cpp
@@ -12,7 +13,6 @@ tags:
   - architecture
 description: Public API와 transport 구현 사이에서 수명, callback, 실행 상태를 조율하는 Wrapper 계층의 역할과 책임을 정리했다.
 series: 'unilink-design'
-seriesTitle: 'unilink 설계 노트'
 seriesOrder: 4
 draft: false
 ---

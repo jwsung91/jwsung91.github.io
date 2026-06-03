@@ -29,7 +29,9 @@ collections:
     sortable_fields:
       - title
       - date
-      - category
+      - project
+      - kind
+      - topic
       - series
       - seriesOrder
     fields:
@@ -55,21 +57,46 @@ collections:
         required: false
         hint: "실질적으로 내용을 수정한 경우에만 입력합니다."
 
-      - label: "Category"
-        name: "category"
+      - label: "Project"
+        name: "project"
+        widget: "select"
+        required: false
+        hint: "프로젝트와 직접 관련 없는 개인 공부 글이면 비워둡니다."
+        options:
+          - { label: "unilink", value: "unilink" }
+          - { label: "AI Curator", value: "ai-curator" }
+          - { label: "Site", value: "site" }
+
+      - label: "Kind"
+        name: "kind"
         widget: "select"
         required: true
+        hint: "글의 성격을 선택합니다."
         options:
-          - { label: "Devlog", value: "devlog" }
+          - { label: "Design", value: "design" }
+          - { label: "Implementation", value: "implementation" }
+          - { label: "Release", value: "release" }
+          - { label: "Retrospective", value: "retrospective" }
           - { label: "Study", value: "study" }
-          - { label: "ADR", value: "adr" }
           - { label: "Note", value: "note" }
+
+      - label: "Topic"
+        name: "topic"
+        widget: "select"
+        required: false
+        hint: "프로젝트와 직접 관련 없는 study/note 글의 주제입니다."
+        options:
+          - { label: "C++", value: "cpp" }
+          - { label: "ROS 2", value: "ros2" }
+          - { label: "System Design", value: "system-design" }
+          - { label: "Tooling", value: "tooling" }
+          - { label: "CMS / Site", value: "cms-site" }
 
       - label: "Tags"
         name: "tags"
         widget: "list"
         required: false
-        hint: "권장 태그: unilink, cpp, async-io, architecture, robotics, ai-curator, stl"
+        hint: "보조 키워드입니다. 메인 탐색 UI에는 노출하지 않고 관련 글/SEO 용도로 사용합니다."
 
       - label: "Description"
         name: "description"
@@ -92,12 +119,6 @@ collections:
               value: "ai-curator-pipeline",
             }
           - { label: "C++ STL Study", value: "cpp-stl-study" }
-
-      - label: "Series Title"
-        name: "seriesTitle"
-        widget: "string"
-        required: false
-        hint: "예: unilink 설계 노트"
 
       - label: "Series Order"
         name: "seriesOrder"

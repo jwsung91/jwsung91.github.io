@@ -1,6 +1,6 @@
 ---
 import { getCollection } from 'astro:content';
-import CategoryBadge from '../../../components/CategoryBadge.astro';
+import PostMetaBadges from '../../../components/PostMetaBadges.astro';
 import TagFilter from '../../../components/TagFilter.astro';
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import {
@@ -50,7 +50,7 @@ const pageDescription = `${tagLabel} 태그가 달린 블로그 글 목록입니
       </p>
     </section>
 
-    <TagFilter tags={tagSummaries} activeTag={tagSlug} showCategories />
+    <TagFilter tags={tagSummaries} activeTag={tagSlug} />
 
     <section>
       <h2 class="mb-6 font-mono text-xs uppercase tracking-wider text-zinc-500">
@@ -66,7 +66,11 @@ const pageDescription = `${tagLabel} 태그가 달린 블로그 글 목록입니
                     <span class="font-mono text-xs uppercase tracking-wider text-zinc-500">
                       {formatDate(post.data.date)}
                     </span>
-                    <CategoryBadge category={post.data.category} />
+                    <PostMetaBadges
+                      project={post.data.project}
+                      kind={post.data.kind}
+                      topic={post.data.topic}
+                    />
                   </div>
                   <h2 class="text-xl font-semibold text-zinc-900 transition-colors duration-200 group-hover:text-zinc-700 dark:text-zinc-100 dark:group-hover:text-zinc-300 md:text-2xl">
                     {post.data.title}

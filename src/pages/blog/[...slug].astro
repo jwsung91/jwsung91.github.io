@@ -1,9 +1,14 @@
 ---
 import { getCollection, render } from 'astro:content';
-import CategoryBadge from '../../components/CategoryBadge.astro';
+import PostMetaBadges from '../../components/PostMetaBadges.astro';
 import SeriesNav from '../../components/SeriesNav.astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import { formatDate, getBlogSeriesNav, sortBlogPosts } from '../../lib/blog';
+import {
+  formatDate,
+  getBlogSeriesNav,
+  getTagPath,
+  sortBlogPosts,
+} from '../../lib/blog';
 
 export async function getStaticPaths() {
   const posts = sortBlogPosts(
@@ -55,14 +60,11 @@ const blogPostingStructuredData = {
           >
             {formatDate(post.data.date)}
           </span>
-          <CategoryBadge category={post.data.category} />
-          {
-            post.data.tags.map((tag) => (
-              <span class="font-mono text-xs uppercase tracking-wider text-zinc-500">
-                #{tag}
-              </span>
-            ))
-          }
+          <PostMetaBadges
+            project={post.data.project}
+            kind={post.data.kind}
+            topic={post.data.topic}
+          />
         </div>
         <h1
           class="mb-3 text-3xl font-bold text-zinc-900 dark:text-zinc-100 md:text-4xl"
@@ -97,6 +99,20 @@ const blogPostingStructuredData = {
       }
 
       <footer class="mt-12">
+        {
+          post.data.tags.length > 0 && (
+            <div class="mb-6 flex flex-wrap gap-2">
+              {post.data.tags.map((tag) => (
+                <a
+                  href={getTagPath(tag)}
+                  class="font-mono text-xs uppercase tracking-wider text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100"
+                >
+                  #{tag}
+                </a>
+              ))}
+            </div>
+          )
+        }
         <a href="/blog" class="font-mono text-sm text-blue-400 hover:underline"
           >← back to all posts</a
         >

@@ -6,10 +6,48 @@
 
 1. `/admin/`에 접속한다.
 2. Blog collection에서 새 글을 만든다.
-3. Title, Date, Category, Description을 입력한다.
-4. 시리즈 글이라면 Series, Series Title, Series Order를 입력한다.
+3. Title, Date, Project, Kind, Topic, Description을 입력한다.
+4. 시리즈 글이라면 Series와 Series Order를 입력한다.
 5. 본문은 Markdown으로 작성한다.
 6. 저장하면 GitHub Actions가 자동으로 포맷팅하고 배포한다.
+
+## 글 분류 기준
+
+### Project
+
+프로젝트와 직접 관련된 글이면 선택합니다.
+
+- `unilink`: unilink 설계/구현/릴리즈 기록
+- `ai-curator`: AI Curator 파이프라인/운영 기록
+- `site`: 이 블로그, Sveltia CMS, Astro 운영 기록
+
+프로젝트와 직접 관련 없는 개인 공부 글이면 비워둡니다.
+
+### Kind
+
+글의 성격입니다.
+
+- `design`: 설계 노트
+- `implementation`: 구현 기록
+- `release`: 릴리즈/배포 기록
+- `retrospective`: 회고
+- `study`: 개인 학습
+- `note`: 기타 노트
+
+### Topic
+
+프로젝트가 없는 학습/노트 글의 주제입니다.
+
+- `cpp`
+- `ros2`
+- `system-design`
+- `tooling`
+- `cms-site`
+
+### Tags
+
+태그는 보조 키워드입니다.
+메인 탐색 UI에는 노출하지 않고, 관련 글/SEO/검색용으로만 사용합니다.
 
 ## Description 작성 규칙
 
@@ -29,7 +67,6 @@ Reliable / BestEffort 채널에서 send(), queue pressure, drop 정책, backpres
 
 ```yaml
 series: unilink-design
-seriesTitle: unilink 설계 노트
 seriesOrder: 1
 ```
 
@@ -56,7 +93,7 @@ flowchart LR
 ## 게시 전 확인
 
 - description이 40~180자인가?
-- category가 올바른가?
+- project/kind/topic이 올바른가?
 - tags에 빈 값이 없는가?
 - 시리즈 글이라면 seriesOrder가 있는가?
 - Mermaid block이 깨지지 않았는가?

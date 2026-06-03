@@ -1,13 +1,24 @@
 import { defineCollection, z } from 'astro:content';
 import { glob } from 'astro/loaders';
 
+const projectIds = ['unilink', 'ai-curator', 'site'] as const;
+const kinds = [
+  'design',
+  'implementation',
+  'release',
+  'retrospective',
+  'study',
+  'note',
+] as const;
+const topics = ['cpp', 'ros2', 'system-design', 'tooling', 'cms-site'] as const;
+const seriesIds = [
+  'unilink-design',
+  'ai-curator-pipeline',
+  'cpp-stl-study',
+] as const;
+
 const emptyToUndefined = (value: unknown) =>
   value === '' || value === null ? undefined : value;
-
-const optionalString = z.preprocess(
-  emptyToUndefined,
-  z.string().min(1).optional(),
-);
 
 const optionalDate = z.preprocess(emptyToUndefined, z.coerce.date().optional());
 
@@ -39,28 +50,25 @@ const blog = defineCollection({
       title: z.string().min(1),
       date: z.coerce.date(),
       updatedAt: optionalDate,
-      category: z.enum(['devlog', 'study', 'adr', 'note']),
+      project: z.enum(projectIds).optional(),
+      kind: z.enum(kinds),
+      topic: z.enum(topics).optional(),
       tags: z.array(z.string()).default([]),
       description: z.string().min(40).max(180),
-      series: optionalString,
-      seriesTitle: optionalString,
+      series: z.preprocess(emptyToUndefined, z.enum(seriesIds).optional()),
       seriesOrder: optionalPositiveInt,
       draft: z.boolean().default(false),
     })
     .superRefine((data, ctx) => {
-      const hasSeries = Boolean(data.series);
-      const hasSeriesTitle = Boolean(data.seriesTitle);
-      const hasSeriesOrder = data.seriesOrder !== undefined;
-
-      if (hasSeries && !hasSeriesTitle) {
+      if (!data.project && data.kind === 'study' && !data.topic) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
-          path: ['seriesTitle'],
-          message: 'series가 있으면 seriesTitle도 필요합니다.',
+          path: ['topic'],
+          message: '프로젝트 없는 study 글은 topic이 필요합니다.',
         });
       }
 
-      if (hasSeries && !hasSeriesOrder) {
+      if (data.series && data.seriesOrder === undefined) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           path: ['seriesOrder'],
@@ -68,15 +76,7 @@ const blog = defineCollection({
         });
       }
 
-      if (!hasSeries && hasSeriesTitle) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          path: ['seriesTitle'],
-          message: 'seriesTitle은 series가 있을 때만 사용할 수 있습니다.',
-        });
-      }
-
-      if (!hasSeries && hasSeriesOrder) {
+      if (!data.series && data.seriesOrder !== undefined) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           path: ['seriesOrder'],

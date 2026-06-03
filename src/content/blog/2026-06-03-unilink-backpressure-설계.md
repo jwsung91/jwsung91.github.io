@@ -1,7 +1,8 @@
 ---
 title: '[unilink] backpressure 설계'
 date: 2026-06-03
-category: devlog
+project: unilink
+kind: design
 tags:
   - unilink
   - cpp
@@ -12,7 +13,6 @@ tags:
   - architecture
 description: 'Reliable / BestEffort 채널에서 send(), queue pressure, drop 정책, backpressure 처리 기준을 정리합니다.'
 series: 'unilink-design'
-seriesTitle: 'unilink 설계 노트'
 seriesOrder: 11
 draft: false
 ---

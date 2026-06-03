@@ -39,9 +39,11 @@ src/content/
 ---
 title: 제목
 date: 2026-04-18
-category: devlog # devlog | study | adr | note
+project: unilink # unilink | ai-curator | site (선택)
+kind: design # design | implementation | release | retrospective | study | note
+topic: cpp # cpp | ros2 | system-design | tooling | cms-site (선택)
 tags: [ros2, c++]
-description: 한 줄 요약 (선택)
+description: 한 줄 요약
 draft: false
 ---
 ```

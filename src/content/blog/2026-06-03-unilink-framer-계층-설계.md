@@ -1,7 +1,8 @@
 ---
 title: '[unilink] framer 계층 설계'
 date: 2026-06-03
-category: devlog
+project: unilink
+kind: design
 tags:
   - unilink
   - cpp
@@ -13,7 +14,6 @@ tags:
   - architecture
 description: TCP와 Serial의 raw byte stream을 애플리케이션이 처리할 message 단위로 나누는 Framer 계층의 경계를 정리했다.
 series: 'unilink-design'
-seriesTitle: 'unilink 설계 노트'
 seriesOrder: 10
 draft: false
 ---

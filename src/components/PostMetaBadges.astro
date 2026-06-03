@@ -1,0 +1,53 @@
+---
+import {
+  kindLabels,
+  projectLabels,
+  topicLabels,
+  type BlogKind,
+  type BlogProject,
+  type BlogTopic,
+} from '../lib/blog';
+
+interface Props {
+  project?: BlogProject;
+  kind: BlogKind;
+  topic?: BlogTopic;
+}
+
+const { project, kind, topic } = Astro.props;
+
+const badgeClass =
+  'inline-flex rounded px-2 py-1 font-mono text-xs uppercase tracking-wider';
+
+const kindStyles: Record<BlogKind, string> = {
+  design: 'bg-blue-100/50 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300',
+  implementation:
+    'bg-green-100/50 text-green-700 dark:bg-green-900/50 dark:text-green-300',
+  release:
+    'bg-amber-100/50 text-amber-700 dark:bg-amber-900/50 dark:text-amber-300',
+  retrospective:
+    'bg-purple-100/50 text-purple-700 dark:bg-purple-900/50 dark:text-purple-300',
+  study: 'bg-cyan-100/50 text-cyan-700 dark:bg-cyan-900/50 dark:text-cyan-300',
+  note: 'bg-zinc-200 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400',
+};
+---
+
+{
+  project && (
+    <span
+      class={`${badgeClass} bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-950`}
+    >
+      {projectLabels[project]}
+    </span>
+  )
+}
+<span class={`${badgeClass} ${kindStyles[kind]}`}>{kindLabels[kind]}</span>
+{
+  topic && (
+    <span
+      class={`${badgeClass} bg-zinc-100 text-zinc-600 dark:bg-zinc-900 dark:text-zinc-400`}
+    >
+      {topicLabels[topic]}
+    </span>
+  )
+}

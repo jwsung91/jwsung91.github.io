@@ -1,0 +1,76 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getProjectPath, sortProjects } from '../../lib/projects';
+
+const projects = sortProjects(await getCollection('projects'));
+---
+
+<BaseLayout
+  title="Projects — jwsung91"
+  description="Project hubs for technical documentation and related writing."
+>
+  <main class="page-layout">
+    <section class="mb-16">
+      <h1
+        class="mb-3 text-3xl font-bold text-zinc-900 dark:text-zinc-100 md:text-4xl"
+      >
+        Projects
+      </h1>
+      <p class="text-base leading-relaxed text-zinc-600 dark:text-zinc-400">
+        프로젝트별 기술 문서와 관련 글을 모아둔 허브입니다.
+      </p>
+    </section>
+
+    <ul class="space-y-4">
+      {
+        projects.map((project) => (
+          <li class="rounded-lg border border-zinc-200 bg-zinc-100/50 p-5 dark:border-zinc-800 dark:bg-zinc-900/50">
+            <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+              <div>
+                <h2 class="text-xl font-semibold text-zinc-900 dark:text-zinc-100">
+                  {project.data.title}
+                </h2>
+                <p class="mt-2 text-base leading-relaxed text-zinc-700 dark:text-zinc-300">
+                  {project.data.description}
+                </p>
+                <div class="mt-3 flex flex-wrap gap-2">
+                  {project.data.tags.map((tag) => (
+                    <span class="font-mono text-xs uppercase tracking-wider text-zinc-500">
+                      #{tag}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              <div class="flex flex-wrap gap-4 font-mono text-sm">
+                <a
+                  href={getProjectPath(project)}
+                  class="text-blue-400 hover:underline"
+                >
+                  docs
+                </a>
+                {project.data.url && (
+                  <a
+                    href={project.data.url}
+                    class="text-blue-400 hover:underline"
+                  >
+                    site
+                  </a>
+                )}
+                {project.data.repo && (
+                  <a
+                    href={project.data.repo}
+                    class="text-blue-400 hover:underline"
+                  >
+                    repo
+                  </a>
+                )}
+              </div>
+            </div>
+          </li>
+        ))
+      }
+    </ul>
+  </main>
+</BaseLayout>

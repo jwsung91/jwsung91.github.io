@@ -8,6 +8,34 @@ const files = await fg('src/content/blog/**/*.md', {
   onlyFiles: true,
 });
 
+const allowedProjects = new Set(['unilink', 'ai-curator', 'site']);
+const allowedKinds = new Set([
+  'design',
+  'implementation',
+  'release',
+  'retrospective',
+  'study',
+  'note',
+]);
+const allowedTopics = new Set([
+  'cpp',
+  'ros2',
+  'system-design',
+  'tooling',
+  'cms-site',
+]);
+const seriesMeta = {
+  'unilink-design': {
+    project: 'unilink',
+  },
+  'ai-curator-pipeline': {
+    project: 'ai-curator',
+  },
+  'cpp-stl-study': {
+    topic: 'cpp',
+  },
+};
+
 let hasError = false;
 const seriesOrders = new Map();
 
@@ -53,6 +81,29 @@ for (const file of files) {
     fail(file, 'title이 없습니다.');
   }
 
+  if ('category' in data) {
+    fail(
+      file,
+      'category field는 더 이상 사용하지 않습니다. kind를 사용하세요.',
+    );
+  }
+
+  if (!allowedKinds.has(data.kind)) {
+    fail(file, `kind가 올바르지 않습니다: ${data.kind}`);
+  }
+
+  if (data.project && !allowedProjects.has(data.project)) {
+    fail(file, `project가 올바르지 않습니다: ${data.project}`);
+  }
+
+  if (!data.project && data.kind === 'study' && !data.topic) {
+    fail(file, '프로젝트 없는 study 글은 topic이 필요합니다.');
+  }
+
+  if (data.topic && !allowedTopics.has(data.topic)) {
+    fail(file, `topic이 올바르지 않습니다: ${data.topic}`);
+  }
+
   if (
     !data.description ||
     typeof data.description !== 'string' ||
@@ -86,10 +137,6 @@ for (const file of files) {
   }
 
   if (data.series) {
-    if (!data.seriesTitle) {
-      fail(file, 'series가 있으면 seriesTitle도 필요합니다.');
-    }
-
     if (!Number.isInteger(data.seriesOrder)) {
       fail(file, 'series가 있으면 정수 seriesOrder가 필요합니다.');
     } else {
@@ -103,6 +150,26 @@ for (const file of files) {
       }
 
       seriesOrders.set(key, file);
+    }
+
+    const meta = seriesMeta[data.series];
+
+    if (!meta) {
+      fail(file, `series가 올바르지 않습니다: ${data.series}`);
+    }
+
+    if (meta?.project && data.project !== meta.project) {
+      fail(
+        file,
+        `series ${data.series}는 project ${meta.project}와 함께 사용해야 합니다.`,
+      );
+    }
+
+    if (meta?.topic && data.topic !== meta.topic) {
+      fail(
+        file,
+        `series ${data.series}는 topic ${meta.topic}와 함께 사용해야 합니다.`,
+      );
     }
   }
 
