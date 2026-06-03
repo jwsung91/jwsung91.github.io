@@ -1,10 +1,13 @@
 ---
 import { getCollection } from 'astro:content';
 import CategoryBadge from '../../components/CategoryBadge.astro';
+import SeriesCard from '../../components/SeriesCard.astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import { formatDate, getBlogPath, sortBlogPosts } from '../../lib/blog';
+import { formatDate, getBlogPath, getFeaturedBlogSeries, sortBlogPosts } from '../../lib/blog';
 
-const posts = sortBlogPosts(await getCollection('blog', ({ data }) => !data.draft));
+const allPosts = await getCollection('blog');
+const posts = sortBlogPosts(allPosts.filter((post) => post.data.draft !== true));
+const featuredSeries = getFeaturedBlogSeries(posts);
 ---
 
 <BaseLayout title="Blog — jwsung91" description="Writing about systems, robotics, and software architecture.">
@@ -16,7 +19,17 @@ const posts = sortBlogPosts(await getCollection('blog', ({ data }) => !data.draf
       </p>
     </section>
 
+    <section class="mb-16">
+      <h2 class="mb-6 font-mono text-xs uppercase tracking-wider text-zinc-500">처음 읽는다면</h2>
+      <div class="grid gap-4 md:grid-cols-3">
+        {featuredSeries.map((series) => (
+          <SeriesCard title={series.title} description={series.description} firstPost={series.firstPost} />
+        ))}
+      </div>
+    </section>
+
     <section>
+      <h2 class="mb-6 font-mono text-xs uppercase tracking-wider text-zinc-500">Latest</h2>
       <ul>
         {posts.map((post) => (
           <li class="border-b border-zinc-200 dark:border-zinc-800 py-6 first:pt-0 last:border-b-0 last:pb-0">
