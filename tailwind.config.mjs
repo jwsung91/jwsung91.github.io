@@ -12,6 +12,14 @@ export default {
           'system-ui',
           'sans-serif',
         ],
+        serif: [
+          '"Noto Serif KR"',
+          '"Source Han Serif KR"',
+          '"Nanum Myeongjo"',
+          'ui-serif',
+          'Georgia',
+          'serif',
+        ],
         mono: [
           '"JetBrains Mono"',
           '"Pretendard Variable"',
