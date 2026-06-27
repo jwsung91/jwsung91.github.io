@@ -34,16 +34,18 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Format CMS content
-        run: npm run format:content
+      - name: Format content and site files
+        run: |
+          npm run format:content
+          npm run format:site
 
-      - name: Commit formatted content
+      - name: Commit formatted files
         run: |
           if [[ -n "$(git status --porcelain)" ]]; then
             git config user.name "github-actions[bot]"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git add src/content public/admin/config.yml
-            git commit -m "chore: format CMS content [skip ci]"
+            git add -u
+            git commit -m "chore: format content and site files [skip ci]"
             git push
           else
             echo "No formatting changes."
