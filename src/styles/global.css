@@ -41,10 +41,71 @@
     @apply mx-auto w-full max-w-[1040px] px-5 py-16 sm:px-6 md:px-8 lg:px-10;
   }
 
+  .blog-article {
+    --reader-font-size: clamp(1.125rem, 1rem + 0.7vw, 1.25rem);
+    --reader-line-height: 1.82;
+  }
+
+  .blog-article[data-reader-size-step='0'] {
+    --reader-font-size: clamp(1rem, 0.95rem + 0.25vw, 1.0625rem);
+    --reader-line-height: 1.74;
+  }
+
+  .blog-article[data-reader-size-step='1'] {
+    --reader-font-size: clamp(1.0625rem, 1rem + 0.35vw, 1.125rem);
+    --reader-line-height: 1.78;
+  }
+
+  .blog-article[data-reader-size-step='2'] {
+    --reader-font-size: clamp(1.125rem, 1rem + 0.7vw, 1.25rem);
+    --reader-line-height: 1.82;
+  }
+
+  .blog-article[data-reader-size-step='3'] {
+    --reader-font-size: clamp(1.1875rem, 1rem + 1vw, 1.375rem);
+    --reader-line-height: 1.86;
+  }
+
+  .blog-article[data-reader-size-step='4'] {
+    --reader-font-size: clamp(1.25rem, 1rem + 1.35vw, 1.5rem);
+    --reader-line-height: 1.9;
+  }
+
+  .blog-article[data-reader-size-step='5'] {
+    --reader-font-size: clamp(1.3125rem, 1rem + 1.7vw, 1.625rem);
+    --reader-line-height: 1.94;
+  }
+
+  .reader-controls {
+    @apply inline-flex items-center rounded-md border border-zinc-200 bg-stone-50 p-1 shadow-sm dark:border-zinc-800 dark:bg-zinc-950;
+  }
+
+  .reader-size-button {
+    @apply inline-flex h-9 min-w-10 items-center justify-center rounded px-3 font-sans text-sm font-semibold text-zinc-500 transition-colors hover:bg-zinc-100 hover:text-zinc-950 focus:outline-none focus:ring-2 focus:ring-coral-500 focus:ring-offset-2 focus:ring-offset-stone-50 dark:text-zinc-400 dark:hover:bg-zinc-900 dark:hover:text-zinc-50 dark:focus:ring-offset-zinc-950;
+  }
+
+  .reader-size-button[data-reader-size-action='reset'] {
+    @apply text-base;
+  }
+
+  .reader-size-button[data-reader-size-action='increase'] {
+    @apply text-lg;
+  }
+
+  .reader-size-button[aria-pressed='true'] {
+    @apply bg-zinc-900 text-white hover:bg-zinc-900 hover:text-white dark:bg-zinc-100 dark:text-zinc-950 dark:hover:bg-zinc-100 dark:hover:text-zinc-950;
+  }
+
+  .reader-size-button:disabled {
+    @apply cursor-not-allowed opacity-35 hover:bg-transparent hover:text-zinc-500 dark:hover:bg-transparent dark:hover:text-zinc-400;
+  }
+
   .blog-post-content,
   .blog-post-content.prose {
     width: 100%;
     max-width: none !important;
+    font-size: var(--reader-font-size);
+    line-height: var(--reader-line-height);
   }
 
   .blog-post-content > :where(p, ul, ol, blockquote) {
