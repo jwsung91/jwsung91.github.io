@@ -91,9 +91,27 @@ const blogPostingStructuredData = {
 
       <div class="mb-6 flex items-center justify-end">
         <div class="reader-controls" aria-label="글자 크기">
-          <button type="button" class="reader-size-button" data-reader-size-action="decrease" aria-label="글자 작게" aria-pressed="false">A-</button>
-          <button type="button" class="reader-size-button" data-reader-size-action="reset" aria-label="기본 글자 크기" aria-pressed="true">A</button>
-          <button type="button" class="reader-size-button" data-reader-size-action="increase" aria-label="글자 크게" aria-pressed="false">A+</button>
+          <button
+            type="button"
+            class="reader-size-button"
+            data-reader-size-action="decrease"
+            aria-label="글자 작게"
+            aria-pressed="false">A-</button
+          >
+          <button
+            type="button"
+            class="reader-size-button"
+            data-reader-size-action="reset"
+            aria-label="기본 글자 크기"
+            aria-pressed="true">A</button
+          >
+          <button
+            type="button"
+            class="reader-size-button"
+            data-reader-size-action="increase"
+            aria-label="글자 크게"
+            aria-pressed="false">A+</button
+          >
         </div>
       </div>
 
@@ -148,19 +166,39 @@ const blogPostingStructuredData = {
       const minStep = 0;
       const maxStep = 5;
       const sizeSteps = [
-        { fontSize: 'clamp(1rem, 0.95rem + 0.25vw, 1.0625rem)', lineHeight: '1.74' },
-        { fontSize: 'clamp(1.0625rem, 1rem + 0.35vw, 1.125rem)', lineHeight: '1.78' },
-        { fontSize: 'clamp(1.125rem, 1rem + 0.7vw, 1.25rem)', lineHeight: '1.82' },
-        { fontSize: 'clamp(1.1875rem, 1rem + 1vw, 1.375rem)', lineHeight: '1.86' },
-        { fontSize: 'clamp(1.25rem, 1rem + 1.35vw, 1.5rem)', lineHeight: '1.9' },
-        { fontSize: 'clamp(1.3125rem, 1rem + 1.7vw, 1.625rem)', lineHeight: '1.94' },
+        {
+          fontSize: 'clamp(1rem, 0.95rem + 0.25vw, 1.0625rem)',
+          lineHeight: '1.74',
+        },
+        {
+          fontSize: 'clamp(1.0625rem, 1rem + 0.35vw, 1.125rem)',
+          lineHeight: '1.78',
+        },
+        {
+          fontSize: 'clamp(1.125rem, 1rem + 0.7vw, 1.25rem)',
+          lineHeight: '1.82',
+        },
+        {
+          fontSize: 'clamp(1.1875rem, 1rem + 1vw, 1.375rem)',
+          lineHeight: '1.86',
+        },
+        {
+          fontSize: 'clamp(1.25rem, 1rem + 1.35vw, 1.5rem)',
+          lineHeight: '1.9',
+        },
+        {
+          fontSize: 'clamp(1.3125rem, 1rem + 1.7vw, 1.625rem)',
+          lineHeight: '1.94',
+        },
       ];
 
       const root = document.querySelector<HTMLElement>('[data-reader-root]');
       if (!root) return;
 
       const buttons = Array.from(
-        document.querySelectorAll<HTMLButtonElement>('[data-reader-size-action]'),
+        document.querySelectorAll<HTMLButtonElement>(
+          '[data-reader-size-action]',
+        ),
       );
       const content = root.querySelector<HTMLElement>('.blog-post-content');
 
