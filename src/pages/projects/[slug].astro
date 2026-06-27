@@ -61,14 +61,20 @@ const latestPost = relatedPosts[0];
         </span>
         {
           project.data.url && (
-            <a href={project.data.url} class="text-coral-600 dark:text-coral-400 hover:underline">
+            <a
+              href={project.data.url}
+              class="text-coral-600 dark:text-coral-400 hover:underline"
+            >
               docs / live
             </a>
           )
         }
         {
           project.data.repo && (
-            <a href={project.data.repo} class="text-coral-600 dark:text-coral-400 hover:underline">
+            <a
+              href={project.data.repo}
+              class="text-coral-600 dark:text-coral-400 hover:underline"
+            >
               repository
             </a>
           )

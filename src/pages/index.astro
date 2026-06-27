@@ -56,7 +56,9 @@ const statusLabel: Record<string, string> = {
             </span>
           )
         }
-        <a href="/now" class="font-mono text-sm text-coral-600 dark:text-coral-400 hover:underline"
+        <a
+          href="/now"
+          class="font-mono text-sm text-coral-600 dark:text-coral-400 hover:underline"
           >more →</a
         >
       </div>
@@ -101,12 +103,18 @@ const statusLabel: Record<string, string> = {
 
                 <div class="flex gap-4 text-sm font-mono">
                   {p.data.url && (
-                    <a href={p.data.url} class="text-coral-600 dark:text-coral-400 hover:underline">
+                    <a
+                      href={p.data.url}
+                      class="text-coral-600 dark:text-coral-400 hover:underline"
+                    >
                       docs
                     </a>
                   )}
                   {p.data.repo && (
-                    <a href={p.data.repo} class="text-coral-600 dark:text-coral-400 hover:underline">
+                    <a
+                      href={p.data.repo}
+                      class="text-coral-600 dark:text-coral-400 hover:underline"
+                    >
                       repo
                     </a>
                   )}
