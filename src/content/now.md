@@ -1,6 +1,6 @@
 ---
 title: Now
-updatedAt: 2026-06-27
+updatedAt: "2026-06-27"
 ---
 
 ## 작업 중
