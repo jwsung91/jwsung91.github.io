@@ -33,20 +33,20 @@ const projectEntry = projects.find(
       <div class="mt-4 flex flex-wrap gap-4 font-mono text-sm">
         <a
           href={getProjectPath(projectEntry)}
-          class="text-blue-400 hover:underline"
+          class="text-coral-600 dark:text-coral-400 hover:underline"
         >
           Project page
         </a>
         {projectEntry.data.repo && (
           <a
             href={projectEntry.data.repo}
-            class="text-blue-400 hover:underline"
+            class="text-coral-600 dark:text-coral-400 hover:underline"
           >
             GitHub repository
           </a>
         )}
         {projectEntry.data.url && (
-          <a href={projectEntry.data.url} class="text-blue-400 hover:underline">
+          <a href={projectEntry.data.url} class="text-coral-600 dark:text-coral-400 hover:underline">
             Documentation
           </a>
         )}

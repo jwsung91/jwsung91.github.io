@@ -76,7 +76,7 @@
   }
 
   .code-copy-button {
-    @apply absolute right-2 top-2 z-10 inline-flex h-7 w-7 items-center justify-center rounded border border-zinc-700 bg-zinc-900/85 text-zinc-100 shadow-sm transition-colors duration-150 hover:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:ring-offset-zinc-950;
+    @apply absolute right-2 top-2 z-10 inline-flex h-7 w-7 items-center justify-center rounded border border-zinc-700 bg-zinc-900/85 text-zinc-100 shadow-sm transition-colors duration-150 hover:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-coral-500 focus:ring-offset-2 focus:ring-offset-zinc-950;
   }
 
   .code-copy-button.is-copied {
@@ -124,7 +124,7 @@
   }
 
   .mermaid-tab-button {
-    @apply rounded px-3 py-1.5 font-mono text-xs font-semibold uppercase tracking-wider text-zinc-500 transition-colors duration-150 hover:text-zinc-900 focus:outline-none focus:ring-2 focus:ring-blue-400 dark:text-zinc-400 dark:hover:text-zinc-100;
+    @apply rounded px-3 py-1.5 font-mono text-xs font-semibold uppercase tracking-wider text-zinc-500 transition-colors duration-150 hover:text-zinc-900 focus:outline-none focus:ring-2 focus:ring-coral-500 dark:text-zinc-400 dark:hover:text-zinc-100;
   }
 
   .mermaid-tab-button.is-active {

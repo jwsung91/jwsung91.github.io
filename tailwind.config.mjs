@@ -20,6 +20,14 @@ export default {
           'monospace',
         ],
       },
+      colors: {
+        coral: {
+          400: '#e8906f',
+          500: '#d97757',
+          600: '#c45e3f',
+          700: '#a8482c',
+        },
+      },
     },
   },
   plugins: [typography],
