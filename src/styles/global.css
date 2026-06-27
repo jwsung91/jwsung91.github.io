@@ -19,6 +19,14 @@
   }
 }
 
+@layer utilities {
+  .blog-post-content,
+  .blog-post-content.prose {
+    font-size: var(--reader-font-size);
+    line-height: var(--reader-line-height);
+  }
+}
+
 @layer components {
   .skip-link {
     @apply absolute -left-[9999px] top-4 z-[9999] rounded-lg border border-current bg-stone-50 px-4 py-3 text-zinc-900 shadow-sm dark:bg-zinc-950 dark:text-zinc-100;
@@ -104,8 +112,6 @@
   .blog-post-content.prose {
     width: 100%;
     max-width: none !important;
-    font-size: var(--reader-font-size);
-    line-height: var(--reader-line-height);
   }
 
   .blog-post-content > :where(p, ul, ol, blockquote) {
