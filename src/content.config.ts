@@ -90,7 +90,7 @@ const now = defineCollection({
   loader: glob({ pattern: 'now.md', base: './src/content' }),
   schema: z.object({
     title: z.string().default('Now'),
-    updatedAt: z.string().optional(),
+    updatedAt: optionalDate,
   }),
 });
 
