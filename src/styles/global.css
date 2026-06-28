@@ -50,7 +50,7 @@
   }
 
   .blog-article {
-    @apply mx-auto w-full max-w-[920px] min-w-0;
+    @apply mx-auto w-full max-w-[800px] min-w-0;
     --reader-font-size: clamp(1.125rem, 1rem + 0.7vw, 1.25rem);
     --reader-line-height: 1.82;
   }
@@ -90,7 +90,7 @@
   }
 
   .reader-size-button {
-    @apply inline-flex h-9 min-w-10 items-center justify-center rounded px-3 font-serif text-sm font-semibold text-stone-500 transition-colors hover:bg-stone-100 hover:text-zinc-950 focus:outline-none focus:ring-2 focus:ring-coral-500 focus:ring-offset-2 focus:ring-offset-stone-50 dark:text-stone-400 dark:hover:bg-stone-900 dark:hover:text-zinc-50 dark:focus:ring-offset-zinc-950;
+    @apply inline-flex h-9 min-w-10 items-center justify-center rounded px-3 font-sans text-sm font-semibold text-stone-500 transition-colors hover:bg-stone-100 hover:text-stone-950 focus:outline-none focus:ring-2 focus:ring-coral-500 focus:ring-offset-2 focus:ring-offset-stone-50 dark:text-stone-400 dark:hover:bg-stone-900 dark:hover:text-stone-50 dark:focus:ring-offset-zinc-950;
   }
 
   .reader-size-button[data-reader-size-action='reset'] {
@@ -102,7 +102,7 @@
   }
 
   .reader-size-button[aria-pressed='true'] {
-    @apply bg-stone-900 text-white hover:bg-stone-900 hover:text-white dark:bg-stone-100 dark:text-zinc-950 dark:hover:bg-stone-100 dark:hover:text-zinc-950;
+    @apply bg-stone-900 text-white hover:bg-stone-900 hover:text-white dark:bg-stone-100 dark:text-zinc-950 dark:hover:bg-stone-100 dark:hover:text-stone-950;
   }
 
   .reader-size-button:disabled {
@@ -115,6 +115,7 @@
     max-width: none !important;
     font-family: theme('fontFamily.serif');
     word-break: keep-all;
+    overflow-wrap: break-word;
   }
 
   .blog-post-content.prose :where(h2),
