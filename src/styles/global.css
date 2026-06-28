@@ -118,7 +118,11 @@
 
   .blog-post-content.prose :where(h2),
   .blog-post-content.prose :where(h3),
-  .blog-post-content.prose :where(h4) {
+  .blog-post-content.prose :where(h4),
+  .page-content.prose :where(h1),
+  .page-content.prose :where(h2),
+  .page-content.prose :where(h3),
+  .page-content.prose :where(h4) {
     font-family: theme('fontFamily.sans');
   }
 
