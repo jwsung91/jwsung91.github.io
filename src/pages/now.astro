@@ -10,13 +10,13 @@ const { Content } = await render(nowEntry);
 <BaseLayout title="Now — jwsung91" description="지금 무엇을 하고 있는지">
   <main class="page-layout">
     <div class="mb-10">
-      <p class="mb-2 font-mono text-sm text-zinc-500">
+      <p class="mb-2 font-mono text-sm text-stone-500">
         <a href="/" class="hover:underline">jwsung91</a> / now
       </p>
-      <h1 class="text-3xl font-bold text-zinc-900 dark:text-zinc-100">Now</h1>
+      <h1 class="text-3xl font-bold text-stone-900 dark:text-stone-100">Now</h1>
       {
         nowEntry.data.updatedAt && (
-          <p class="mt-2 font-mono text-sm text-zinc-500">
+          <p class="mt-2 font-mono text-sm text-stone-500">
             업데이트: {formatDate(nowEntry.data.updatedAt)}
           </p>
         )
@@ -24,7 +24,7 @@ const { Content } = await render(nowEntry);
     </div>
 
     <div
-      class="page-content prose dark:prose-invert prose-stone max-w-none prose-headings:font-mono prose-headings:text-xs prose-headings:uppercase prose-headings:tracking-wider prose-headings:text-zinc-500 prose-p:text-zinc-700 dark:prose-p:text-zinc-300 prose-li:text-zinc-700 dark:prose-li:text-zinc-300 prose-a:text-coral-600 dark:prose-a:text-coral-400 prose-a:no-underline hover:prose-a:underline"
+      class="page-content prose dark:prose-invert prose-stone max-w-none prose-headings:font-mono prose-headings:text-xs prose-headings:uppercase prose-headings:tracking-wider prose-headings:text-stone-500 prose-p:text-stone-700 dark:prose-p:text-stone-300 prose-li:text-stone-700 dark:prose-li:text-stone-300 prose-a:text-coral-600 dark:prose-a:text-coral-400 prose-a:no-underline hover:prose-a:underline"
     >
       <Content />
     </div>

@@ -40,17 +40,17 @@ const projectDocTitles: Record<BlogProject, string> = {
   <main class="page-layout">
     <section class="mb-16">
       <h1
-        class="mb-3 text-3xl font-bold text-zinc-900 dark:text-zinc-100 md:text-4xl"
+        class="mb-3 text-3xl font-bold text-stone-900 dark:text-stone-100 md:text-4xl"
       >
         Writing
       </h1>
-      <p class="text-base leading-relaxed text-zinc-600 dark:text-zinc-400">
+      <p class="text-base leading-relaxed text-stone-600 dark:text-stone-400">
         프로젝트와 개인 학습을 기록하는 기술 문서 아카이브입니다.
       </p>
     </section>
 
     <section class="mb-16">
-      <h2 class="mb-6 font-mono text-xs uppercase tracking-wider text-zinc-500">
+      <h2 class="mb-6 font-mono text-xs uppercase tracking-wider text-stone-500">
         Project Docs
       </h2>
       <div class="grid gap-4 md:grid-cols-2">
@@ -59,11 +59,11 @@ const projectDocTitles: Record<BlogProject, string> = {
             const firstPost = group.posts[group.posts.length - 1];
 
             return (
-              <article class="rounded-lg border border-zinc-200 bg-zinc-100/50 p-5 dark:border-zinc-800 dark:bg-zinc-900/50">
-                <h3 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
+              <article class="rounded-lg border border-stone-200 bg-stone-100/50 p-5 dark:border-stone-800 dark:bg-stone-900/50">
+                <h3 class="text-lg font-semibold text-stone-900 dark:text-stone-100">
                   {projectDocTitles[group.project]}
                 </h3>
-                <p class="mt-2 text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
+                <p class="mt-2 text-sm leading-relaxed text-stone-600 dark:text-stone-400">
                   {group.posts.length}개의 프로젝트 문서가 있습니다.
                 </p>
                 <a
@@ -75,7 +75,7 @@ const projectDocTitles: Record<BlogProject, string> = {
                 {firstPost && (
                   <a
                     href={getBlogPath(firstPost)}
-                    class="mt-2 block text-sm text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
+                    class="mt-2 block text-sm text-stone-600 hover:text-stone-900 dark:text-stone-400 dark:hover:text-stone-100"
                   >
                     시작하기: {firstPost.data.title}
                   </a>
@@ -88,18 +88,18 @@ const projectDocTitles: Record<BlogProject, string> = {
     </section>
 
     <section class="mb-16">
-      <h2 class="mb-6 font-mono text-xs uppercase tracking-wider text-zinc-500">
+      <h2 class="mb-6 font-mono text-xs uppercase tracking-wider text-stone-500">
         Study Notes
       </h2>
       {
         studyGroups.length > 0 ? (
           <div class="grid gap-4 md:grid-cols-2">
             {studyGroups.map(([topic, topicPosts]) => (
-              <article class="rounded-lg border border-zinc-200 bg-zinc-100/50 p-5 dark:border-zinc-800 dark:bg-zinc-900/50">
-                <h3 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
+              <article class="rounded-lg border border-stone-200 bg-stone-100/50 p-5 dark:border-stone-800 dark:bg-stone-900/50">
+                <h3 class="text-lg font-semibold text-stone-900 dark:text-stone-100">
                   {topicLabels[topic]}
                 </h3>
-                <p class="mt-2 text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
+                <p class="mt-2 text-sm leading-relaxed text-stone-600 dark:text-stone-400">
                   {topicPosts.length}개의 학습 기록이 있습니다.
                 </p>
                 <a
@@ -112,7 +112,7 @@ const projectDocTitles: Record<BlogProject, string> = {
             ))}
           </div>
         ) : (
-          <p class="text-base leading-relaxed text-zinc-600 dark:text-zinc-400">
+          <p class="text-base leading-relaxed text-stone-600 dark:text-stone-400">
             공개된 study 글이 아직 없습니다.
           </p>
         )
@@ -120,7 +120,7 @@ const projectDocTitles: Record<BlogProject, string> = {
     </section>
 
     <section class="mb-16">
-      <h2 class="mb-6 font-mono text-xs uppercase tracking-wider text-zinc-500">
+      <h2 class="mb-6 font-mono text-xs uppercase tracking-wider text-stone-500">
         Site Notes
       </h2>
       {
@@ -130,10 +130,10 @@ const projectDocTitles: Record<BlogProject, string> = {
               <li>
                 <a
                   href={getBlogPath(post)}
-                  class="group block rounded-lg border border-zinc-200 bg-zinc-100/50 p-5 dark:border-zinc-800 dark:bg-zinc-900/50"
+                  class="group block rounded-lg border border-stone-200 bg-stone-100/50 p-5 dark:border-stone-800 dark:bg-stone-900/50"
                 >
                   <div class="mb-3 flex flex-wrap items-center gap-3">
-                    <span class="font-mono text-xs uppercase tracking-wider text-zinc-500">
+                    <span class="font-mono text-xs uppercase tracking-wider text-stone-500">
                       {formatDate(post.data.date)}
                     </span>
                     <PostMetaBadges
@@ -142,10 +142,10 @@ const projectDocTitles: Record<BlogProject, string> = {
                       topic={post.data.topic}
                     />
                   </div>
-                  <h3 class="text-lg font-semibold text-zinc-900 transition-colors duration-200 group-hover:text-zinc-700 dark:text-zinc-100 dark:group-hover:text-zinc-300">
+                  <h3 class="text-lg font-semibold text-stone-900 transition-colors duration-200 group-hover:text-stone-700 dark:text-stone-100 dark:group-hover:text-stone-300">
                     {post.data.title}
                   </h3>
-                  <p class="mt-2 text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
+                  <p class="mt-2 text-sm leading-relaxed text-stone-600 dark:text-stone-400">
                     {post.data.description}
                   </p>
                 </a>
@@ -153,7 +153,7 @@ const projectDocTitles: Record<BlogProject, string> = {
             ))}
           </ul>
         ) : (
-          <p class="text-base leading-relaxed text-zinc-600 dark:text-zinc-400">
+          <p class="text-base leading-relaxed text-stone-600 dark:text-stone-400">
             공개된 site note가 아직 없습니다.
           </p>
         )
@@ -161,16 +161,16 @@ const projectDocTitles: Record<BlogProject, string> = {
     </section>
 
     <section>
-      <h2 class="mb-6 font-mono text-xs uppercase tracking-wider text-zinc-500">
+      <h2 class="mb-6 font-mono text-xs uppercase tracking-wider text-stone-500">
         Latest
       </h2>
       <ul>
         {
           posts.map((post) => (
-            <li class="border-b border-zinc-200 dark:border-zinc-800 py-6 first:pt-0 last:border-b-0 last:pb-0">
+            <li class="border-b border-stone-200 dark:border-stone-800 py-6 first:pt-0 last:border-b-0 last:pb-0">
               <a href={getBlogPath(post)} class="group block">
                 <div class="mb-3 flex flex-wrap items-center gap-3">
-                  <span class="font-mono text-xs uppercase tracking-wider text-zinc-500">
+                  <span class="font-mono text-xs uppercase tracking-wider text-stone-500">
                     {formatDate(post.data.date)}
                   </span>
                   <PostMetaBadges
@@ -179,11 +179,11 @@ const projectDocTitles: Record<BlogProject, string> = {
                     topic={post.data.topic}
                   />
                 </div>
-                <h2 class="text-xl font-semibold text-zinc-900 dark:text-zinc-100 transition-colors duration-200 group-hover:text-zinc-700 dark:group-hover:text-zinc-300 md:text-2xl">
+                <h2 class="text-xl font-semibold text-stone-900 dark:text-stone-100 transition-colors duration-200 group-hover:text-stone-700 dark:group-hover:text-stone-300 md:text-2xl">
                   {post.data.title}
                 </h2>
                 {post.data.description && (
-                  <p class="mt-2 text-base leading-relaxed text-zinc-600 dark:text-zinc-400">
+                  <p class="mt-2 text-base leading-relaxed text-stone-600 dark:text-stone-400">
                     {post.data.description}
                   </p>
                 )}

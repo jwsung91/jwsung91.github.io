@@ -17,10 +17,10 @@ const nextPostClass = previousPost
 ---
 
 <nav
-  class="mt-12 border-y border-zinc-200 py-6 dark:border-zinc-800"
+  class="mt-12 border-y border-stone-200 py-6 dark:border-stone-800"
   aria-label={`${title} series navigation`}
 >
-  <p class="mb-5 font-mono text-sm text-zinc-500">
+  <p class="mb-5 font-mono text-sm text-stone-500">
     {title}
     {current} / {total}
   </p>
@@ -29,10 +29,10 @@ const nextPostClass = previousPost
     {
       previousPost && (
         <a href={getBlogPath(previousPost)} class="group block">
-          <span class="font-mono text-xs uppercase tracking-wider text-zinc-500">
+          <span class="font-mono text-xs uppercase tracking-wider text-stone-500">
             ← 이전 글
           </span>
-          <span class="mt-2 block text-base font-semibold text-zinc-900 transition-colors duration-200 group-hover:text-zinc-700 dark:text-zinc-100 dark:group-hover:text-zinc-300">
+          <span class="mt-2 block text-base font-semibold text-stone-900 transition-colors duration-200 group-hover:text-stone-700 dark:text-stone-100 dark:group-hover:text-stone-300">
             {previousPost.data.title}
           </span>
         </a>
@@ -42,10 +42,10 @@ const nextPostClass = previousPost
     {
       nextPost && (
         <a href={getBlogPath(nextPost)} class={nextPostClass}>
-          <span class="font-mono text-xs uppercase tracking-wider text-zinc-500">
+          <span class="font-mono text-xs uppercase tracking-wider text-stone-500">
             다음 글 →
           </span>
-          <span class="mt-2 block text-base font-semibold text-zinc-900 transition-colors duration-200 group-hover:text-zinc-700 dark:text-zinc-100 dark:group-hover:text-zinc-300">
+          <span class="mt-2 block text-base font-semibold text-stone-900 transition-colors duration-200 group-hover:text-stone-700 dark:text-stone-100 dark:group-hover:text-stone-300">
             {nextPost.data.title}
           </span>
         </a>

@@ -39,14 +39,14 @@ const isRouteActive = (key: string) => {
 ---
 
 <header
-  class="sticky top-0 z-50 border-b border-zinc-200 dark:border-zinc-800 bg-stone-50/80 dark:bg-zinc-950/80 backdrop-blur-md"
+  class="sticky top-0 z-50 border-b border-stone-200 dark:border-stone-800 bg-stone-50/80 dark:bg-zinc-950/80 backdrop-blur-md"
 >
   <div
     class="mx-auto flex h-14 w-full max-w-[1040px] items-center justify-between px-5 sm:px-6 md:px-8 lg:px-10"
   >
     <a
       href="/"
-      class="font-mono text-sm font-semibold text-zinc-600 dark:text-zinc-400 transition-colors duration-200 hover:text-zinc-900 dark:hover:text-zinc-100"
+      class="font-mono text-sm font-semibold text-stone-600 dark:text-stone-400 transition-colors duration-200 hover:text-stone-900 dark:hover:text-stone-100"
     >
       Jinwoo Sung
     </a>
@@ -67,8 +67,8 @@ const isRouteActive = (key: string) => {
                 target={item.external ? '_blank' : undefined}
                 rel={item.external ? 'noopener noreferrer' : undefined}
                 class:list={[
-                  'relative pb-1 text-zinc-600 dark:text-zinc-400 transition-colors duration-200 hover:text-zinc-900 dark:hover:text-zinc-100',
-                  active && 'text-zinc-900 dark:text-zinc-100',
+                  'relative pb-1 text-stone-600 dark:text-stone-400 transition-colors duration-200 hover:text-stone-900 dark:hover:text-stone-100',
+                  active && 'text-stone-900 dark:text-stone-100',
                 ]}
                 aria-current={active ? 'page' : undefined}
               >
@@ -76,7 +76,7 @@ const isRouteActive = (key: string) => {
                 <span
                   data-nav-underline={item.key}
                   class:list={[
-                    'pointer-events-none absolute inset-x-0 -bottom-[18px] h-px bg-zinc-900 dark:bg-zinc-100',
+                    'pointer-events-none absolute inset-x-0 -bottom-[18px] h-px bg-stone-900 dark:bg-stone-100',
                     active ? 'block' : 'hidden',
                   ]}
                 />
@@ -89,7 +89,7 @@ const isRouteActive = (key: string) => {
       <button
         id="theme-toggle"
         type="button"
-        class="text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 transition-colors"
+        class="text-stone-600 hover:text-stone-900 dark:text-stone-400 dark:hover:text-stone-100 transition-colors"
         aria-label="Toggle theme"
       >
         <svg
@@ -124,7 +124,7 @@ const isRouteActive = (key: string) => {
 
       <button
         type="button"
-        class="font-mono text-sm text-zinc-600 dark:text-zinc-400 transition-colors duration-200 hover:text-zinc-900 dark:hover:text-zinc-100 md:hidden"
+        class="font-mono text-sm text-stone-600 dark:text-stone-400 transition-colors duration-200 hover:text-stone-900 dark:hover:text-stone-100 md:hidden"
         data-nav-toggle
         aria-expanded="false"
         aria-controls="mobile-nav"
@@ -140,7 +140,7 @@ const isRouteActive = (key: string) => {
     data-nav-overlay
   >
     <div
-      class="mx-auto border-b border-zinc-200 bg-stone-50 px-5 py-6 dark:border-zinc-800 dark:bg-zinc-950 sm:px-6 md:px-8 lg:px-10"
+      class="mx-auto border-b border-stone-200 bg-stone-50 px-5 py-6 dark:border-stone-800 dark:bg-zinc-950 sm:px-6 md:px-8 lg:px-10"
     >
       <nav
         class="mx-auto flex w-full max-w-[1040px] flex-col gap-4 text-base font-mono"
@@ -157,8 +157,8 @@ const isRouteActive = (key: string) => {
                 target={item.external ? '_blank' : undefined}
                 rel={item.external ? 'noopener noreferrer' : undefined}
                 class:list={[
-                  'border-b border-zinc-200 dark:border-zinc-800 pb-4 text-zinc-600 dark:text-zinc-400 transition-colors duration-200 hover:text-zinc-900 dark:hover:text-zinc-100',
-                  active && 'text-zinc-900 dark:text-zinc-100',
+                  'border-b border-stone-200 dark:border-stone-800 pb-4 text-stone-600 dark:text-stone-400 transition-colors duration-200 hover:text-stone-900 dark:hover:text-stone-100',
+                  active && 'text-stone-900 dark:text-stone-100',
                 ]}
                 aria-current={active ? 'page' : undefined}
               >
@@ -304,10 +304,10 @@ const isRouteActive = (key: string) => {
     const applyAnchorState = (activeKey) => {
       desktopLinks.forEach((link) => {
         const isActive = link.getAttribute('data-nav-item') === activeKey;
-        link.classList.toggle('text-zinc-900', isActive);
-        link.classList.toggle('dark:text-zinc-100', isActive);
-        link.classList.toggle('text-zinc-600', !isActive);
-        link.classList.toggle('dark:text-zinc-400', !isActive);
+        link.classList.toggle('text-stone-900', isActive);
+        link.classList.toggle('dark:text-stone-100', isActive);
+        link.classList.toggle('text-stone-600', !isActive);
+        link.classList.toggle('dark:text-stone-400', !isActive);
         if (isActive) {
           link.setAttribute('aria-current', 'page');
         } else {
@@ -318,10 +318,10 @@ const isRouteActive = (key: string) => {
       mobileLinks.forEach((link) => {
         const isActive =
           link.getAttribute('data-mobile-nav-item') === activeKey;
-        link.classList.toggle('text-zinc-900', isActive);
-        link.classList.toggle('dark:text-zinc-100', isActive);
-        link.classList.toggle('text-zinc-600', !isActive);
-        link.classList.toggle('dark:text-zinc-400', !isActive);
+        link.classList.toggle('text-stone-900', isActive);
+        link.classList.toggle('dark:text-stone-100', isActive);
+        link.classList.toggle('text-stone-600', !isActive);
+        link.classList.toggle('dark:text-stone-400', !isActive);
         if (isActive) {
           link.setAttribute('aria-current', 'page');
         } else {

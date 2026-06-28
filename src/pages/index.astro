@@ -25,33 +25,33 @@ const statusLabel: Record<string, string> = {
 >
   <main class="page-layout">
     <section class="mb-16">
-      <p class="mb-2 font-mono text-sm text-zinc-500">jwsung91.github.io</p>
+      <p class="mb-2 font-mono text-sm text-stone-500">jwsung91.github.io</p>
       <h1
-        class="mb-3 text-3xl font-bold text-zinc-900 dark:text-zinc-100 md:text-4xl"
+        class="mb-3 text-3xl font-bold text-stone-900 dark:text-stone-100 md:text-4xl"
       >
         Jinwoo Sung
       </h1>
       <p
-        class="max-w-xl text-base leading-relaxed text-zinc-600 dark:text-zinc-400"
+        class="max-w-xl text-base leading-relaxed text-stone-600 dark:text-stone-400"
       >
         Robotics Software Architect — platform architecture, middleware.
       </p>
     </section>
 
     <section id="now" class="mb-16">
-      <h2 class="mb-6 font-mono text-xs uppercase tracking-wider text-zinc-500">
+      <h2 class="mb-6 font-mono text-xs uppercase tracking-wider text-stone-500">
         Now
       </h2>
 
       <div
-        class="page-content prose dark:prose-invert prose-stone max-w-none prose-headings:text-xs prose-headings:uppercase prose-headings:tracking-wider prose-headings:text-zinc-500 prose-p:text-zinc-700 dark:prose-p:text-zinc-300 prose-li:text-zinc-700 dark:prose-li:text-zinc-300 prose-a:text-coral-600 dark:prose-a:text-coral-400 prose-a:no-underline hover:prose-a:underline"
+        class="page-content prose dark:prose-invert prose-stone max-w-none prose-headings:text-xs prose-headings:uppercase prose-headings:tracking-wider prose-headings:text-stone-500 prose-p:text-stone-700 dark:prose-p:text-stone-300 prose-li:text-stone-700 dark:prose-li:text-stone-300 prose-a:text-coral-600 dark:prose-a:text-coral-400 prose-a:no-underline hover:prose-a:underline"
       >
         <NowContent />
       </div>
       <div class="mt-6 flex items-center gap-4">
         {
           nowEntry.data.updatedAt && (
-            <span class="text-sm text-zinc-500 dark:text-zinc-600">
+            <span class="text-sm text-stone-500 dark:text-stone-600">
               마지막 업데이트: {formatDate(nowEntry.data.updatedAt)}
             </span>
           )
@@ -65,17 +65,17 @@ const statusLabel: Record<string, string> = {
     </section>
 
     <section id="projects" class="mb-16">
-      <h2 class="mb-6 font-mono text-xs uppercase tracking-wider text-zinc-500">
+      <h2 class="mb-6 font-mono text-xs uppercase tracking-wider text-stone-500">
         Projects
       </h2>
       <ul class="space-y-4">
         {
           projects.map((p) => (
-            <li class="rounded-lg border border-zinc-200 dark:border-zinc-800 bg-zinc-100/50 dark:bg-zinc-900/50 p-5">
+            <li class="rounded-lg border border-stone-200 dark:border-stone-800 bg-stone-100/50 dark:bg-stone-900/50 p-5">
               <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                 <div>
                   <div class="mb-2 flex flex-wrap items-center gap-2">
-                    <span class="text-xl font-semibold text-zinc-900 dark:text-zinc-100">
+                    <span class="text-xl font-semibold text-stone-900 dark:text-stone-100">
                       {p.data.title}
                     </span>
                     <span
@@ -84,13 +84,13 @@ const statusLabel: Record<string, string> = {
                           ? 'bg-coral-500/15 text-coral-700 dark:bg-coral-500/15 dark:text-coral-400'
                           : p.data.status === 'wip'
                             ? 'bg-amber-100/50 text-amber-700 dark:bg-amber-900/50 dark:text-amber-300'
-                            : 'bg-zinc-200 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400'
+                            : 'bg-stone-200 dark:bg-stone-800 text-stone-600 dark:text-stone-400'
                       }`}
                     >
                       {statusLabel[p.data.status]}
                     </span>
                   </div>
-                  <p class="text-base leading-relaxed text-zinc-700 dark:text-zinc-300">
+                  <p class="text-base leading-relaxed text-stone-700 dark:text-stone-300">
                     {p.data.description}
                   </p>
                   <a
@@ -127,7 +127,7 @@ const statusLabel: Record<string, string> = {
     </section>
 
     <section class="mb-16">
-      <h2 class="mb-6 font-mono text-xs uppercase tracking-wider text-zinc-500">
+      <h2 class="mb-6 font-mono text-xs uppercase tracking-wider text-stone-500">
         Recent Writing
       </h2>
       <div class="space-y-4">
@@ -135,10 +135,10 @@ const statusLabel: Record<string, string> = {
           recentPosts.map((post) => (
             <a
               href={getBlogPath(post)}
-              class="block rounded-lg border border-zinc-200 dark:border-zinc-800 bg-zinc-100/50 dark:bg-zinc-900/50 p-5"
+              class="block rounded-lg border border-stone-200 dark:border-stone-800 bg-stone-100/50 dark:bg-stone-900/50 p-5"
             >
               <div class="mb-3 flex flex-wrap items-center gap-3">
-                <span class="font-mono text-xs uppercase tracking-wider text-zinc-500">
+                <span class="font-mono text-xs uppercase tracking-wider text-stone-500">
                   {formatDate(post.data.date)}
                 </span>
                 <PostMetaBadges
@@ -147,11 +147,11 @@ const statusLabel: Record<string, string> = {
                   topic={post.data.topic}
                 />
               </div>
-              <h3 class="text-xl font-semibold text-zinc-900 dark:text-zinc-100 transition-colors duration-200 hover:text-zinc-700 dark:hover:text-zinc-300">
+              <h3 class="text-xl font-semibold text-stone-900 dark:text-stone-100 transition-colors duration-200 hover:text-stone-700 dark:hover:text-stone-300">
                 {post.data.title}
               </h3>
               {post.data.description && (
-                <p class="mt-2 text-base leading-relaxed text-zinc-600 dark:text-zinc-400">
+                <p class="mt-2 text-base leading-relaxed text-stone-600 dark:text-stone-400">
                   {post.data.description}
                 </p>
               )}

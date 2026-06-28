@@ -29,14 +29,14 @@ const kindStyles: Record<BlogKind, string> = {
   retrospective:
     'bg-purple-100/50 text-purple-700 dark:bg-purple-900/50 dark:text-purple-300',
   study: 'bg-cyan-100/50 text-cyan-700 dark:bg-cyan-900/50 dark:text-cyan-300',
-  note: 'bg-zinc-200 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400',
+  note: 'bg-stone-200 text-stone-600 dark:bg-stone-800 dark:text-stone-400',
 };
 ---
 
 {
   project && (
     <span
-      class={`${badgeClass} bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-950`}
+      class={`${badgeClass} bg-stone-900 text-white dark:bg-stone-100 dark:text-zinc-950`}
     >
       {projectLabels[project]}
     </span>
@@ -46,7 +46,7 @@ const kindStyles: Record<BlogKind, string> = {
 {
   topic && (
     <span
-      class={`${badgeClass} bg-zinc-100 text-zinc-600 dark:bg-zinc-900 dark:text-zinc-400`}
+      class={`${badgeClass} bg-stone-100 text-stone-600 dark:bg-stone-900 dark:text-stone-400`}
     >
       {topicLabels[topic]}
     </span>
