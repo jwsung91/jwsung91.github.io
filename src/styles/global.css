@@ -113,6 +113,22 @@
   .blog-post-content.prose {
     width: 100%;
     max-width: none !important;
+    font-family: theme('fontFamily.serif');
+    word-break: keep-all;
+  }
+
+  .blog-post-content.prose :where(h2),
+  .blog-post-content.prose :where(h3),
+  .blog-post-content.prose :where(h4),
+  .page-content.prose :where(h1),
+  .page-content.prose :where(h2),
+  .page-content.prose :where(h3),
+  .page-content.prose :where(h4) {
+    font-family: theme('fontFamily.sans');
+  }
+
+  .blog-post-content.prose :where(code, pre, kbd) {
+    font-family: theme('fontFamily.mono');
   }
 
   .blog-post-content > :where(p, ul, ol, blockquote) {
