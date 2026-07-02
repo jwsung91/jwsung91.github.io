@@ -3,3 +3,4 @@ dist
 .astro
 public/images
 .env.example
+public/google*.html
