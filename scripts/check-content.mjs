@@ -16,6 +16,7 @@ const allowedKinds = new Set([
   'retrospective',
   'study',
   'note',
+  'devlog',
 ]);
 const allowedTopics = new Set([
   'cpp',
