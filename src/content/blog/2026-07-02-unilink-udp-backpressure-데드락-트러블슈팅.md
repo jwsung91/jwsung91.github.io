@@ -3,7 +3,7 @@ title: '[unilink] UDP backpressure 데드락 트러블슈팅'
 date: 2026-07-02
 updatedAt: 2026-07-02
 project: unilink
-kind: implementation
+kind: devlog
 tags:
   - unilink
   - cpp
@@ -13,7 +13,7 @@ tags:
   - concurrency
   - debugging
 description: UDP backpressure 데드락 재현과 lost wakeup 원인 분석
-draft: true
+draft: false
 ---
 
 ## 도입: UDP write 실패가 아니라, backpressure 해제가 문제
@@ -24,11 +24,11 @@ draft: true
 
 핵심 원인은 두 가지였다.
 
-| 구분      | 원인                                                             | 영향                                             |
-| --------- | ---------------------------------------------------------------- | ------------------------------------------------ |
-| 1차 원인  | UDP write 실패 시 `tx_`와 `pending_` queue를 완전히 비우지 않음  | backpressure 상태가 재점화되거나 해제되지 않음   |
-| 2차 원인  | `bp_cv_.notify_all()`이 조건변수와 동일한 mutex 규율 없이 호출됨 | lost wakeup으로 sender thread가 영원히 대기 가능 |
-| 최종 대응 | queue drain 전용 함수 추가 + `wait_for()` 기반 bounded wait 도입 | notify 유실에도 최대 50ms 뒤 상태 재확인 가능    |
+| 구분 | 원인 | 영향 |
+| --- | --- | --- |
+| 1차 원인 | UDP write 실패 시 `tx_`와 `pending_` queue를 완전히 비우지 않음 | backpressure 상태가 재점화되거나 해제되지 않음 |
+| 2차 원인 | `bp_cv_.notify_all()`이 조건변수와 동일한 mutex 규율 없이 호출됨 | lost wakeup으로 sender thread가 영원히 대기 가능 |
+| 최종 대응 | queue drain 전용 함수 추가 + `wait_for()` 기반 bounded wait 도입 | notify 유실에도 최대 50ms 뒤 상태 재확인 가능 |
 
 결론부터 말하면, 이 버그는 단순히 “UDP payload가 너무 커서 실패했다”가 아니었다. 실패 이후 backpressure 상태를 안전하게 정리하지 못했고, 그 상태를 기다리는 thread가 조건변수 notify를 놓칠 수 있는 구조였다.
 
@@ -71,10 +71,10 @@ flowchart TD
 
 재현 양상도 특이했다.
 
-| 환경                   | 반복 결과            |
-| ---------------------- | -------------------- |
-| 로컬 x64               | 45회 반복, hang 없음 |
-| Jetson Orin Nano Super | 30회 중 3회 hang     |
+| 환경 | 반복 결과 |
+| --- | --- |
+| 로컬 x64 | 45회 반복, hang 없음 |
+| Jetson Orin Nano Super | 30회 중 3회 hang |
 
 x64에서 재현되지 않고 Jetson에서만 확률적으로 재현된다는 점은 중요한 단서였다. 결정적인 로직 버그라면 어느 환경에서든 비교적 안정적으로 재현됐을 가능성이 높다. 반면 특정 하드웨어에서만 확률적으로 멈춘다면 thread scheduling, timing, condition variable 같은 동시성 문제가 개입했을 가능성이 높다.
 
@@ -188,9 +188,9 @@ void wait_for_backpressure_clear(std::unique_lock<std::mutex>& bp_lock) {
 
 회귀 테스트는 두 개를 추가했다.
 
-| 테스트                                  | 검증 내용                                          |
-| --------------------------------------- | -------------------------------------------------- |
-| `tx_` 누적 상태에서 write 실패          | 에러 발생 시 기본 송신 queue가 정리되는지 확인     |
+| 테스트 | 검증 내용 |
+| --- | --- |
+| `tx_` 누적 상태에서 write 실패 | 에러 발생 시 기본 송신 queue가 정리되는지 확인 |
 | `pending_` overflow 상태에서 write 실패 | backpressure 중 overflow queue까지 정리되는지 확인 |
 
 두 테스트는 원본 코드에서는 실패하고, 수정 후에는 통과했다.
