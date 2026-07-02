@@ -16,6 +16,7 @@
     "format:site": "prettier \"src/**/*.{astro,ts,js,json}\" \"*.{json,yml,md}\" \".github/**/*.yml\" --write",
     "lint:md": "markdownlint-cli2",
     "content:check": "node scripts/check-content.mjs",
+    "fix": "node scripts/check-content.mjs --fix && markdownlint-cli2 --fix && npm run format:content && npm run format:site",
     "check": "npm run format:check && npm run lint:md && npm run content:check && npm run build"
   },
   "dependencies": {

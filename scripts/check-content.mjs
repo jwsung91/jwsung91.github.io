@@ -55,54 +55,75 @@ function normalizeDate(value) {
   return String(value).slice(0, 10);
 }
 
+const isFix = process.argv.includes('--fix');
+
 for (const file of files) {
-  const raw = await fs.readFile(file, 'utf8');
+  let currentFile = file;
+  let raw = await fs.readFile(currentFile, 'utf8');
   const { data, content } = matter(raw);
-  const basename = path.basename(file);
+  let basename = path.basename(currentFile);
 
   const filenameDate = basename.match(/^(\d{4}-\d{2}-\d{2})-/)?.[1];
   const frontmatterDate = normalizeDate(data.date);
 
   if (!filenameDate) {
-    fail(file, '파일명이 YYYY-MM-DD-... 형식이 아닙니다.');
+    if (isFix && frontmatterDate) {
+      const newBasename = `${frontmatterDate}-${basename}`;
+      const newFile = path.join(path.dirname(currentFile), newBasename);
+      await fs.rename(currentFile, newFile);
+      console.log(`✓ Renamed (added date prefix): ${currentFile} -> ${newFile}`);
+      currentFile = newFile;
+      basename = newBasename;
+    } else {
+      fail(currentFile, '파일명이 YYYY-MM-DD-... 형식이 아닙니다.');
+    }
   }
 
   if (!frontmatterDate) {
-    fail(file, 'frontmatter date가 없습니다.');
+    fail(currentFile, 'frontmatter date가 없습니다.');
   }
 
   if (filenameDate && frontmatterDate && filenameDate !== frontmatterDate) {
-    fail(
-      file,
-      `파일명 날짜(${filenameDate})와 frontmatter date(${frontmatterDate})가 다릅니다.`,
-    );
+    if (isFix) {
+      const newBasename = basename.replace(/^\d{4}-\d{2}-\d{2}-/, `${frontmatterDate}-`);
+      const newFile = path.join(path.dirname(currentFile), newBasename);
+      await fs.rename(currentFile, newFile);
+      console.log(`✓ Renamed (matched date): ${currentFile} -> ${newFile}`);
+      currentFile = newFile;
+      basename = newBasename;
+    } else {
+      fail(
+        currentFile,
+        `파일명 날짜(${filenameDate})와 frontmatter date(${frontmatterDate})가 다릅니다.`,
+      );
+    }
   }
 
   if (!data.title || typeof data.title !== 'string') {
-    fail(file, 'title이 없습니다.');
+    fail(currentFile, 'title이 없습니다.');
   }
 
   if ('category' in data) {
     fail(
-      file,
+      currentFile,
       'category field는 더 이상 사용하지 않습니다. kind를 사용하세요.',
     );
   }
 
   if (!allowedKinds.has(data.kind)) {
-    fail(file, `kind가 올바르지 않습니다: ${data.kind}`);
+    fail(currentFile, `kind가 올바르지 않습니다: ${data.kind}`);
   }
 
   if (data.project && !allowedProjects.has(data.project)) {
-    fail(file, `project가 올바르지 않습니다: ${data.project}`);
+    fail(currentFile, `project가 올바르지 않습니다: ${data.project}`);
   }
 
   if (!data.project && data.kind === 'study' && !data.topic) {
-    fail(file, '프로젝트 없는 study 글은 topic이 필요합니다.');
+    fail(currentFile, '프로젝트 없는 study 글은 topic이 필요합니다.');
   }
 
   if (data.topic && !allowedTopics.has(data.topic)) {
-    fail(file, `topic이 올바르지 않습니다: ${data.topic}`);
+    fail(currentFile, `topic이 올바르지 않습니다: ${data.topic}`);
   }
 
   if (
@@ -111,11 +132,11 @@ for (const file of files) {
     data.description.length < 40 ||
     data.description.length > 180
   ) {
-    fail(file, 'description은 40~180자 문자열이어야 합니다.');
+    fail(currentFile, 'description은 40~180자 문자열이어야 합니다.');
   }
 
   if (!Array.isArray(data.tags)) {
-    fail(file, 'tags는 배열이어야 합니다.');
+    fail(currentFile, 'tags는 배열이어야 합니다.');
   } else {
     const seenTags = new Set();
 
@@ -123,14 +144,14 @@ for (const file of files) {
       const tag = typeof rawTag === 'string' ? rawTag.trim() : '';
 
       if (!tag) {
-        fail(file, 'tags에 빈 값이 있습니다.');
+        fail(currentFile, 'tags에 빈 값이 있습니다.');
         continue;
       }
 
       const normalized = tag.toLowerCase();
 
       if (seenTags.has(normalized)) {
-        fail(file, `중복 tag가 있습니다: ${tag}`);
+        fail(currentFile, `중복 tag가 있습니다: ${tag}`);
       }
 
       seenTags.add(normalized);
@@ -139,56 +160,91 @@ for (const file of files) {
 
   if (data.series) {
     if (!Number.isInteger(data.seriesOrder)) {
-      fail(file, 'series가 있으면 정수 seriesOrder가 필요합니다.');
+      fail(currentFile, 'series가 있으면 정수 seriesOrder가 필요합니다.');
     } else {
       const key = `${data.series}:${data.seriesOrder}`;
 
       if (seriesOrders.has(key)) {
         fail(
-          file,
+          currentFile,
           `seriesOrder가 중복됩니다. 이미 사용한 파일: ${seriesOrders.get(key)}`,
         );
       }
 
-      seriesOrders.set(key, file);
+      seriesOrders.set(key, currentFile);
     }
 
     const meta = seriesMeta[data.series];
 
     if (!meta) {
-      fail(file, `series가 올바르지 않습니다: ${data.series}`);
+      fail(currentFile, `series가 올바르지 않습니다: ${data.series}`);
     }
 
     if (meta?.project && data.project !== meta.project) {
       fail(
-        file,
+        currentFile,
         `series ${data.series}는 project ${meta.project}와 함께 사용해야 합니다.`,
       );
     }
 
     if (meta?.topic && data.topic !== meta.topic) {
       fail(
-        file,
+        currentFile,
         `series ${data.series}는 topic ${meta.topic}와 함께 사용해야 합니다.`,
       );
     }
   }
 
   if (!data.series && data.seriesOrder !== undefined) {
-    fail(file, 'seriesOrder는 series가 있을 때만 사용할 수 있습니다.');
+    fail(currentFile, 'seriesOrder는 series가 있을 때만 사용할 수 있습니다.');
   }
 
   if (content.includes('{: .prompt-')) {
-    fail(file, 'Jekyll 스타일 prompt class 잔여물이 있습니다.');
+    fail(currentFile, 'Jekyll 스타일 prompt class 잔여물이 있습니다.');
   }
+
+  let updatedContent = content;
+  let contentChanged = false;
 
   if (/```mermaid[^\S\r\n]+\S/.test(content)) {
-    fail(file, 'Mermaid fence는 ```mermaid 다음 줄부터 작성해야 합니다.');
+    if (isFix) {
+      updatedContent = updatedContent.replace(/(```mermaid)([^\S\r\n]+\S)/g, '$1\n$2');
+      contentChanged = true;
+      console.log(`✓ Fixed mermaid fence in ${currentFile}`);
+    } else {
+      fail(currentFile, 'Mermaid fence는 ```mermaid 다음 줄부터 작성해야 합니다.');
+    }
   }
 
-  for (const match of content.matchAll(/```mermaid\n([\s\S]*?)\n```/g)) {
+  let hasTabInMermaid = false;
+  for (const match of updatedContent.matchAll(/```mermaid\n([\s\S]*?)\n```/g)) {
     if (match[1].includes('\t')) {
-      fail(file, 'Mermaid block에는 tab 대신 space를 사용하세요.');
+      hasTabInMermaid = true;
+      break;
+    }
+  }
+
+  if (hasTabInMermaid) {
+    if (isFix) {
+      updatedContent = updatedContent.replace(/```mermaid\n([\s\S]*?)\n```/g, (match, p1) => {
+        return "```mermaid\n" + p1.replace(/\t/g, '  ') + "\n```";
+      });
+      contentChanged = true;
+      console.log(`✓ Fixed tabs in mermaid block in ${currentFile}`);
+    } else {
+      fail(currentFile, 'Mermaid block에는 tab 대신 space를 사용하세요.');
+    }
+  }
+
+  if (contentChanged) {
+    const match = raw.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n([\s\S]*)$/);
+    if (match) {
+      const frontmatter = match[1];
+      const newRaw = `---\n${frontmatter}\n---\n${updatedContent}`;
+      await fs.writeFile(currentFile, newRaw, 'utf8');
+    } else {
+      const stringified = matter.stringify(updatedContent, data);
+      await fs.writeFile(currentFile, stringified, 'utf8');
     }
   }
 }
