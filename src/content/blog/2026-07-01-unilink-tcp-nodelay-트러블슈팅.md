@@ -23,14 +23,14 @@ draft: false
 
 핵심은 다음과 같다.
 
-| 항목    | 내용                                                |
-| ----- | ------------------------------------------------- |
-| 증상    | TCP payload `4096B` 이상에서 p50이 약 `44ms`로 급증        |
-| 재현성   | 10000회 반복 중 10000회 동일 패턴                          |
-| 원인    | Nagle 알고리즘과 delayed ACK 조합                        |
+| 항목      | 내용                                                       |
+| --------- | ---------------------------------------------------------- |
+| 증상      | TCP payload `4096B` 이상에서 p50이 약 `44ms`로 급증        |
+| 재현성    | 10000회 반복 중 10000회 동일 패턴                          |
+| 원인      | Nagle 알고리즘과 delayed ACK 조합                          |
 | 직접 원인 | `tcp_no_delay` 기본값이 config와 wrapper 양쪽 모두 `false` |
-| 수정    | TCP client/server 기본값을 `tcp_no_delay = true`로 변경  |
-| 검증    | `scripts/verify.sh` 기준 665개 테스트 통과                |
+| 수정      | TCP client/server 기본값을 `tcp_no_delay = true`로 변경    |
+| 검증      | `scripts/verify.sh` 기준 665개 테스트 통과                 |
 
 결론부터 말하면, 벤치마크 수치가 이상했던 이유는 TCP 자체의 성능 문제가 아니었다. 라이브러리 기본값이 저지연 통신에 맞지 않았고, 그 결과 특정 payload 크기부터 Nagle 알고리즘과 delayed ACK이 반복적으로 충돌하고 있었다.
 
@@ -77,9 +77,9 @@ flowchart LR
 
 가끔 튀는 지연이라면 네트워크 잡음이나 스케줄링 이슈로 넘길 수 있다. 하지만 이번 패턴은 달랐다.
 
-* 특정 payload 크기부터만 발생했다.
-* 지연 폭이 거의 일정했다.
-* 10000번 반복 중 10000번 모두 재현됐다.
+- 특정 payload 크기부터만 발생했다.
+- 지연 폭이 거의 일정했다.
+- 10000번 반복 중 10000번 모두 재현됐다.
 
 이 정도 재현성이면 우연이 아니라 구조적인 원인이 있다고 봐야 했다.
 
@@ -87,10 +87,10 @@ flowchart LR
 
 `44ms`라는 숫자가 단서였다. TCP에서 40ms 안팎의 지연은 Nagle 알고리즘과 delayed ACK이 만났을 때 자주 보이는 패턴이다.
 
-* Nagle 알고리즘은 작은 TCP segment를 즉시 보내지 않고 ACK을 기다리며 병합하려고 한다.
-* delayed ACK은 수신 측이 ACK 전송을 잠시 늦춰서 패킷 수를 줄이려는 동작이다.
-* 두 메커니즘이 겹치면 송신 측은 ACK을 기다리고, 수신 측은 ACK을 늦추는 상태가 된다.
-* 그 결과 특정 segment가 delayed ACK 타이머 근처까지 밀릴 수 있다.
+- Nagle 알고리즘은 작은 TCP segment를 즉시 보내지 않고 ACK을 기다리며 병합하려고 한다.
+- delayed ACK은 수신 측이 ACK 전송을 잠시 늦춰서 패킷 수를 줄이려는 동작이다.
+- 두 메커니즘이 겹치면 송신 측은 ACK을 기다리고, 수신 측은 ACK을 늦추는 상태가 된다.
+- 그 결과 특정 segment가 delayed ACK 타이머 근처까지 밀릴 수 있다.
 
 ```mermaid
 sequenceDiagram
@@ -141,9 +141,9 @@ std::atomic<bool> tcp_no_delay_{false};
 
 즉, 수정 지점은 두 군데였다.
 
-| 위치                                    |     기존값 | 문제                               |
-| ------------------------------------- | ------: | -------------------------------- |
-| `TcpClientConfig` / `TcpServerConfig` | `false` | config 직접 사용 시 Nagle 활성          |
+| 위치                                  |  기존값 | 문제                                         |
+| ------------------------------------- | ------: | -------------------------------------------- |
+| `TcpClientConfig` / `TcpServerConfig` | `false` | config 직접 사용 시 Nagle 활성               |
 | TCP wrapper builder                   | `false` | builder 사용 시 config 변경을 덮어쓸 수 있음 |
 
 config struct만 고쳤다면 실제 사용자가 쓰는 builder 경로에서는 여전히 `tcp_no_delay = false`가 적용될 수 있었다. 따라서 config와 wrapper builder 기본값을 모두 수정해야 했다.
@@ -159,10 +159,10 @@ flowchart TD
 
 선택지는 두 가지였다.
 
-| 선택지                              | 장점              | 문제                           |
-| -------------------------------- | --------------- | ---------------------------- |
-| 벤치마크에서만 `.tcp_no_delay(true)` 설정 | 벤치마크 수치는 즉시 개선  | 실제 사용자는 같은 함정을 밟음            |
-| 라이브러리 기본값을 `true`로 변경            | 기본 동작이 저지연에 맞춰짐 | 작은 메시지를 자주 보내는 경우 패킷 수 증가 가능 |
+| 선택지                                    | 장점                        | 문제                                             |
+| ----------------------------------------- | --------------------------- | ------------------------------------------------ |
+| 벤치마크에서만 `.tcp_no_delay(true)` 설정 | 벤치마크 수치는 즉시 개선   | 실제 사용자는 같은 함정을 밟음                   |
+| 라이브러리 기본값을 `true`로 변경         | 기본 동작이 저지연에 맞춰짐 | 작은 메시지를 자주 보내는 경우 패킷 수 증가 가능 |
 
 벤치마크만 고치는 건 문제를 숨기는 것에 가깝다. unilink 사용자는 TCP, UDP, Serial, UDS를 같은 추상화로 사용할 것을 기대한다. 그런데 TCP만 기본값 때문에 40ms대 지연을 만들면 transport 간 동작 일관성이 깨진다.
 
@@ -198,13 +198,13 @@ struct TcpClientConfig {
 
 변경 대상은 다음과 같았다.
 
-| 대상                         | 변경                              |
-| -------------------------- | ------------------------------- |
-| `TcpClientConfig`          | `tcp_no_delay = false` → `true` |
-| `TcpServerConfig`          | `tcp_no_delay = false` → `true` |
-| TCP client wrapper builder | 내부 기본값 `false` → `true`         |
-| TCP server wrapper builder | 내부 기본값 `false` → `true`         |
-| 기존 테스트                     | default가 `false`라고 가정하던 테스트 수정  |
+| 대상                       | 변경                                       |
+| -------------------------- | ------------------------------------------ |
+| `TcpClientConfig`          | `tcp_no_delay = false` → `true`            |
+| `TcpServerConfig`          | `tcp_no_delay = false` → `true`            |
+| TCP client wrapper builder | 내부 기본값 `false` → `true`               |
+| TCP server wrapper builder | 내부 기본값 `false` → `true`               |
+| 기존 테스트                | default가 `false`라고 가정하던 테스트 수정 |
 
 ```mermaid
 flowchart LR
@@ -239,11 +239,11 @@ flowchart TD
 
 정리하면 다음과 같다.
 
-* TCP payload `4096B` 이상에서 p50 latency가 약 `44ms`로 증가했다.
-* 10000회 반복 중 10000회 재현되어 우연한 outlier가 아니었다.
-* `44ms`라는 값은 Nagle 알고리즘과 delayed ACK 조합을 의심하기에 충분한 단서였다.
-* 실제 코드에서 `tcp_no_delay` 기본값은 config와 wrapper builder 양쪽 모두 `false`였다.
-* 벤치마크만 수정하지 않고 라이브러리 기본값을 `true`로 바꿨다.
-* 수정 후 전체 665개 테스트를 통과했다.
+- TCP payload `4096B` 이상에서 p50 latency가 약 `44ms`로 증가했다.
+- 10000회 반복 중 10000회 재현되어 우연한 outlier가 아니었다.
+- `44ms`라는 값은 Nagle 알고리즘과 delayed ACK 조합을 의심하기에 충분한 단서였다.
+- 실제 코드에서 `tcp_no_delay` 기본값은 config와 wrapper builder 양쪽 모두 `false`였다.
+- 벤치마크만 수정하지 않고 라이브러리 기본값을 `true`로 바꿨다.
+- 수정 후 전체 665개 테스트를 통과했다.
 
 이번 이슈의 핵심은 벤치마크 숫자를 성능 결과로만 보지 않았다는 점이다. 특정 payload 크기부터 반복적으로 같은 latency가 나온다면, 그것은 단순한 수치가 아니라 구조적인 신호다. 벤치마크는 빠르다/느리다를 보여주는 도구이기도 하지만, 라이브러리의 기본값이 사용 목적과 맞는지 검증하는 도구이기도 하다.
