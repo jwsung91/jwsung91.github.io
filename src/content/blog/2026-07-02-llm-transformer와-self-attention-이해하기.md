@@ -3,6 +3,7 @@ title: '[LLM] Transformer와 Self-Attention 이해하기'
 date: 2026-07-02
 updatedAt: 2026-07-02
 kind: study
+topic: llm
 tags:
   - LLM
   - transformer
@@ -81,13 +82,13 @@ flowchart TD
 
 각 구성 요소의 핵심 역할은 다음과 같다.
 
-| 구성 요소 | 역할 |
-| --- | --- |
-| **Self-Attention** | 각 토큰이 문맥 내의 다른 토큰을 얼마나 참고할지 계산 |
-| **Multi-Head Attention** | 여러 개의 다른 관점(Head)에서 attention을 병렬 계산 |
-| **Feed Forward Network (FFN)** | attention 결과를 토큰별로 비선형 변환 및 특징 추출 |
-| **Residual Connection (Add)** | 입력 정보를 우회하여 더해줌으로써 깊은 모델의 학습 안정화 |
-| **LayerNorm** | 벡터 분포를 정규화하여 그래디언트 소실/폭발 방지 |
+| 구성 요소                      | 역할                                                      |
+| ------------------------------ | --------------------------------------------------------- |
+| **Self-Attention**             | 각 토큰이 문맥 내의 다른 토큰을 얼마나 참고할지 계산      |
+| **Multi-Head Attention**       | 여러 개의 다른 관점(Head)에서 attention을 병렬 계산       |
+| **Feed Forward Network (FFN)** | attention 결과를 토큰별로 비선형 변환 및 특징 추출        |
+| **Residual Connection (Add)**  | 입력 정보를 우회하여 더해줌으로써 깊은 모델의 학습 안정화 |
+| **LayerNorm**                  | 벡터 분포를 정규화하여 그래디언트 소실/폭발 방지          |
 
 ---
 
@@ -135,11 +136,11 @@ $$\text{Attention}(Q, K, V) = \text{softmax}\left(\frac{QK^T}{\sqrt{d_k}}\right)
 
 여기서 $Q, K, V$는 각각 **Query**, **Key**, **Value**를 의미하며, 데이터베이스나 검색 시스템에 비유하면 직관적으로 이해할 수 있다.
 
-| 요소 | 의미 | 직관적 비유 |
-| --- | --- | --- |
-| **Query (Q)** | 현재 토큰이 찾고자 하는 정보의 주체 | *"나는 지금 어떤 정보를 찾고 있는가?"* |
-| **Key (K)** | 문장 내 다른 토큰들이 가진 검색용 색인(Index) | *"나는 어떤 특징을 가졌기에 검색될 수 있는가?"* |
-| **Value (V)** | 조건이 매칭되었을 때 실제로 가져올 본질적인 정보 | *"내가 줄 수 있는 진짜 내용물은 무엇인가?"* |
+| 요소          | 의미                                             | 직관적 비유                                     |
+| ------------- | ------------------------------------------------ | ----------------------------------------------- |
+| **Query (Q)** | 현재 토큰이 찾고자 하는 정보의 주체              | _"나는 지금 어떤 정보를 찾고 있는가?"_          |
+| **Key (K)**   | 문장 내 다른 토큰들이 가진 검색용 색인(Index)    | _"나는 어떤 특징을 가졌기에 검색될 수 있는가?"_ |
+| **Value (V)** | 조건이 매칭되었을 때 실제로 가져올 본질적인 정보 | _"내가 줄 수 있는 진짜 내용물은 무엇인가?"_     |
 
 ```mermaid
 flowchart LR
@@ -283,9 +284,9 @@ Self-Attention을 한 번만 수행(Single-Head)하면 문장을 단 하나의 �
 
 ```
 
-* `Which` $\leftrightarrow$ `?` (문장의 유형 파악)
-* `you` $\leftrightarrow$ `like` (주어-동사 호응 관계)
-* `coffee` $\leftrightarrow$ `tea` (대등한 선택 후보 관계)
+- `Which` $\leftrightarrow$ `?` (문장의 유형 파악)
+- `you` $\leftrightarrow$ `like` (주어-동사 호응 관계)
+- `coffee` $\leftrightarrow$ `tea` (대등한 선택 후보 관계)
 
 **Multi-Head Attention**은 $Q, K, V$ 공간을 여러 개($h$개)의 Head로 쪼개어 병렬로 연산을 수행한다. 각 Head는 문장의 서로 다른 문법적, 의미적 관계를 나누어 포착한다.
 

@@ -59,14 +59,9 @@ collections:
 
       - label: "Project"
         name: "project"
-        widget: "select"
-        create: true
+        widget: "string"
         required: false
-        hint: "프로젝트와 직접 관련 없는 개인 공부 글이면 비워둡니다."
-        options:
-          - { label: "unilink", value: "unilink" }
-          - { label: "AI Curator", value: "ai-curator" }
-          - { label: "Site", value: "site" }
+        hint: "프로젝트와 직접 관련 없는 개인 공부 글이면 비워둡니다. 소문자/숫자/하이픈(-) 조합으로 입력해주세요. (예: unilink, ai-curator, site)"
 
       - label: "Kind"
         name: "kind"
@@ -84,16 +79,9 @@ collections:
 
       - label: "Topic"
         name: "topic"
-        widget: "select"
-        create: true
+        widget: "string"
         required: false
-        hint: "프로젝트와 직접 관련 없는 study/note 글의 주제입니다."
-        options:
-          - { label: "C++", value: "cpp" }
-          - { label: "ROS 2", value: "ros2" }
-          - { label: "System Design", value: "system-design" }
-          - { label: "Tooling", value: "tooling" }
-          - { label: "CMS / Site", value: "cms-site" }
+        hint: "프로젝트와 직접 관련 없는 study/note 글의 주제입니다. 소문자/숫자/하이픈(-) 조합으로 입력해주세요. (예: cpp, ros2, system-design, tooling, cms-site)"
 
       - label: "Tags"
         name: "tags"
