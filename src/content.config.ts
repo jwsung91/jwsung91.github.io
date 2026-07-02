@@ -9,6 +9,7 @@ const kinds = [
   'retrospective',
   'study',
   'note',
+  'devlog',
 ] as const;
 const topics = ['cpp', 'ros2', 'system-design', 'tooling', 'cms-site'] as const;
 const seriesIds = [

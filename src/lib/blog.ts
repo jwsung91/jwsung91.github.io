@@ -9,6 +9,7 @@ export const blogKinds = [
   'retrospective',
   'study',
   'note',
+  'devlog',
 ] as const;
 export const blogTopics = [
   'cpp',
@@ -41,6 +42,7 @@ export const kindLabels: Record<BlogKind, string> = {
   retrospective: 'Retrospective',
   study: 'Study',
   note: 'Note',
+  devlog: 'Devlog',
 };
 
 export const topicLabels: Record<BlogTopic, string> = {
