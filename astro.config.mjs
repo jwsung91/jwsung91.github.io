@@ -4,6 +4,9 @@ import sitemap from '@astrojs/sitemap';
 
 import tailwindcss from '@tailwindcss/vite';
 
+import remarkMath from 'remark-math';
+import rehypeKatex from 'rehype-katex';
+
 const escapeHtml = (value) =>
   value
     .replaceAll('&', '&amp;')
@@ -56,7 +59,8 @@ export default defineConfig({
   site: 'https://jwsung91.github.io',
   integrations: [sitemap()],
   markdown: {
-    remarkPlugins: [remarkMermaid],
+    remarkPlugins: [remarkMath, remarkMermaid],
+    rehypePlugins: [rehypeKatex],
   },
   vite: {
     plugins: [tailwindcss()],

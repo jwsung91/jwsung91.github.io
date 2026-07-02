@@ -86,6 +86,12 @@ const googleSiteVerification = import.meta.env.PUBLIC_GOOGLE_SITE_VERIFICATION;
       const isDark = stored ? stored === 'dark' : prefersDark;
       document.documentElement.classList.toggle('dark', isDark);
     </script>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css"
+      integrity="sha384-n8MVd8MOf85hzMTyOEYALFuaP5Tx1XXAQvyqEply+C9nqipWqxRYVUUs5JVKdWRe"
+      crossorigin="anonymous"
+    />
   </head>
   <body
     class="min-h-screen bg-stone-50 font-sans text-base leading-relaxed text-stone-700 transition-colors duration-200 dark:bg-zinc-950 dark:text-stone-300"

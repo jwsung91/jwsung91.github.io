@@ -60,6 +60,7 @@ collections:
       - label: "Project"
         name: "project"
         widget: "select"
+        create: true
         required: false
         hint: "프로젝트와 직접 관련 없는 개인 공부 글이면 비워둡니다."
         options:
@@ -84,6 +85,7 @@ collections:
       - label: "Topic"
         name: "topic"
         widget: "select"
+        create: true
         required: false
         hint: "프로젝트와 직접 관련 없는 study/note 글의 주제입니다."
         options:

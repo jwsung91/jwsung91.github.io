@@ -40,7 +40,7 @@ const kindStyles: Record<BlogKind, string> = {
     <span
       class={`${badgeClass} bg-stone-900 text-white dark:bg-stone-100 dark:text-zinc-950`}
     >
-      {projectLabels[project]}
+      {projectLabels[project] || project}
     </span>
   )
 }
@@ -50,7 +50,7 @@ const kindStyles: Record<BlogKind, string> = {
     <span
       class={`${badgeClass} bg-stone-100 text-stone-600 dark:bg-stone-900 dark:text-stone-400`}
     >
-      {topicLabels[topic]}
+      {topicLabels[topic] || topic}
     </span>
   )
 }

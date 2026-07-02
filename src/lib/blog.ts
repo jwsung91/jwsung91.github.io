@@ -20,16 +20,16 @@ export const blogTopics = [
 ] as const;
 
 export type BlogPost = CollectionEntry<'blog'>;
-export type BlogProject = (typeof blogProjects)[number];
+export type BlogProject = string;
 export type BlogKind = (typeof blogKinds)[number];
-export type BlogTopic = (typeof blogTopics)[number];
+export type BlogTopic = string;
 export type BlogTagSummary = {
   tag: string;
   slug: string;
   count: number;
 };
 
-export const projectLabels: Record<BlogProject, string> = {
+export const projectLabels: Record<string, string> = {
   unilink: 'unilink',
   'ai-curator': 'AI Curator',
   site: 'Site',
@@ -45,7 +45,7 @@ export const kindLabels: Record<BlogKind, string> = {
   devlog: 'Devlog',
 };
 
-export const topicLabels: Record<BlogTopic, string> = {
+export const topicLabels: Record<string, string> = {
   cpp: 'C++',
   ros2: 'ROS 2',
   'system-design': 'System Design',

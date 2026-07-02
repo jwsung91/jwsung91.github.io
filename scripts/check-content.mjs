@@ -8,7 +8,6 @@ const files = await fg('src/content/blog/**/*.md', {
   onlyFiles: true,
 });
 
-const allowedProjects = new Set(['unilink', 'ai-curator', 'site']);
 const allowedKinds = new Set([
   'design',
   'implementation',
@@ -17,13 +16,6 @@ const allowedKinds = new Set([
   'study',
   'note',
   'devlog',
-]);
-const allowedTopics = new Set([
-  'cpp',
-  'ros2',
-  'system-design',
-  'tooling',
-  'cms-site',
 ]);
 const seriesMeta = {
   'unilink-design': {
@@ -114,16 +106,16 @@ for (const file of files) {
     fail(currentFile, `kind가 올바르지 않습니다: ${data.kind}`);
   }
 
-  if (data.project && !allowedProjects.has(data.project)) {
-    fail(currentFile, `project가 올바르지 않습니다: ${data.project}`);
+  if (data.project && (typeof data.project !== 'string' || !/^[a-z0-9-]+$/.test(data.project))) {
+    fail(currentFile, `project는 올바른 슬러그 형식(소문자, 숫자, -)이어야 합니다: ${data.project}`);
   }
 
   if (!data.project && data.kind === 'study' && !data.topic) {
     fail(currentFile, '프로젝트 없는 study 글은 topic이 필요합니다.');
   }
 
-  if (data.topic && !allowedTopics.has(data.topic)) {
-    fail(currentFile, `topic이 올바르지 않습니다: ${data.topic}`);
+  if (data.topic && (typeof data.topic !== 'string' || !/^[a-z0-9-]+$/.test(data.topic))) {
+    fail(currentFile, `topic은 올바른 슬러그 형식(소문자, 숫자, -)이어야 합니다: ${data.topic}`);
   }
 
   if (

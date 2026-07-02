@@ -101,7 +101,7 @@ const projectDocTitles: Record<BlogProject, string> = {
             {studyGroups.map(([topic, topicPosts]) => (
               <article class="rounded-lg border border-stone-200 bg-stone-100/50 p-5 dark:border-stone-800 dark:bg-stone-900/50">
                 <h3 class="text-lg font-semibold text-stone-900 dark:text-stone-100">
-                  {topicLabels[topic]}
+                  {topicLabels[topic] || topic}
                 </h3>
                 <p class="mt-2 text-sm leading-relaxed text-stone-600 dark:text-stone-400">
                   {topicPosts.length}개의 학습 기록이 있습니다.
