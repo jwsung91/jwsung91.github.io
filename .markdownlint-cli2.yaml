@@ -17,6 +17,9 @@ config:
   MD024:
     siblings_only: true
 
+  # Prettier의 테이블 포맷팅과 충돌하는 table-column-style 비활성화
+  MD060: false
+
 globs:
   - 'src/content/**/*.md'
   - 'README.md'
