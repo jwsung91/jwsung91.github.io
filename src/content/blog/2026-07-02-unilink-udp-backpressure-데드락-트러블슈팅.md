@@ -24,11 +24,11 @@ draft: true
 
 핵심 원인은 두 가지였다.
 
-| 구분    | 원인                                                     | 영향                                     |
-| ----- | ------------------------------------------------------ | -------------------------------------- |
-| 1차 원인 | UDP write 실패 시 `tx_`와 `pending_` queue를 완전히 비우지 않음     | backpressure 상태가 재점화되거나 해제되지 않음        |
-| 2차 원인 | `bp_cv_.notify_all()`이 조건변수와 동일한 mutex 규율 없이 호출됨       | lost wakeup으로 sender thread가 영원히 대기 가능 |
-| 최종 대응 | queue drain 전용 함수 추가 + `wait_for()` 기반 bounded wait 도입 | notify 유실에도 최대 50ms 뒤 상태 재확인 가능        |
+| 구분      | 원인                                                             | 영향                                             |
+| --------- | ---------------------------------------------------------------- | ------------------------------------------------ |
+| 1차 원인  | UDP write 실패 시 `tx_`와 `pending_` queue를 완전히 비우지 않음  | backpressure 상태가 재점화되거나 해제되지 않음   |
+| 2차 원인  | `bp_cv_.notify_all()`이 조건변수와 동일한 mutex 규율 없이 호출됨 | lost wakeup으로 sender thread가 영원히 대기 가능 |
+| 최종 대응 | queue drain 전용 함수 추가 + `wait_for()` 기반 bounded wait 도입 | notify 유실에도 최대 50ms 뒤 상태 재확인 가능    |
 
 결론부터 말하면, 이 버그는 단순히 “UDP payload가 너무 커서 실패했다”가 아니었다. 실패 이후 backpressure 상태를 안전하게 정리하지 못했고, 그 상태를 기다리는 thread가 조건변수 notify를 놓칠 수 있는 구조였다.
 
@@ -71,10 +71,10 @@ flowchart TD
 
 재현 양상도 특이했다.
 
-| 환경                     | 반복 결과           |
-| ---------------------- | --------------- |
-| 로컬 x64                 | 45회 반복, hang 없음 |
-| Jetson Orin Nano Super | 30회 중 3회 hang   |
+| 환경                   | 반복 결과            |
+| ---------------------- | -------------------- |
+| 로컬 x64               | 45회 반복, hang 없음 |
+| Jetson Orin Nano Super | 30회 중 3회 hang     |
 
 x64에서 재현되지 않고 Jetson에서만 확률적으로 재현된다는 점은 중요한 단서였다. 결정적인 로직 버그라면 어느 환경에서든 비교적 안정적으로 재현됐을 가능성이 높다. 반면 특정 하드웨어에서만 확률적으로 멈춘다면 thread scheduling, timing, condition variable 같은 동시성 문제가 개입했을 가능성이 높다.
 
@@ -161,11 +161,11 @@ drain_queue_and_clear_backpressure();
 
 이 함수의 목적은 단순하다.
 
-* `tx_`를 비운다.
-* `pending_`도 비운다.
-* 대기 중인 callback을 실패 상태로 완료시킨다.
-* backpressure 상태를 명시적으로 해제한다.
-* 대기 중인 sender thread가 깨어날 수 있도록 notify한다.
+- `tx_`를 비운다.
+- `pending_`도 비운다.
+- 대기 중인 callback을 실패 상태로 완료시킨다.
+- backpressure 상태를 명시적으로 해제한다.
+- 대기 중인 sender thread가 깨어날 수 있도록 notify한다.
 
 둘째, `send_blocking()`, `send_move()`, `send_shared()`의 무한 wait를 `wait_for()` 기반 재시도 루프로 바꿨다.
 
@@ -188,9 +188,9 @@ void wait_for_backpressure_clear(std::unique_lock<std::mutex>& bp_lock) {
 
 회귀 테스트는 두 개를 추가했다.
 
-| 테스트                               | 검증 내용                                    |
-| --------------------------------- | ---------------------------------------- |
-| `tx_` 누적 상태에서 write 실패            | 에러 발생 시 기본 송신 queue가 정리되는지 확인            |
+| 테스트                                  | 검증 내용                                          |
+| --------------------------------------- | -------------------------------------------------- |
+| `tx_` 누적 상태에서 write 실패          | 에러 발생 시 기본 송신 queue가 정리되는지 확인     |
 | `pending_` overflow 상태에서 write 실패 | backpressure 중 overflow queue까지 정리되는지 확인 |
 
 두 테스트는 원본 코드에서는 실패하고, 수정 후에는 통과했다.
@@ -231,11 +231,11 @@ done
 
 정리하면 다음과 같다.
 
-* UDP `65536B` write 실패는 예상된 동작이었다.
-* 문제는 write 실패 이후 `tx_`와 `pending_` queue가 완전히 정리되지 않은 것이다.
-* `Reliable` 전략에서는 backpressure 중 새 메시지가 `pending_`에 들어가기 때문에 `tx_`만 비워서는 부족했다.
-* `notify_all()`이 조건변수와 같은 mutex 규율 없이 호출되면서 lost wakeup 가능성이 있었다.
-* 단일 스레드 유닛 테스트는 queue drain 문제는 검증할 수 있었지만, lost wakeup race는 검증하지 못했다.
-* 실제 Jetson 환경에서 반복 실행하고 gdb thread dump를 확보한 것이 원인 확정에 결정적이었다.
+- UDP `65536B` write 실패는 예상된 동작이었다.
+- 문제는 write 실패 이후 `tx_`와 `pending_` queue가 완전히 정리되지 않은 것이다.
+- `Reliable` 전략에서는 backpressure 중 새 메시지가 `pending_`에 들어가기 때문에 `tx_`만 비워서는 부족했다.
+- `notify_all()`이 조건변수와 같은 mutex 규율 없이 호출되면서 lost wakeup 가능성이 있었다.
+- 단일 스레드 유닛 테스트는 queue drain 문제는 검증할 수 있었지만, lost wakeup race는 검증하지 못했다.
+- 실제 Jetson 환경에서 반복 실행하고 gdb thread dump를 확보한 것이 원인 확정에 결정적이었다.
 
 이번 이슈에서 남는 교훈은 명확하다. 정적 분석은 가설을 세우는 도구일 뿐이고, 확률적으로 재현되는 동시성 버그는 실제 환경에서 반복 재현해야 한다. 특히 condition variable, atomic flag, strand thread, blocking send가 섞이는 구조에서는 “테스트 통과”와 “동시성 안전”을 같은 의미로 보면 안 된다.
