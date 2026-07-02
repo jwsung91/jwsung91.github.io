@@ -1,9 +1,8 @@
 ---
-title: '[LLM] Transformer와 Self-Attention 이해하기'
+title: '[LLM] Transformer와 self-attention 이해하기'
 date: 2026-07-02
 updatedAt: 2026-07-02
 kind: study
-topic: llm
 tags:
   - LLM
   - transformer
@@ -22,7 +21,6 @@ Transformer 이전에도 문장과 같은 sequence 데이터를 처리하는 모
 
 ```text
 나는 → 커피를 → 마셨다
-
 ```
 
 순차 처리 방식은 문장을 읽는 인간의 흐름과 유사하다. 하지만 구조적인 한계가 존재한다.
@@ -35,12 +33,11 @@ Transformer는 이 문제를 순차적인 기억 전달이 아니라, **토큰 �
 
 ```text
 "각 토큰이 문장 안의 다른 모든 토큰을 직접 참고한다."
-
 ```
 
 이 혁신적인 구조의 중심에 바로 **Self-Attention**이 있다.
 
----
+***
 
 ## Transformer 전체 흐름
 
@@ -61,7 +58,6 @@ flowchart TD
     K --> L[Logits]
     L --> M[Softmax]
     M --> N[Next Token Probability]
-
 ```
 
 입력 문장은 먼저 **Tokenizer**를 통해 토큰 단위로 나뉘고, 각 토큰은 고차원 벡터로 변환된다. Transformer는 순차적으로 입력을 받지 않기 때문에, 토큰의 절대적/상대적 위치를 알려주는 위치 정보(Position Embedding)를 더해준다.
@@ -77,20 +73,19 @@ flowchart TD
     C --> D[Feed Forward Network]
     D --> E[Add & LayerNorm]
     E --> F[Output X']
-
 ```
 
 각 구성 요소의 핵심 역할은 다음과 같다.
 
-| 구성 요소                      | 역할                                                      |
-| ------------------------------ | --------------------------------------------------------- |
-| **Self-Attention**             | 각 토큰이 문맥 내의 다른 토큰을 얼마나 참고할지 계산      |
-| **Multi-Head Attention**       | 여러 개의 다른 관점(Head)에서 attention을 병렬 계산       |
-| **Feed Forward Network (FFN)** | attention 결과를 토큰별로 비선형 변환 및 특징 추출        |
-| **Residual Connection (Add)**  | 입력 정보를 우회하여 더해줌으로써 깊은 모델의 학습 안정화 |
-| **LayerNorm**                  | 벡터 분포를 정규화하여 그래디언트 소실/폭발 방지          |
+| 구성 요소 | 역할 |
+| --- | --- |
+| **Self-Attention** | 각 토큰이 문맥 내의 다른 토큰을 얼마나 참고할지 계산 |
+| **Multi-Head Attention** | 여러 개의 다른 관점(Head)에서 attention을 병렬 계산 |
+| **Feed Forward Network (FFN)** | attention 결과를 토큰별로 비선형 변환 및 특징 추출 |
+| **Residual Connection (Add)** | 입력 정보를 우회하여 더해줌으로써 깊은 모델의 학습 안정화 |
+| **LayerNorm** | 벡터 분포를 정규화하여 그래디언트 소실/폭발 방지 |
 
----
+***
 
 ## Self-Attention의 역할
 
@@ -98,14 +93,12 @@ Self-Attention은 각 토큰에 대해 다음 질문의 답을 수치로 계산�
 
 ```text
 "현재 토큰을 명확히 표현하기 위해, 문장 안의 어떤 토큰을 얼마나 참고해야 하는가?"
-
 ```
 
 예를 들어 다음 문장을 보자.
 
 ```text
 나는 어제 산 커피를 오늘 마셨다
-
 ```
 
 `마셨다`라는 토큰의 문맥적 의미를 명확히 하려면 행동의 직접적인 대상인 `커피를`이 가장 중요하고, 시점 정보인 `오늘`도 밀접하게 관련된다. Self-Attention은 이 관계를 다음과 같이 수치화한다.
@@ -117,7 +110,6 @@ flowchart LR
     A --> D[산: 0.10]
     A --> E[커피를: 0.55]
     A --> F[오늘: 0.25]
-
 ```
 
 이 값은 고정된 것이 아니라, 학습 과정에서 가중치 행렬을 통해 모델이 스스로 최적화한다. 결과적으로 `마셨다`라는 토큰의 새로운 표현(Contextualized Vector)은 각 정보의 가중합으로 생성된다.
@@ -126,7 +118,7 @@ $$\text{마셨다의 새 표현} = 0.05 \times \text{나는} + 0.05 \times \text
 
 Attention은 특정 토큰 하나만 선택하는 하드 셀렉션(Hard Selection)이 아니다. 문맥에 따라 여러 토큰의 정보를 **비율대로 매끄럽게 섞어서** 현재 토큰의 의미를 새로이 빌딩하는 연산이다.
 
----
+***
 
 ## Q, K, V의 개념
 
@@ -136,18 +128,17 @@ $$\text{Attention}(Q, K, V) = \text{softmax}\left(\frac{QK^T}{\sqrt{d_k}}\right)
 
 여기서 $Q, K, V$는 각각 **Query**, **Key**, **Value**를 의미하며, 데이터베이스나 검색 시스템에 비유하면 직관적으로 이해할 수 있다.
 
-| 요소          | 의미                                             | 직관적 비유                                     |
-| ------------- | ------------------------------------------------ | ----------------------------------------------- |
-| **Query (Q)** | 현재 토큰이 찾고자 하는 정보의 주체              | _"나는 지금 어떤 정보를 찾고 있는가?"_          |
-| **Key (K)**   | 문장 내 다른 토큰들이 가진 검색용 색인(Index)    | _"나는 어떤 특징을 가졌기에 검색될 수 있는가?"_ |
-| **Value (V)** | 조건이 매칭되었을 때 실제로 가져올 본질적인 정보 | _"내가 줄 수 있는 진짜 내용물은 무엇인가?"_     |
+| 요소 | 의미 | 직관적 비유 |
+| --- | --- | --- |
+| **Query (Q)** | 현재 토큰이 찾고자 하는 정보의 주체 | *"나는 지금 어떤 정보를 찾고 있는가?"* |
+| **Key (K)** | 문장 내 다른 토큰들이 가진 검색용 색인(Index) | *"나는 어떤 특징을 가졌기에 검색될 수 있는가?"* |
+| **Value (V)** | 조건이 매칭되었을 때 실제로 가져올 본질적인 정보 | *"내가 줄 수 있는 진짜 내용물은 무엇인가?"* |
 
 ```mermaid
 flowchart LR
     A[Query<br/>검색어] --> B[Key<br/>색인과 비교]
     B --> C[관련도 점수 계산]
     C --> D[Value<br/>실제 내용 가져오기]
-
 ```
 
 Self-Attention에서는 이 $Q, K, V$가 모두 동일한 입력 벡터 $X$로부터 출발한다.
@@ -170,10 +161,9 @@ flowchart TD
     U --> O[Weighted Sum with V]
     V --> O
     O --> Y[Attention Output]
-
 ```
 
----
+***
 
 ## 단계별 연산 파헤치기
 
@@ -182,13 +172,12 @@ flowchart TD
 $Q$ 행렬과 $K$ 행렬의 전치 행렬을 내적($QK^T$)하면, 문장 내 모든 토큰 쌍(Pair) 간의 원시 관련도 점수(Raw Attention Score)가 계산된다. 토큰이 4개라면 $4 \times 4$ 크기의 행렬이 나온다.
 
 ```text
-                  [Key] 토큰들
+                 [Key] 토큰들
                나는   커피를   오늘   마셨다
 [Query] 나는   0.8     0.1     0.1     0.0
 [Query] 커피를 0.1     0.7     0.0     0.2
 [Query] 오늘   0.0     0.1     0.8     0.1
 [Query] 마셨다 0.1     0.5     0.3     0.1
-
 ```
 
 `마셨다`(4번째 행)의 Query는 `커피를`(0.5)과 `오늘`(0.3)의 Key와 높은 내적값을 기록한다. 이 점수는 단순한 단어 유사도가 아니라 문법, 지시, 위치 등 학습된 복합적 관계가 반영된 결과다.
@@ -212,7 +201,6 @@ $$\text{Score (Scaling 적용)} = [0.25, 0.5, 2.5, 0.375]$$
 ```mermaid
 flowchart LR
     A["관련도 점수<br/>(1.2, 0.3, 2.1, -0.4)"] --> B[Softmax] --> C["참고 비율<br/>(0.24, 0.10, 0.58, 0.08)"]
-
 ```
 
 ### 4. Value 가중합 (Weighted Sum)
@@ -239,10 +227,9 @@ flowchart TD
     E --> F[Value 가중합]
     B3 --> F
     F --> G[Contextualized Token Vectors]
-
 ```
 
----
+***
 
 ## 심화 구조
 
@@ -253,11 +240,10 @@ GPT 같은 디코더 전용(Decoder-only) 모델은 이전 토큰들을 바탕�
 이를 방지하기 위해 미래 토큰 행렬 위치를 가려버리는 **Masking** 작업을 수행한다.
 
 ```text
-       나는  커피를  마셨다
+      나는  커피를  마셨다
 나는    O     X      X
 커피를  O     O      X
 마셨다  O     O      O
-
 ```
 
 구현 상으로는 소프트맥스를 통과하기 전 미래 토큰의 내적 점수 위치에 $-\infty$를 더해준다.
@@ -272,7 +258,6 @@ flowchart TD
     B --> C[Masked Score]
     C --> D[Softmax]
     D --> E[미래 token 참고 확률 0]
-
 ```
 
 ### Multi-Head Attention
@@ -281,12 +266,11 @@ Self-Attention을 한 번만 수행(Single-Head)하면 문장을 단 하나의 �
 
 ```text
 "Which do you like better, coffee or tea?"
-
 ```
 
-- `Which` $\leftrightarrow$ `?` (문장의 유형 파악)
-- `you` $\leftrightarrow$ `like` (주어-동사 호응 관계)
-- `coffee` $\leftrightarrow$ `tea` (대등한 선택 후보 관계)
+* `Which` $\leftrightarrow$ `?` (문장의 유형 파악)
+* `you` $\leftrightarrow$ `like` (주어-동사 호응 관계)
+* `coffee` $\leftrightarrow$ `tea` (대등한 선택 후보 관계)
 
 **Multi-Head Attention**은 $Q, K, V$ 공간을 여러 개($h$개)의 Head로 쪼개어 병렬로 연산을 수행한다. 각 Head는 문장의 서로 다른 문법적, 의미적 관계를 나누어 포착한다.
 
@@ -304,14 +288,13 @@ flowchart TD
 
     C --> O[Output Projection]
     O --> Y[Multi-Head Attention Output]
-
 ```
 
 각 헤드의 출력들을 하나로 이어 붙인(Concat) 뒤, 최종 출력 가중치 행렬($W_O$)을 곱해 원래 차원으로 되돌린다.
 
 $$\text{MultiHead}(Q, K, V) = \text{Concat}(\text{head}_1, \text{head}_2, \dots, \text{head}_h)W_O$$
 
----
+***
 
 ## Transformer Block의 마무리 연산
 
@@ -328,13 +311,12 @@ flowchart TD
     D --> F
     F --> G[LayerNorm]
     G --> H[Output X']
-
 ```
 
 1. **Feed Forward Network (FFN):** Attention이 여러 토큰의 정보를 융합했다면, FFN은 다른 토큰을 보지 않고 각 토큰별(Position-wise)로 개별 작동하며 융합된 특징을 비선형 변환하여 심층 표현을 완성한다.
 2. **Residual Connection:** 연산 결과에 원래의 입력값을 그대로 더해준다 ($\text{Output} = X + \text{SubLayer}(X)$). 레이어가 깊어져도 초기 정보가 왜곡 없이 끝까지 흘러갈 수 있도록 통로를 열어주어 그래디언트 흐름을 안정화한다.
 
----
+***
 
 ## 요약 및 정리
 
