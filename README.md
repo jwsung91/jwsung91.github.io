@@ -4,7 +4,7 @@
 
 ## Stack
 
-- **Framework:** Astro 6.1.7 (Static)
+- **Framework:** Astro 7.0.5 (Static)
 - **Styling:** Tailwind CSS v4 (`@tailwindcss/vite`)
 - **Fonts:** JetBrains Mono, Pretendard
 - **Diagrams:** Mermaid (블로그 포스트 내 코드블록 자동 렌더링)

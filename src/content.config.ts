@@ -51,7 +51,7 @@ const blog = defineCollection({
       title: z.string().min(1),
       date: z.coerce.date(),
       updatedAt: optionalDate,
-      project: z.string().optional(),
+      project: z.preprocess(emptyToUndefined, z.enum(projectIds).optional()),
       kind: z.enum(kinds),
 
       tags: z.array(z.string()).default([]),

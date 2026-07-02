@@ -29,6 +29,19 @@ const canonicalURL = new URL(
   Astro.site ?? 'https://jwsung91.github.io',
 );
 const googleSiteVerification = import.meta.env.PUBLIC_GOOGLE_SITE_VERIFICATION;
+const structuredDataJson = structuredData
+  ? JSON.stringify(structuredData).replace(
+      /[<>&\u2028\u2029]/g,
+      (character) =>
+        ({
+          '<': '\\u003c',
+          '>': '\\u003e',
+          '&': '\\u0026',
+          '\u2028': '\\u2028',
+          '\u2029': '\\u2029',
+        })[character] ?? character,
+    )
+  : undefined;
 ---
 
 <!doctype html>
@@ -69,21 +82,21 @@ const googleSiteVerification = import.meta.env.PUBLIC_GOOGLE_SITE_VERIFICATION;
     <meta name="twitter:description" content={description} />
     <Analytics />
     {
-      structuredData && (
-        <script
-          type="application/ld+json"
-          set:html={JSON.stringify(structuredData)}
-        />
+      structuredDataJson && (
+        <script type="application/ld+json" set:html={structuredDataJson} />
       )
     }
     <script is:inline>
-      const stored =
-        typeof localStorage !== 'undefined'
-          ? localStorage.getItem('theme')
-          : null;
-      const prefersDark = window.matchMedia(
-        '(prefers-color-scheme: dark)',
-      ).matches;
+      let stored = null;
+      try {
+        stored = window.localStorage?.getItem('theme') ?? null;
+      } catch {
+        stored = null;
+      }
+
+      const prefersDark =
+        typeof window.matchMedia === 'function' &&
+        window.matchMedia('(prefers-color-scheme: dark)').matches;
       const isDark = stored ? stored === 'dark' : prefersDark;
       document.documentElement.classList.toggle('dark', isDark);
     </script>

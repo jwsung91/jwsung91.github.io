@@ -13,7 +13,7 @@ export const blogKinds = [
 ] as const;
 
 export type BlogPost = CollectionEntry<'blog'>;
-export type BlogProject = string;
+export type BlogProject = (typeof blogProjects)[number];
 export type BlogKind = (typeof blogKinds)[number];
 
 export type BlogTagSummary = {
@@ -22,7 +22,7 @@ export type BlogTagSummary = {
   count: number;
 };
 
-export const projectLabels: Record<string, string> = {
+export const projectLabels: Record<BlogProject, string> = {
   unilink: 'unilink',
   'ai-curator': 'AI Curator',
   site: 'Site',

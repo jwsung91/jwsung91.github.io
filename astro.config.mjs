@@ -1,6 +1,7 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
+import { unified } from '@astrojs/markdown-remark';
 
 import tailwindcss from '@tailwindcss/vite';
 
@@ -59,8 +60,10 @@ export default defineConfig({
   site: 'https://jwsung91.github.io',
   integrations: [sitemap()],
   markdown: {
-    remarkPlugins: [remarkMath, remarkMermaid],
-    rehypePlugins: [rehypeKatex],
+    processor: unified({
+      remarkPlugins: [remarkMath, remarkMermaid],
+      rehypePlugins: [rehypeKatex],
+    }),
   },
   vite: {
     plugins: [tailwindcss()],

@@ -61,7 +61,9 @@ for (const file of files) {
       const newBasename = `${frontmatterDate}-${basename}`;
       const newFile = path.join(path.dirname(currentFile), newBasename);
       await fs.rename(currentFile, newFile);
-      console.log(`✓ Renamed (added date prefix): ${currentFile} -> ${newFile}`);
+      console.log(
+        `✓ Renamed (added date prefix): ${currentFile} -> ${newFile}`,
+      );
       currentFile = newFile;
       basename = newBasename;
     } else {
@@ -75,7 +77,10 @@ for (const file of files) {
 
   if (filenameDate && frontmatterDate && filenameDate !== frontmatterDate) {
     if (isFix) {
-      const newBasename = basename.replace(/^\d{4}-\d{2}-\d{2}-/, `${frontmatterDate}-`);
+      const newBasename = basename.replace(
+        /^\d{4}-\d{2}-\d{2}-/,
+        `${frontmatterDate}-`,
+      );
       const newFile = path.join(path.dirname(currentFile), newBasename);
       await fs.rename(currentFile, newFile);
       console.log(`✓ Renamed (matched date): ${currentFile} -> ${newFile}`);
@@ -104,11 +109,15 @@ for (const file of files) {
     fail(currentFile, `kind가 올바르지 않습니다: ${data.kind}`);
   }
 
-  if (data.project && (typeof data.project !== 'string' || !/^[a-z0-9-]+$/.test(data.project))) {
-    fail(currentFile, `project는 올바른 슬러그 형식(소문자, 숫자, -)이어야 합니다: ${data.project}`);
+  if (
+    data.project &&
+    (typeof data.project !== 'string' || !/^[a-z0-9-]+$/.test(data.project))
+  ) {
+    fail(
+      currentFile,
+      `project는 올바른 슬러그 형식(소문자, 숫자, -)이어야 합니다: ${data.project}`,
+    );
   }
-
-
 
   if (
     !data.description ||
@@ -170,8 +179,6 @@ for (const file of files) {
         `series ${data.series}는 project ${meta.project}와 함께 사용해야 합니다.`,
       );
     }
-
-
   }
 
   if (!data.series && data.seriesOrder !== undefined) {
@@ -187,11 +194,17 @@ for (const file of files) {
 
   if (/```mermaid[^\S\r\n]+\S/.test(content)) {
     if (isFix) {
-      updatedContent = updatedContent.replace(/(```mermaid)([^\S\r\n]+\S)/g, '$1\n$2');
+      updatedContent = updatedContent.replace(
+        /(```mermaid)([^\S\r\n]+\S)/g,
+        '$1\n$2',
+      );
       contentChanged = true;
       console.log(`✓ Fixed mermaid fence in ${currentFile}`);
     } else {
-      fail(currentFile, 'Mermaid fence는 ```mermaid 다음 줄부터 작성해야 합니다.');
+      fail(
+        currentFile,
+        'Mermaid fence는 ```mermaid 다음 줄부터 작성해야 합니다.',
+      );
     }
   }
 
@@ -205,9 +218,12 @@ for (const file of files) {
 
   if (hasTabInMermaid) {
     if (isFix) {
-      updatedContent = updatedContent.replace(/```mermaid\n([\s\S]*?)\n```/g, (match, p1) => {
-        return "```mermaid\n" + p1.replace(/\t/g, '  ') + "\n```";
-      });
+      updatedContent = updatedContent.replace(
+        /```mermaid\n([\s\S]*?)\n```/g,
+        (match, p1) => {
+          return '```mermaid\n' + p1.replace(/\t/g, '  ') + '\n```';
+        },
+      );
       contentChanged = true;
       console.log(`✓ Fixed tabs in mermaid block in ${currentFile}`);
     } else {
