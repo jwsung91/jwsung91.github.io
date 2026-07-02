@@ -69,11 +69,7 @@ const blogPostingStructuredData = {
           >
             {formatDate(post.data.date)}
           </span>
-          <PostMetaBadges
-            project={post.data.project}
-            kind={post.data.kind}
-            topic={post.data.topic}
-          />
+          <PostMetaBadges project={post.data.project} kind={post.data.kind} />
         </div>
         <h1
           class="mb-3 font-sans text-3xl font-bold text-stone-900 dark:text-stone-100 md:text-4xl"

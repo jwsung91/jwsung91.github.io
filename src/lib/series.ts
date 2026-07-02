@@ -12,7 +12,6 @@ export const SERIES_META = {
   },
   'cpp-stl-study': {
     title: 'C++ STL Study',
-    topic: 'cpp',
     description: 'C++ STL과 자료구조를 실무 관점에서 정리합니다.',
   },
 } as const;

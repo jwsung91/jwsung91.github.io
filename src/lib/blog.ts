@@ -11,18 +11,11 @@ export const blogKinds = [
   'note',
   'devlog',
 ] as const;
-export const blogTopics = [
-  'cpp',
-  'ros2',
-  'system-design',
-  'tooling',
-  'cms-site',
-] as const;
 
 export type BlogPost = CollectionEntry<'blog'>;
 export type BlogProject = string;
 export type BlogKind = (typeof blogKinds)[number];
-export type BlogTopic = string;
+
 export type BlogTagSummary = {
   tag: string;
   slug: string;
@@ -43,14 +36,6 @@ export const kindLabels: Record<BlogKind, string> = {
   study: 'Study',
   note: 'Note',
   devlog: 'Devlog',
-};
-
-export const topicLabels: Record<string, string> = {
-  cpp: 'C++',
-  ros2: 'ROS 2',
-  'system-design': 'System Design',
-  tooling: 'Tooling',
-  'cms-site': 'CMS / Site',
 };
 
 const tagDisplayLabels: Record<string, string> = {
@@ -169,9 +154,7 @@ export const getProjectPosts = (posts: BlogPost[], project: BlogProject) =>
   posts.filter((post) => post.data.project === project);
 
 export const getSitePosts = (posts: BlogPost[]) =>
-  posts.filter(
-    (post) => post.data.project === 'site' || post.data.topic === 'cms-site',
-  );
+  posts.filter((post) => post.data.project === 'site');
 
 export const groupPostsByProject = (posts: BlogPost[]) => {
   const groups = new Map<BlogProject, BlogPost[]>();
@@ -185,20 +168,6 @@ export const groupPostsByProject = (posts: BlogPost[]) => {
       ...(groups.get(post.data.project) ?? []),
       post,
     ]);
-  });
-
-  return groups;
-};
-
-export const groupPostsByTopic = (posts: BlogPost[]) => {
-  const groups = new Map<BlogTopic, BlogPost[]>();
-
-  posts.forEach((post) => {
-    if (!post.data.topic) {
-      return;
-    }
-
-    groups.set(post.data.topic, [...(groups.get(post.data.topic) ?? []), post]);
   });
 
   return groups;

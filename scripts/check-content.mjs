@@ -24,9 +24,7 @@ const seriesMeta = {
   'ai-curator-pipeline': {
     project: 'ai-curator',
   },
-  'cpp-stl-study': {
-    topic: 'cpp',
-  },
+  'cpp-stl-study': {},
 };
 
 let hasError = false;
@@ -110,13 +108,7 @@ for (const file of files) {
     fail(currentFile, `project는 올바른 슬러그 형식(소문자, 숫자, -)이어야 합니다: ${data.project}`);
   }
 
-  if (!data.project && data.kind === 'study' && !data.topic) {
-    fail(currentFile, '프로젝트 없는 study 글은 topic이 필요합니다.');
-  }
 
-  if (data.topic && (typeof data.topic !== 'string' || !/^[a-z0-9-]+$/.test(data.topic))) {
-    fail(currentFile, `topic은 올바른 슬러그 형식(소문자, 숫자, -)이어야 합니다: ${data.topic}`);
-  }
 
   if (
     !data.description ||
@@ -179,12 +171,7 @@ for (const file of files) {
       );
     }
 
-    if (meta?.topic && data.topic !== meta.topic) {
-      fail(
-        currentFile,
-        `series ${data.series}는 topic ${meta.topic}와 함께 사용해야 합니다.`,
-      );
-    }
+
   }
 
   if (!data.series && data.seriesOrder !== undefined) {

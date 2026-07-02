@@ -11,7 +11,7 @@ const kinds = [
   'note',
   'devlog',
 ] as const;
-const topics = ['cpp', 'ros2', 'system-design', 'tooling', 'cms-site'] as const;
+
 const seriesIds = [
   'unilink-design',
   'ai-curator-pipeline',
@@ -53,7 +53,7 @@ const blog = defineCollection({
       updatedAt: optionalDate,
       project: z.string().optional(),
       kind: z.enum(kinds),
-      topic: z.string().optional(),
+
       tags: z.array(z.string()).default([]),
       description: z.string().min(40).max(180),
       series: z.preprocess(emptyToUndefined, z.enum(seriesIds).optional()),
@@ -61,14 +61,6 @@ const blog = defineCollection({
       draft: z.boolean().default(false),
     })
     .superRefine((data, ctx) => {
-      if (!data.project && data.kind === 'study' && !data.topic) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          path: ['topic'],
-          message: '프로젝트 없는 study 글은 topic이 필요합니다.',
-        });
-      }
-
       if (data.series && data.seriesOrder === undefined) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,

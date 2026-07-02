@@ -2,19 +2,16 @@
 import {
   kindLabels,
   projectLabels,
-  topicLabels,
   type BlogKind,
   type BlogProject,
-  type BlogTopic,
 } from '../lib/blog';
 
 interface Props {
   project?: BlogProject;
   kind: BlogKind;
-  topic?: BlogTopic;
 }
 
-const { project, kind, topic } = Astro.props;
+const { project, kind } = Astro.props;
 
 const badgeClass =
   'inline-flex rounded px-2 py-1 font-mono text-xs uppercase tracking-wider';
@@ -45,12 +42,3 @@ const kindStyles: Record<BlogKind, string> = {
   )
 }
 <span class={`${badgeClass} ${kindStyles[kind]}`}>{kindLabels[kind]}</span>
-{
-  topic && (
-    <span
-      class={`${badgeClass} bg-stone-100 text-stone-600 dark:bg-stone-900 dark:text-stone-400`}
-    >
-      {topicLabels[topic] || topic}
-    </span>
-  )
-}

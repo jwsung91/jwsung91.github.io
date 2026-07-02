@@ -77,12 +77,6 @@ collections:
           - { label: "Note", value: "note" }
           - { label: "Devlog", value: "devlog" }
 
-      - label: "Topic"
-        name: "topic"
-        widget: "string"
-        required: false
-        hint: "프로젝트와 직접 관련 없는 study/note 글의 주제입니다. 소문자/숫자/하이픈(-) 조합으로 입력해주세요. (예: cpp, ros2, system-design, tooling, cms-site)"
-
       - label: "Tags"
         name: "tags"
         widget: "list"

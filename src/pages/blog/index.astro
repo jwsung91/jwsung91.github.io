@@ -8,9 +8,7 @@ import {
   getProjectPosts,
   getSitePosts,
   getStudyPosts,
-  groupPostsByTopic,
   sortBlogPosts,
-  topicLabels,
   type BlogProject,
 } from '../../lib/blog';
 
@@ -24,7 +22,7 @@ const projectGroups = (['unilink', 'ai-curator'] as BlogProject[])
     posts: getProjectPosts(posts, project),
   }))
   .filter((group) => group.posts.length > 0);
-const studyGroups = [...groupPostsByTopic(getStudyPosts(posts)).entries()];
+const studyPosts = getStudyPosts(posts);
 const sitePosts = getSitePosts(posts);
 const projectDocTitles: Record<BlogProject, string> = {
   unilink: 'unilink 설계 노트',
@@ -96,25 +94,33 @@ const projectDocTitles: Record<BlogProject, string> = {
         Study Notes
       </h2>
       {
-        studyGroups.length > 0 ? (
-          <div class="grid gap-4 md:grid-cols-2">
-            {studyGroups.map(([topic, topicPosts]) => (
-              <article class="rounded-lg border border-stone-200 bg-stone-100/50 p-5 dark:border-stone-800 dark:bg-stone-900/50">
-                <h3 class="text-lg font-semibold text-stone-900 dark:text-stone-100">
-                  {topicLabels[topic] || topic}
-                </h3>
-                <p class="mt-2 text-sm leading-relaxed text-stone-600 dark:text-stone-400">
-                  {topicPosts.length}개의 학습 기록이 있습니다.
-                </p>
+        studyPosts.length > 0 ? (
+          <ul class="space-y-3">
+            {studyPosts.map((post) => (
+              <li>
                 <a
-                  href={getBlogPath(topicPosts[0])}
-                  class="mt-4 inline-block font-mono text-sm text-coral-600 dark:text-coral-400 hover:underline"
+                  href={getBlogPath(post)}
+                  class="group block rounded-lg border border-stone-200 bg-stone-100/50 p-5 dark:border-stone-800 dark:bg-stone-900/50"
                 >
-                  latest study →
+                  <div class="mb-3 flex flex-wrap items-center gap-3">
+                    <span class="font-mono text-xs uppercase tracking-wider text-stone-500">
+                      {formatDate(post.data.date)}
+                    </span>
+                    <PostMetaBadges
+                      project={post.data.project}
+                      kind={post.data.kind}
+                    />
+                  </div>
+                  <h3 class="text-lg font-semibold text-stone-900 transition-colors duration-200 group-hover:text-stone-700 dark:text-stone-100 dark:group-hover:text-stone-300">
+                    {post.data.title}
+                  </h3>
+                  <p class="mt-2 text-sm leading-relaxed text-stone-600 dark:text-stone-400">
+                    {post.data.description}
+                  </p>
                 </a>
-              </article>
+              </li>
             ))}
-          </div>
+          </ul>
         ) : (
           <p class="text-base leading-relaxed text-stone-600 dark:text-stone-400">
             공개된 study 글이 아직 없습니다.
@@ -145,7 +151,6 @@ const projectDocTitles: Record<BlogProject, string> = {
                     <PostMetaBadges
                       project={post.data.project}
                       kind={post.data.kind}
-                      topic={post.data.topic}
                     />
                   </div>
                   <h3 class="text-lg font-semibold text-stone-900 transition-colors duration-200 group-hover:text-stone-700 dark:text-stone-100 dark:group-hover:text-stone-300">
@@ -184,7 +189,6 @@ const projectDocTitles: Record<BlogProject, string> = {
                   <PostMetaBadges
                     project={post.data.project}
                     kind={post.data.kind}
-                    topic={post.data.topic}
                   />
                 </div>
                 <h2 class="text-xl font-semibold text-stone-900 dark:text-stone-100 transition-colors duration-200 group-hover:text-stone-700 dark:group-hover:text-stone-300 md:text-2xl">
