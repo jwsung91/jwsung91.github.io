@@ -1,5 +1,5 @@
 ---
-title: '[LLM-core] Encoder-only와 Decoder-only 구조'
+title: '[LLM-core] Encoder-only와 Decoder-only'
 date: 2026-07-02
 updatedAt: 2026-07-02
 kind: study
@@ -87,7 +87,7 @@ Encoder-only 구조에서는 각 token이 입력 문장 전체를 볼 수 있다
 Encoder에서는 각 token이 모든 token을 참조할 수 있다.
 
 ```text
-       나는  커피를  마셨다
+      나는  커피를  마셨다
 나는      O     O      O
 커피를    O     O      O
 마셨다    O     O      O
@@ -215,7 +215,7 @@ Decoder-only 모델은 이전 token만 보고 다음 token을 예측한다.
 그래서 Decoder-only 모델은 causal mask를 사용한다.
 
 ```text
-       나는  커피를  마셨다
+      나는  커피를  마셨다
 나는      O     X      X
 커피를    O     O      X
 마셨다    O     O      O
