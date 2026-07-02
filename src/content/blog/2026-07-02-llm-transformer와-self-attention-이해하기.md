@@ -1,5 +1,5 @@
 ---
-title: '[LLM-core]] Transformer와 self-attention'
+title: '[LLM-core] Transformer와 self-attention'
 date: 2026-07-02
 updatedAt: 2026-07-02
 kind: study
@@ -172,7 +172,7 @@ flowchart TD
 $Q$ 행렬과 $K$ 행렬의 전치 행렬을 내적($QK^T$)하면, 문장 내 모든 토큰 쌍(Pair) 간의 원시 관련도 점수(Raw Attention Score)가 계산된다. 토큰이 4개라면 $4 \times 4$ 크기의 행렬이 나온다.
 
 ```text
-               [Key] 토큰들
+              [Key] 토큰들
                나는   커피를   오늘   마셨다
 [Query] 나는   0.8     0.1     0.1     0.0
 [Query] 커피를 0.1     0.7     0.0     0.2
@@ -240,7 +240,7 @@ GPT 같은 디코더 전용(Decoder-only) 모델은 이전 토큰들을 바탕�
 이를 방지하기 위해 미래 토큰 행렬 위치를 가려버리는 **Masking** 작업을 수행한다.
 
 ```text
-    나는  커피를  마셨다
+   나는  커피를  마셨다
 나는    O     X      X
 커피를  O     O      X
 마셨다  O     O      O
