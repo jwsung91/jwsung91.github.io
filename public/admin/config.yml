@@ -79,6 +79,7 @@ collections:
           - { label: "Retrospective", value: "retrospective" }
           - { label: "Study", value: "study" }
           - { label: "Note", value: "note" }
+          - { label: "Devlog", value: "devlog" }
 
       - label: "Topic"
         name: "topic"
