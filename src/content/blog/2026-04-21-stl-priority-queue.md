@@ -2,7 +2,6 @@
 title: '[STL] Priority queue'
 date: 2026-04-21
 kind: study
-topic: cpp
 tags:
   - STL
   - C++

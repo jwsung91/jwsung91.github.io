@@ -105,6 +105,13 @@ for (const file of files) {
     );
   }
 
+  if ('topic' in data) {
+    fail(
+      currentFile,
+      'topic field는 더 이상 사용하지 않습니다. tags를 사용하세요.',
+    );
+  }
+
   if (!allowedKinds.has(data.kind)) {
     fail(currentFile, `kind가 올바르지 않습니다: ${data.kind}`);
   }

@@ -3,7 +3,6 @@ title: Markdown 작성 예시 (Sveltia)
 date: 2026-04-21
 project: site
 kind: note
-topic: cms-site
 tags:
   - markdown
   - sveltia
@@ -15,7 +14,7 @@ Sveltia CMS의 raw Markdown 모드에서 자주 쓰는 문법을 모아둔 예�
 
 ## 파일 상단 메타데이터
 
-블로그 글은 파일 맨 위의 front matter로 제목, 날짜, 프로젝트, 글 유형, 주제, 태그, 설명, 공개 여부를 설정합니다.
+블로그 글은 파일 맨 위의 front matter로 제목, 날짜, 프로젝트, 글 유형, 태그, 설명, 공개 여부를 설정합니다.
 
 ```md
 ---
@@ -23,7 +22,6 @@ title: Markdown 작성 예시 (Sveltia)
 date: 2026-04-21
 project: site
 kind: note
-topic: cms-site
 tags:
   - markdown
   - sveltia

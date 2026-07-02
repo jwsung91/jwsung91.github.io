@@ -6,10 +6,10 @@
 
 1. `/admin/`에 접속한다.
 2. Blog collection에서 새 글을 만든다.
-3. Title, Date, Project, Kind, Topic, Description을 입력한다.
+3. Title, Date, Project, Kind, Description을 입력한다.
 4. 시리즈 글이라면 Series와 Series Order를 입력한다.
 5. 본문은 Markdown으로 작성한다.
-6. 저장하면 GitHub Actions가 자동으로 포맷팅하고 배포한다.
+6. 저장하면 GitHub Actions가 콘텐츠를 검증하고 배포한다.
 
 ## 글 분류 기준
 
@@ -33,16 +33,6 @@
 - `retrospective`: 회고
 - `study`: 개인 학습
 - `note`: 기타 노트
-
-### Topic
-
-프로젝트가 없는 학습/노트 글의 주제입니다.
-
-- `cpp`
-- `ros2`
-- `system-design`
-- `tooling`
-- `cms-site`
 
 ### Tags
 
@@ -93,7 +83,7 @@ flowchart LR
 ## 게시 전 확인
 
 - description이 40~180자인가?
-- project/kind/topic이 올바른가?
+- project/kind가 올바른가?
 - tags에 빈 값이 없는가?
 - 시리즈 글이라면 seriesOrder가 있는가?
 - Mermaid block이 깨지지 않았는가?
