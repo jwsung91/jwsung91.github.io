@@ -1,8 +1,10 @@
 ---
-title: '[LLM-core] Transformer와 self-attention'
+title: 'Transformer와 self-attention'
 date: 2026-07-02
 updatedAt: 2026-07-02
 kind: study
+series: llm-core
+seriesOrder: 1
 tags:
   - LLM
   - transformer

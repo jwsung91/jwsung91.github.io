@@ -114,6 +114,8 @@ collections:
               value: "ai-curator-pipeline",
             }
           - { label: "C++ STL Study", value: "cpp-stl-study" }
+          - { label: "LLM Core", value: "llm-core" }
+          - { label: "LLM Training", value: "llm-training" }
 
       - label: "Series Order"
         name: "seriesOrder"

@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
 
@@ -31,8 +31,21 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Auto-fix content formatting, validate, and build
-        run: npm run check:ci
+      - name: Auto-fix content
+        run: npm run fix
+
+      - name: Commit auto-fixes
+        run: |
+          if [ -n "$(git status --porcelain)" ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add -A
+            git commit -m "chore: auto-fix content formatting"
+            git push
+          fi
+
+      - name: Validate and build
+        run: npm run check
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v5

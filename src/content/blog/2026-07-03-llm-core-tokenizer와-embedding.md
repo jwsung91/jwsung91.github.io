@@ -1,8 +1,10 @@
 ---
-title: '[LLM-core] Tokenizer와 Embedding'
+title: 'Tokenizer와 Embedding'
 date: 2026-07-03
 updatedAt: 2026-07-03
 kind: study
+series: llm-core
+seriesOrder: 3
 tags:
   - llm
   - tokenizer

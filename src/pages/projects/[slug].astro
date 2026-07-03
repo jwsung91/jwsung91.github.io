@@ -10,7 +10,7 @@ import {
   type BlogProject,
 } from '../../lib/blog';
 import { getProjectSlug, sortProjects } from '../../lib/projects';
-import { getSeriesMeta } from '../../lib/series';
+import { getSeriesMeta } from '../../lib/taxonomy';
 
 export async function getStaticPaths() {
   const projects = sortProjects(await getCollection('projects'));
