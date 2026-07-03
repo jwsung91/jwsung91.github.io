@@ -25,5 +25,5 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Check formatting, lint, validate content, and build
-        run: npm run check
+      - name: Auto-fix content formatting, validate, and build
+        run: npm run check:ci

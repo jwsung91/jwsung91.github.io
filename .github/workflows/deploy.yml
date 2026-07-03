@@ -31,17 +31,8 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Check formatting
-        run: npm run format:check
-
-      - name: Lint Markdown
-        run: npm run lint:md
-
-      - name: Validate content
-        run: npm run content:check
-
-      - name: Build
-        run: npm run build
+      - name: Auto-fix content formatting, validate, and build
+        run: npm run check:ci
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3

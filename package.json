@@ -16,8 +16,10 @@
     "format:site": "prettier \"src/**/*.{astro,ts,js,json}\" \"*.{json,yml,md}\" \".github/**/*.yml\" --write",
     "lint:md": "markdownlint-cli2",
     "content:check": "node scripts/check-content.mjs",
+    "content:fix": "node scripts/check-content.mjs --fix && npm run format:content",
     "fix": "node scripts/check-content.mjs --fix && markdownlint-cli2 --fix && npm run format:content && npm run format:site",
-    "check": "npm run format:check && npm run lint:md && npm run content:check && npm run build"
+    "check": "npm run format:check && npm run lint:md && npm run content:check && npm run build",
+    "check:ci": "npm run content:fix && npm run format:check && npm run lint:md && npm run content:check && npm run build"
   },
   "dependencies": {
     "@astrojs/rss": "^4.0.18",

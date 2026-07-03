@@ -37,7 +37,7 @@ Transformer는 이 문제를 순차적인 기억 전달이 아니라, **토큰 �
 
 이 혁신적인 구조의 중심에 바로 **Self-Attention**이 있다.
 
-***
+---
 
 ## Transformer 전체 흐름
 
@@ -77,15 +77,15 @@ flowchart TD
 
 각 구성 요소의 핵심 역할은 다음과 같다.
 
-| 구성 요소 | 역할 |
-| --- | --- |
-| **Self-Attention** | 각 토큰이 문맥 내의 다른 토큰을 얼마나 참고할지 계산 |
-| **Multi-Head Attention** | 여러 개의 다른 관점(Head)에서 attention을 병렬 계산 |
-| **Feed Forward Network (FFN)** | attention 결과를 토큰별로 비선형 변환 및 특징 추출 |
-| **Residual Connection (Add)** | 입력 정보를 우회하여 더해줌으로써 깊은 모델의 학습 안정화 |
-| **LayerNorm** | 벡터 분포를 정규화하여 그래디언트 소실/폭발 방지 |
+| 구성 요소                      | 역할                                                      |
+| ------------------------------ | --------------------------------------------------------- |
+| **Self-Attention**             | 각 토큰이 문맥 내의 다른 토큰을 얼마나 참고할지 계산      |
+| **Multi-Head Attention**       | 여러 개의 다른 관점(Head)에서 attention을 병렬 계산       |
+| **Feed Forward Network (FFN)** | attention 결과를 토큰별로 비선형 변환 및 특징 추출        |
+| **Residual Connection (Add)**  | 입력 정보를 우회하여 더해줌으로써 깊은 모델의 학습 안정화 |
+| **LayerNorm**                  | 벡터 분포를 정규화하여 그래디언트 소실/폭발 방지          |
 
-***
+---
 
 ## Self-Attention의 역할
 
@@ -118,7 +118,7 @@ $$\text{마셨다의 새 표현} = 0.05 \times \text{나는} + 0.05 \times \text
 
 Attention은 특정 토큰 하나만 선택하는 하드 셀렉션(Hard Selection)이 아니다. 문맥에 따라 여러 토큰의 정보를 **비율대로 매끄럽게 섞어서** 현재 토큰의 의미를 새로이 빌딩하는 연산이다.
 
-***
+---
 
 ## Q, K, V의 개념
 
@@ -128,11 +128,11 @@ $$\text{Attention}(Q, K, V) = \text{softmax}\left(\frac{QK^T}{\sqrt{d_k}}\right)
 
 여기서 $Q, K, V$는 각각 **Query**, **Key**, **Value**를 의미하며, 데이터베이스나 검색 시스템에 비유하면 직관적으로 이해할 수 있다.
 
-| 요소 | 의미 | 직관적 비유 |
-| --- | --- | --- |
-| **Query (Q)** | 현재 토큰이 찾고자 하는 정보의 주체 | *"나는 지금 어떤 정보를 찾고 있는가?"* |
-| **Key (K)** | 문장 내 다른 토큰들이 가진 검색용 색인(Index) | *"나는 어떤 특징을 가졌기에 검색될 수 있는가?"* |
-| **Value (V)** | 조건이 매칭되었을 때 실제로 가져올 본질적인 정보 | *"내가 줄 수 있는 진짜 내용물은 무엇인가?"* |
+| 요소          | 의미                                             | 직관적 비유                                     |
+| ------------- | ------------------------------------------------ | ----------------------------------------------- |
+| **Query (Q)** | 현재 토큰이 찾고자 하는 정보의 주체              | _"나는 지금 어떤 정보를 찾고 있는가?"_          |
+| **Key (K)**   | 문장 내 다른 토큰들이 가진 검색용 색인(Index)    | _"나는 어떤 특징을 가졌기에 검색될 수 있는가?"_ |
+| **Value (V)** | 조건이 매칭되었을 때 실제로 가져올 본질적인 정보 | _"내가 줄 수 있는 진짜 내용물은 무엇인가?"_     |
 
 ```mermaid
 flowchart LR
@@ -163,7 +163,7 @@ flowchart TD
     O --> Y[Attention Output]
 ```
 
-***
+---
 
 ## 단계별 연산 파헤치기
 
@@ -229,7 +229,7 @@ flowchart TD
     F --> G[Contextualized Token Vectors]
 ```
 
-***
+---
 
 ## 심화 구조
 
@@ -294,7 +294,7 @@ flowchart TD
 
 $$\text{MultiHead}(Q, K, V) = \text{Concat}(\text{head}_1, \text{head}_2, \dots, \text{head}_h)W_O$$
 
-***
+---
 
 ## Transformer Block의 마무리 연산
 
@@ -316,7 +316,7 @@ flowchart TD
 1. **Feed Forward Network (FFN):** Attention이 여러 토큰의 정보를 융합했다면, FFN은 다른 토큰을 보지 않고 각 토큰별(Position-wise)로 개별 작동하며 융합된 특징을 비선형 변환하여 심층 표현을 완성한다.
 2. **Residual Connection:** 연산 결과에 원래의 입력값을 그대로 더해준다 ($\text{Output} = X + \text{SubLayer}(X)$). 레이어가 깊어져도 초기 정보가 왜곡 없이 끝까지 흘러갈 수 있도록 통로를 열어주어 그래디언트 흐름을 안정화한다.
 
-***
+---
 
 ## 요약 및 정리
 
