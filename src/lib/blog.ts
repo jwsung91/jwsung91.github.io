@@ -1,4 +1,4 @@
-import type { CollectionEntry } from 'astro:content';
+import { getCollection, type CollectionEntry } from 'astro:content';
 import {
   getSeriesMeta,
   kindLabels,
@@ -30,6 +30,9 @@ const tagDisplayLabels: Record<string, string> = {
 
 export const sortBlogPosts = (posts: BlogPost[]) =>
   [...posts].sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+
+export const getPublishedBlogPosts = async () =>
+  sortBlogPosts(await getCollection('blog', ({ data }) => !data.draft));
 
 export const sortBlogSeriesPosts = (posts: BlogPost[]) =>
   [...posts].sort((a, b) => {

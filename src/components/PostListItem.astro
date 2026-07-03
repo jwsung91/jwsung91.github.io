@@ -1,0 +1,42 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import PostMetaBadges from './PostMetaBadges.astro';
+import { formatDate, getBlogPath } from '../lib/blog';
+
+interface Props {
+  post: CollectionEntry<'blog'>;
+  variant?: 'row' | 'card';
+  headingLevel?: 'h2' | 'h3';
+}
+
+const { post, variant = 'row', headingLevel = 'h2' } = Astro.props;
+const Heading = headingLevel;
+
+const linkClass =
+  variant === 'card'
+    ? 'group block rounded-lg border border-stone-200 bg-stone-100/50 p-5 dark:border-stone-800 dark:bg-stone-900/50'
+    : 'group block';
+
+const headingClass =
+  variant === 'card'
+    ? 'text-lg font-semibold text-stone-900 transition-colors duration-200 group-hover:text-stone-700 dark:text-stone-100 dark:group-hover:text-stone-300'
+    : headingLevel === 'h2'
+      ? 'text-xl font-semibold text-stone-900 dark:text-stone-100 transition-colors duration-200 group-hover:text-stone-700 dark:group-hover:text-stone-300 md:text-2xl'
+      : 'text-xl font-semibold text-stone-900 transition-colors duration-200 group-hover:text-stone-700 dark:text-stone-100 dark:group-hover:text-stone-300';
+
+const descriptionClass =
+  variant === 'card'
+    ? 'mt-2 text-sm leading-relaxed text-stone-600 dark:text-stone-400'
+    : 'mt-2 text-base leading-relaxed text-stone-600 dark:text-stone-400';
+---
+
+<a href={getBlogPath(post)} class={linkClass}>
+  <div class="mb-3 flex flex-wrap items-center gap-3">
+    <span class="font-mono text-xs uppercase tracking-wider text-stone-500">
+      {formatDate(post.data.date)}
+    </span>
+    <PostMetaBadges project={post.data.project} kind={post.data.kind} />
+  </div>
+  <Heading class={headingClass}>{post.data.title}</Heading>
+  <p class={descriptionClass}>{post.data.description}</p>
+</a>
