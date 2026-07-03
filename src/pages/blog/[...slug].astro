@@ -270,85 +270,91 @@ const blogPostingStructuredData = {
 
   <script>
     const enhanceMermaidTabs = () => {
-      document.querySelectorAll('.mermaid').forEach((diagram, index) => {
-        if (diagram.closest('.mermaid-tabs')) {
-          return;
-        }
+      document
+        .querySelectorAll('figure.mermaid-figure')
+        .forEach((figure, index) => {
+          if (figure.closest('.mermaid-tabs')) {
+            return;
+          }
 
-        const previousElement = diagram.previousElementSibling;
-        const codeBlock = previousElement?.matches(
-          'pre[data-language="mermaid"]',
-        )
-          ? previousElement
-          : previousElement?.classList.contains('code-copy-wrapper') &&
-              previousElement.querySelector('pre[data-language="mermaid"]')
-            ? previousElement
-            : null;
+          const diagram = figure.querySelector('.mermaid');
+          const detailsBlock = figure.nextElementSibling;
 
-        if (!codeBlock) {
-          return;
-        }
+          if (!diagram || !detailsBlock?.matches('details.mermaid-source')) {
+            return;
+          }
 
-        const tabId = `mermaid-tab-${index}`;
-        const wrapper = document.createElement('div');
-        wrapper.className = 'mermaid-tabs not-prose';
+          const codeBlock =
+            detailsBlock.querySelector('.code-copy-wrapper') ??
+            detailsBlock.querySelector('pre');
 
-        const tabList = document.createElement('div');
-        tabList.className = 'mermaid-tab-list';
-        tabList.setAttribute('role', 'tablist');
-        tabList.setAttribute('aria-label', 'Mermaid display mode');
+          if (!codeBlock) {
+            return;
+          }
 
-        const diagramButton = document.createElement('button');
-        diagramButton.type = 'button';
-        diagramButton.className = 'mermaid-tab-button is-active';
-        diagramButton.id = `${tabId}-diagram-tab`;
-        diagramButton.textContent = 'Mermaid';
-        diagramButton.setAttribute('role', 'tab');
-        diagramButton.setAttribute('aria-controls', `${tabId}-diagram-panel`);
-        diagramButton.setAttribute('aria-selected', 'true');
+          const tabId = `mermaid-tab-${index}`;
+          const wrapper = document.createElement('div');
+          wrapper.className = 'mermaid-tabs not-prose';
 
-        const codeButton = document.createElement('button');
-        codeButton.type = 'button';
-        codeButton.className = 'mermaid-tab-button';
-        codeButton.id = `${tabId}-code-tab`;
-        codeButton.textContent = 'Code';
-        codeButton.setAttribute('role', 'tab');
-        codeButton.setAttribute('aria-controls', `${tabId}-code-panel`);
-        codeButton.setAttribute('aria-selected', 'false');
+          const tabList = document.createElement('div');
+          tabList.className = 'mermaid-tab-list';
+          tabList.setAttribute('role', 'tablist');
+          tabList.setAttribute('aria-label', 'Mermaid display mode');
 
-        const diagramPanel = document.createElement('div');
-        diagramPanel.className = 'mermaid-tab-panel';
-        diagramPanel.id = `${tabId}-diagram-panel`;
-        diagramPanel.setAttribute('role', 'tabpanel');
-        diagramPanel.setAttribute('aria-labelledby', diagramButton.id);
+          const diagramButton = document.createElement('button');
+          diagramButton.type = 'button';
+          diagramButton.className = 'mermaid-tab-button is-active';
+          diagramButton.id = `${tabId}-diagram-tab`;
+          diagramButton.textContent = 'Mermaid';
+          diagramButton.setAttribute('role', 'tab');
+          diagramButton.setAttribute('aria-controls', `${tabId}-diagram-panel`);
+          diagramButton.setAttribute('aria-selected', 'true');
 
-        const codePanel = document.createElement('div');
-        codePanel.className = 'mermaid-tab-panel';
-        codePanel.id = `${tabId}-code-panel`;
-        codePanel.setAttribute('role', 'tabpanel');
-        codePanel.setAttribute('aria-labelledby', codeButton.id);
-        codePanel.hidden = true;
+          const codeButton = document.createElement('button');
+          codeButton.type = 'button';
+          codeButton.className = 'mermaid-tab-button';
+          codeButton.id = `${tabId}-code-tab`;
+          codeButton.textContent = 'Code';
+          codeButton.setAttribute('role', 'tab');
+          codeButton.setAttribute('aria-controls', `${tabId}-code-panel`);
+          codeButton.setAttribute('aria-selected', 'false');
 
-        codeBlock.parentNode?.insertBefore(wrapper, codeBlock);
-        tabList.append(diagramButton, codeButton);
-        diagramPanel.append(diagram);
-        codePanel.append(codeBlock);
-        wrapper.append(tabList, diagramPanel, codePanel);
+          const diagramPanel = document.createElement('div');
+          diagramPanel.className = 'mermaid-tab-panel';
+          diagramPanel.id = `${tabId}-diagram-panel`;
+          diagramPanel.setAttribute('role', 'tabpanel');
+          diagramPanel.setAttribute('aria-labelledby', diagramButton.id);
 
-        const activateTab = (mode: 'diagram' | 'code') => {
-          const showDiagram = mode === 'diagram';
+          const codePanel = document.createElement('div');
+          codePanel.className = 'mermaid-tab-panel';
+          codePanel.id = `${tabId}-code-panel`;
+          codePanel.setAttribute('role', 'tabpanel');
+          codePanel.setAttribute('aria-labelledby', codeButton.id);
+          codePanel.hidden = true;
 
-          diagramPanel.hidden = !showDiagram;
-          codePanel.hidden = showDiagram;
-          diagramButton.classList.toggle('is-active', showDiagram);
-          codeButton.classList.toggle('is-active', !showDiagram);
-          diagramButton.setAttribute('aria-selected', String(showDiagram));
-          codeButton.setAttribute('aria-selected', String(!showDiagram));
-        };
+          figure.parentNode?.insertBefore(wrapper, figure);
+          tabList.append(diagramButton, codeButton);
+          diagramPanel.append(diagram);
+          codePanel.append(codeBlock);
+          wrapper.append(tabList, diagramPanel, codePanel);
 
-        diagramButton.addEventListener('click', () => activateTab('diagram'));
-        codeButton.addEventListener('click', () => activateTab('code'));
-      });
+          figure.remove();
+          detailsBlock.remove();
+
+          const activateTab = (mode: 'diagram' | 'code') => {
+            const showDiagram = mode === 'diagram';
+
+            diagramPanel.hidden = !showDiagram;
+            codePanel.hidden = showDiagram;
+            diagramButton.classList.toggle('is-active', showDiagram);
+            codeButton.classList.toggle('is-active', !showDiagram);
+            diagramButton.setAttribute('aria-selected', String(showDiagram));
+            codeButton.setAttribute('aria-selected', String(!showDiagram));
+          };
+
+          diagramButton.addEventListener('click', () => activateTab('diagram'));
+          codeButton.addEventListener('click', () => activateTab('code'));
+        });
     };
 
     if (document.querySelectorAll('.mermaid').length) {
