@@ -157,6 +157,21 @@ collections:
             required: false
           - { label: "Body", name: "body", widget: "markdown" }
 
+  - name: "about"
+    label: "About"
+    files:
+      - label: "About Page"
+        name: "about"
+        file: "src/content/about.md"
+        fields:
+          - {
+              label: "Title",
+              name: "title",
+              widget: "hidden",
+              default: "About",
+            }
+          - { label: "Body", name: "body", widget: "markdown" }
+
   - name: "projects"
     label: "Projects"
     folder: "src/content/projects"
