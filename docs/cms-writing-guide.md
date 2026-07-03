@@ -29,10 +29,10 @@
 
 - `design`: 설계 노트
 - `implementation`: 구현 기록
-- `release`: 릴리즈/배포 기록
 - `retrospective`: 회고
 - `study`: 개인 학습
 - `note`: 기타 노트
+- `devlog`: 트러블슈팅 등 개발 일지
 
 ### Tags
 

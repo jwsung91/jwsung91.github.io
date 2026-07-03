@@ -81,7 +81,6 @@ collections:
         options:
           - { label: "Design", value: "design" }
           - { label: "Implementation", value: "implementation" }
-          - { label: "Release", value: "release" }
           - { label: "Retrospective", value: "retrospective" }
           - { label: "Study", value: "study" }
           - { label: "Note", value: "note" }
