@@ -1,12 +1,9 @@
 import rss from '@astrojs/rss';
-import { getCollection } from 'astro:content';
-import { sortBlogPosts, getBlogPath } from '../lib/blog';
+import { getBlogPath, getPublishedBlogPosts } from '../lib/blog';
 import type { APIContext } from 'astro';
 
 export async function GET(context: APIContext) {
-  const posts = sortBlogPosts(
-    await getCollection('blog', ({ data }) => !data.draft),
-  );
+  const posts = await getPublishedBlogPosts();
 
   return rss({
     title: 'jwsung91',

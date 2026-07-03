@@ -1,11 +1,11 @@
 ---
 import { getCollection } from 'astro:content';
-import PostMetaBadges from '../../components/PostMetaBadges.astro';
+import PostListItem from '../../components/PostListItem.astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import {
   formatDate,
   getBlogPath,
-  sortBlogPosts,
+  getPublishedBlogPosts,
   sortBlogSeriesPosts,
   type BlogProject,
 } from '../../lib/blog';
@@ -14,9 +14,7 @@ import { getSeriesMeta } from '../../lib/taxonomy';
 
 export async function getStaticPaths() {
   const projects = sortProjects(await getCollection('projects'));
-  const posts = sortBlogPosts(
-    await getCollection('blog', ({ data }) => !data.draft),
-  );
+  const posts = await getPublishedBlogPosts();
 
   return projects.map((project) => {
     const slug = getProjectSlug(project) as BlogProject;
@@ -134,23 +132,7 @@ const latestPost = relatedPosts[0];
           <ul class="space-y-4">
             {relatedPosts.map((post) => (
               <li class="border-b border-stone-200 py-6 first:pt-0 last:border-b-0 last:pb-0 dark:border-stone-800">
-                <a href={getBlogPath(post)} class="group block">
-                  <div class="mb-3 flex flex-wrap items-center gap-3">
-                    <span class="font-mono text-xs uppercase tracking-wider text-stone-500">
-                      {formatDate(post.data.date)}
-                    </span>
-                    <PostMetaBadges
-                      project={post.data.project}
-                      kind={post.data.kind}
-                    />
-                  </div>
-                  <h3 class="text-xl font-semibold text-stone-900 transition-colors duration-200 group-hover:text-stone-700 dark:text-stone-100 dark:group-hover:text-stone-300">
-                    {post.data.title}
-                  </h3>
-                  <p class="mt-2 text-base leading-relaxed text-stone-600 dark:text-stone-400">
-                    {post.data.description}
-                  </p>
-                </a>
+                <PostListItem post={post} variant="row" headingLevel="h3" />
               </li>
             ))}
           </ul>

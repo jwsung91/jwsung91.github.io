@@ -1,10 +1,9 @@
-import type { CollectionEntry } from 'astro:content';
+import { getCollection, type CollectionEntry } from 'astro:content';
 import {
   getSeriesMeta,
   kindLabels,
   projectIds,
   projectLabels,
-  seriesList,
 } from './taxonomy';
 
 export type BlogPost = CollectionEntry<'blog'>;
@@ -21,10 +20,18 @@ export { projectLabels, kindLabels };
 
 const tagDisplayLabels: Record<string, string> = {
   'ai-curator': 'AI Curator',
+  llm: 'LLM',
+  ai: 'AI',
+  stl: 'STL',
+  'c-plus-plus': 'C++',
+  rlhf: 'RLHF',
 };
 
 export const sortBlogPosts = (posts: BlogPost[]) =>
   [...posts].sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+
+export const getPublishedBlogPosts = async () =>
+  sortBlogPosts(await getCollection('blog', ({ data }) => !data.draft));
 
 export const sortBlogSeriesPosts = (posts: BlogPost[]) =>
   [...posts].sort((a, b) => {
@@ -37,45 +44,6 @@ export const sortBlogSeriesPosts = (posts: BlogPost[]) =>
 
     return a.data.date.getTime() - b.data.date.getTime();
   });
-
-export const groupBlogPostsBySeries = (posts: BlogPost[]) => {
-  const groups = new Map<string, BlogPost[]>();
-
-  posts.forEach((post) => {
-    if (!post.data.series) {
-      return;
-    }
-
-    groups.set(post.data.series, [
-      ...(groups.get(post.data.series) ?? []),
-      post,
-    ]);
-  });
-
-  return groups;
-};
-
-export const getFeaturedBlogSeries = (posts: CollectionEntry<'blog'>[]) => {
-  const groupedPosts = groupBlogPostsBySeries(posts);
-
-  return seriesList
-    .map((meta) => {
-      const seriesPosts = sortBlogSeriesPosts(groupedPosts.get(meta.id) ?? []);
-      const firstPost = seriesPosts[0];
-
-      if (!firstPost) {
-        return null;
-      }
-
-      return {
-        series: meta.id,
-        ...meta,
-        posts: seriesPosts,
-        firstPost,
-      };
-    })
-    .filter((series): series is NonNullable<typeof series> => series !== null);
-};
 
 export const slugifyBlogFilterValue = (value: string) =>
   value
@@ -128,31 +96,11 @@ export const filterPostsByTagSlug = (posts: BlogPost[], tagSlug: string) =>
 export const getStudyPosts = (posts: BlogPost[]) =>
   posts.filter((post) => post.data.kind === 'study');
 
-export const getNotePosts = (posts: BlogPost[]) =>
-  posts.filter((post) => post.data.kind === 'note');
-
 export const getProjectPosts = (posts: BlogPost[], project: BlogProject) =>
   posts.filter((post) => post.data.project === project);
 
 export const getSitePosts = (posts: BlogPost[]) =>
   posts.filter((post) => post.data.project === 'site');
-
-export const groupPostsByProject = (posts: BlogPost[]) => {
-  const groups = new Map<BlogProject, BlogPost[]>();
-
-  posts.forEach((post) => {
-    if (!post.data.project) {
-      return;
-    }
-
-    groups.set(post.data.project, [
-      ...(groups.get(post.data.project) ?? []),
-      post,
-    ]);
-  });
-
-  return groups;
-};
 
 export const formatSeriesTitle = (series: string) =>
   series
@@ -205,4 +153,4 @@ export const formatDate = (date: Date) => {
 };
 
 export const getBlogPath = (post: CollectionEntry<'blog'>) =>
-  `/blog/${post.id.replace(/\.md$/, '')}`;
+  `/blog/${post.id.replace(/\.md$/, '')}/`;

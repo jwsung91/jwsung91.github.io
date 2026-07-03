@@ -1,5 +1,5 @@
 ---
-import { getCollection, render } from 'astro:content';
+import { render } from 'astro:content';
 import PostMetaBadges from '../../components/PostMetaBadges.astro';
 import RelatedProject from '../../components/RelatedProject.astro';
 import SeriesNav from '../../components/SeriesNav.astro';
@@ -7,14 +7,12 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import {
   formatDate,
   getBlogSeriesNav,
+  getPublishedBlogPosts,
   getTagPath,
-  sortBlogPosts,
 } from '../../lib/blog';
 
 export async function getStaticPaths() {
-  const posts = sortBlogPosts(
-    await getCollection('blog', ({ data }) => !data.draft),
-  );
+  const posts = await getPublishedBlogPosts();
 
   return posts.map((post) => ({
     params: { slug: post.id.replace(/\.md$/, '') },
@@ -147,7 +145,7 @@ const blogPostingStructuredData = {
           )
         }
         <a
-          href="/blog"
+          href="/blog/"
           class="font-mono text-sm text-azure-600 dark:text-azure-400 hover:underline"
           >← back to all posts</a
         >

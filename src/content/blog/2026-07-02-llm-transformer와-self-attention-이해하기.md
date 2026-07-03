@@ -6,11 +6,11 @@ kind: study
 series: llm-core
 seriesOrder: 1
 tags:
-  - LLM
+  - llm
   - transformer
   - attention
   - self-attention
-  - AI
+  - ai
 description: Transformer가 sequence 데이터를 처리하는 방식과 Self-Attention이 Q, K, V 연산으로 토큰 간 관계를 계산하는 구조를 정리
 draft: false
 ---

@@ -1,21 +1,15 @@
 ---
-import { getCollection } from 'astro:content';
-import PostMetaBadges from '../../../components/PostMetaBadges.astro';
+import PostListItem from '../../../components/PostListItem.astro';
 import TagFilter from '../../../components/TagFilter.astro';
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import {
   filterPostsByTagSlug,
-  formatDate,
-  getBlogPath,
   getBlogTagSummaries,
-  sortBlogPosts,
+  getPublishedBlogPosts,
 } from '../../../lib/blog';
 
 export async function getStaticPaths() {
-  const allPosts = await getCollection('blog');
-  const posts = sortBlogPosts(
-    allPosts.filter((post) => post.data.draft !== true),
-  );
+  const posts = await getPublishedBlogPosts();
   const tagSummaries = getBlogTagSummaries(posts);
 
   return tagSummaries.map((tag) => ({
@@ -63,23 +57,7 @@ const pageDescription = `${tagLabel} 태그가 달린 블로그 글 목록입니
           <ul>
             {posts.map((post) => (
               <li class="border-b border-stone-200 py-6 first:pt-0 last:border-b-0 last:pb-0 dark:border-stone-800">
-                <a href={getBlogPath(post)} class="group block">
-                  <div class="mb-3 flex flex-wrap items-center gap-3">
-                    <span class="font-mono text-xs uppercase tracking-wider text-stone-500">
-                      {formatDate(post.data.date)}
-                    </span>
-                    <PostMetaBadges
-                      project={post.data.project}
-                      kind={post.data.kind}
-                    />
-                  </div>
-                  <h2 class="text-xl font-semibold text-stone-900 transition-colors duration-200 group-hover:text-stone-700 dark:text-stone-100 dark:group-hover:text-stone-300 md:text-2xl">
-                    {post.data.title}
-                  </h2>
-                  <p class="mt-2 text-base leading-relaxed text-stone-600 dark:text-stone-400">
-                    {post.data.description}
-                  </p>
-                </a>
+                <PostListItem post={post} variant="row" headingLevel="h2" />
               </li>
             ))}
           </ul>

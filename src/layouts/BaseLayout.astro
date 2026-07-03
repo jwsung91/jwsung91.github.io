@@ -14,6 +14,7 @@ interface Props {
   title?: string;
   description?: string;
   ogType?: 'website' | 'article';
+  ogImage?: string;
   structuredData?: Record<string, unknown>;
 }
 
@@ -21,6 +22,7 @@ const {
   title = 'jwsung91.github.io',
   description = 'Robotics Software Architect — platform architecture, middleware.',
   ogType = 'website',
+  ogImage = '/og-default.png',
   structuredData,
 } = Astro.props;
 
@@ -28,6 +30,7 @@ const canonicalURL = new URL(
   Astro.url.pathname,
   Astro.site ?? 'https://jwsung91.github.io',
 );
+const ogImageURL = new URL(ogImage, Astro.site ?? 'https://jwsung91.github.io');
 const googleSiteVerification = import.meta.env.PUBLIC_GOOGLE_SITE_VERIFICATION;
 const structuredDataJson = structuredData
   ? JSON.stringify(structuredData).replace(
@@ -76,10 +79,14 @@ const structuredDataJson = structuredData
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonicalURL} />
     <meta property="og:site_name" content="jwsung91" />
+    <meta property="og:image" content={ogImageURL} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
     <!-- Twitter Card -->
-    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImageURL} />
     <Analytics />
     {
       structuredDataJson && (

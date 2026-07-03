@@ -3,8 +3,8 @@ title: '[STL] Priority queue'
 date: 2026-04-21
 kind: study
 tags:
-  - STL
-  - C++
+  - stl
+  - c++
   - 자료구조
 description: C++ std::priority_queue의 동작 방식, 최대 힙과 최소 힙 사용법, 사용자 정의 비교 함수 예제를 정리합니다.
 draft: true
