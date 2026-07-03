@@ -7,7 +7,6 @@
   "kinds": [
     { "id": "design", "label": "Design" },
     { "id": "implementation", "label": "Implementation" },
-    { "id": "release", "label": "Release" },
     { "id": "retrospective", "label": "Retrospective" },
     { "id": "study", "label": "Study" },
     { "id": "note", "label": "Note" },
