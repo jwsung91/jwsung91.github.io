@@ -12,6 +12,8 @@ import {
 } from '../../lib/blog';
 import { seriesList } from '../../lib/taxonomy';
 
+const RECENT_POSTS_LIMIT = 5;
+
 const posts = await getPublishedBlogPosts();
 const projectGroups = (['unilink', 'ai-curator'] as BlogProject[])
   .map((project) => ({
@@ -21,6 +23,7 @@ const projectGroups = (['unilink', 'ai-curator'] as BlogProject[])
   .filter((group) => group.posts.length > 0);
 const studyPosts = getStudyPosts(posts);
 const sitePosts = getSitePosts(posts);
+const recentPosts = posts.slice(0, RECENT_POSTS_LIMIT);
 const getProjectDocTitle = (project: BlogProject) =>
   seriesList.find((series) => series.project === project)?.title ??
   projectLabels[project];
@@ -136,7 +139,7 @@ const getProjectDocTitle = (project: BlogProject) =>
       </h2>
       <ul>
         {
-          posts.map((post) => (
+          recentPosts.map((post) => (
             <li class="border-b border-stone-200 dark:border-stone-800 py-6 first:pt-0 last:border-b-0 last:pb-0">
               <PostListItem post={post} variant="row" headingLevel="h2" />
             </li>
