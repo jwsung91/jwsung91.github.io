@@ -46,14 +46,14 @@ const projects = sortProjects(await getCollection('projects'));
               <div class="flex flex-wrap gap-4 font-mono text-sm">
                 <a
                   href={getProjectPath(project)}
-                  class="text-coral-600 dark:text-coral-400 hover:underline"
+                  class="text-azure-600 dark:text-azure-400 hover:underline"
                 >
                   docs
                 </a>
                 {project.data.url && (
                   <a
                     href={project.data.url}
-                    class="text-coral-600 dark:text-coral-400 hover:underline"
+                    class="text-azure-600 dark:text-azure-400 hover:underline"
                   >
                     site
                   </a>
@@ -61,7 +61,7 @@ const projects = sortProjects(await getCollection('projects'));
                 {project.data.repo && (
                   <a
                     href={project.data.repo}
-                    class="text-coral-600 dark:text-coral-400 hover:underline"
+                    class="text-azure-600 dark:text-azure-400 hover:underline"
                   >
                     repo
                   </a>
