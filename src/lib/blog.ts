@@ -210,4 +210,4 @@ export const formatDate = (date: Date) => {
 };
 
 export const getBlogPath = (post: CollectionEntry<'blog'>) =>
-  `/blog/${post.id.replace(/\.md$/, '')}`;
+  `/blog/${post.id.replace(/\.md$/, '')}/`;
