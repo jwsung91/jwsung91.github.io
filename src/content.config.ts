@@ -1,22 +1,6 @@
 import { defineCollection, z } from 'astro:content';
 import { glob } from 'astro/loaders';
-
-const projectIds = ['unilink', 'ai-curator', 'site'] as const;
-const kinds = [
-  'design',
-  'implementation',
-  'release',
-  'retrospective',
-  'study',
-  'note',
-  'devlog',
-] as const;
-
-const seriesIds = [
-  'unilink-design',
-  'ai-curator-pipeline',
-  'cpp-stl-study',
-] as const;
+import { kindIds, projectIds, seriesIds } from './lib/taxonomy';
 
 const emptyToUndefined = (value: unknown) =>
   value === '' || value === null ? undefined : value;
@@ -52,7 +36,7 @@ const blog = defineCollection({
       date: z.coerce.date(),
       updatedAt: optionalDate,
       project: z.preprocess(emptyToUndefined, z.enum(projectIds).optional()),
-      kind: z.enum(kinds),
+      kind: z.enum(kindIds),
 
       tags: z.array(z.string()).default([]),
       description: z.string().min(40).max(180),

@@ -1,20 +1,15 @@
 import type { CollectionEntry } from 'astro:content';
-import { getSeriesMeta, SERIES_META } from './series';
-
-export const blogProjects = ['unilink', 'ai-curator', 'site'] as const;
-export const blogKinds = [
-  'design',
-  'implementation',
-  'release',
-  'retrospective',
-  'study',
-  'note',
-  'devlog',
-] as const;
+import {
+  getSeriesMeta,
+  kindLabels,
+  projectIds,
+  projectLabels,
+  seriesList,
+} from './taxonomy';
 
 export type BlogPost = CollectionEntry<'blog'>;
-export type BlogProject = (typeof blogProjects)[number];
-export type BlogKind = (typeof blogKinds)[number];
+export type BlogProject = (typeof projectIds)[number];
+export type BlogKind = string;
 
 export type BlogTagSummary = {
   tag: string;
@@ -22,21 +17,7 @@ export type BlogTagSummary = {
   count: number;
 };
 
-export const projectLabels: Record<BlogProject, string> = {
-  unilink: 'unilink',
-  'ai-curator': 'AI Curator',
-  site: 'Site',
-};
-
-export const kindLabels: Record<BlogKind, string> = {
-  design: 'Design',
-  implementation: 'Implementation',
-  release: 'Release',
-  retrospective: 'Retrospective',
-  study: 'Study',
-  note: 'Note',
-  devlog: 'Devlog',
-};
+export { projectLabels, kindLabels };
 
 const tagDisplayLabels: Record<string, string> = {
   'ai-curator': 'AI Curator',
@@ -77,9 +58,9 @@ export const groupBlogPostsBySeries = (posts: BlogPost[]) => {
 export const getFeaturedBlogSeries = (posts: CollectionEntry<'blog'>[]) => {
   const groupedPosts = groupBlogPostsBySeries(posts);
 
-  return Object.entries(SERIES_META)
-    .map(([series, meta]) => {
-      const seriesPosts = sortBlogSeriesPosts(groupedPosts.get(series) ?? []);
+  return seriesList
+    .map((meta) => {
+      const seriesPosts = sortBlogSeriesPosts(groupedPosts.get(meta.id) ?? []);
       const firstPost = seriesPosts[0];
 
       if (!firstPost) {
@@ -87,7 +68,7 @@ export const getFeaturedBlogSeries = (posts: CollectionEntry<'blog'>[]) => {
       }
 
       return {
-        series,
+        series: meta.id,
         ...meta,
         posts: seriesPosts,
         firstPost,

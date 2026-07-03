@@ -2,30 +2,22 @@ import matter from 'gray-matter';
 import fg from 'fast-glob';
 import fs from 'node:fs/promises';
 import path from 'node:path';
+import { load as parseYaml } from 'js-yaml';
 
 const files = await fg('src/content/blog/**/*.md', {
   dot: false,
   onlyFiles: true,
 });
 
-const allowedKinds = new Set([
-  'design',
-  'implementation',
-  'release',
-  'retrospective',
-  'study',
-  'note',
-  'devlog',
-]);
-const seriesMeta = {
-  'unilink-design': {
-    project: 'unilink',
-  },
-  'ai-curator-pipeline': {
-    project: 'ai-curator',
-  },
-  'cpp-stl-study': {},
-};
+const taxonomy = JSON.parse(
+  await fs.readFile('src/data/taxonomy.json', 'utf8'),
+);
+
+const allowedKinds = new Set(taxonomy.kinds.map((k) => k.id));
+const allowedProjects = new Set(taxonomy.projects.map((p) => p.id));
+const seriesMeta = Object.fromEntries(
+  taxonomy.series.map((s) => [s.id, { project: s.project }]),
+);
 
 let hasError = false;
 const seriesOrders = new Map();
@@ -124,6 +116,8 @@ for (const file of files) {
       currentFile,
       `project는 올바른 슬러그 형식(소문자, 숫자, -)이어야 합니다: ${data.project}`,
     );
+  } else if (data.project && !allowedProjects.has(data.project)) {
+    fail(currentFile, `project가 올바르지 않습니다: ${data.project}`);
   }
 
   if (
@@ -249,6 +243,66 @@ for (const file of files) {
       await fs.writeFile(currentFile, stringified, 'utf8');
     }
   }
+}
+
+function checkCmsFieldOptions(fields, fieldName, expectedIds, label) {
+  const field = fields.find((f) => f.name === fieldName);
+
+  if (!field || !Array.isArray(field.options)) {
+    fail(
+      'public/admin/config.yml',
+      `blog collection에서 ${fieldName} select field를 찾을 수 없습니다.`,
+    );
+    return;
+  }
+
+  const cmsIds = new Set(field.options.map((option) => option.value));
+  const expected = new Set(expectedIds);
+
+  const missingInCms = [...expected].filter((id) => !cmsIds.has(id));
+  const extraInCms = [...cmsIds].filter((id) => !expected.has(id));
+
+  if (missingInCms.length > 0) {
+    fail(
+      'public/admin/config.yml',
+      `${label}에 taxonomy에는 있지만 CMS에 없는 값이 있습니다: ${missingInCms.join(', ')}`,
+    );
+  }
+
+  if (extraInCms.length > 0) {
+    fail(
+      'public/admin/config.yml',
+      `${label}에 CMS에는 있지만 taxonomy에 없는 값이 있습니다: ${extraInCms.join(', ')}`,
+    );
+  }
+}
+
+const cmsConfig = parseYaml(
+  await fs.readFile('public/admin/config.yml', 'utf8'),
+);
+const blogCollection = cmsConfig.collections.find((c) => c.name === 'blog');
+
+if (!blogCollection) {
+  fail('public/admin/config.yml', 'blog collection을 찾을 수 없습니다.');
+} else {
+  checkCmsFieldOptions(
+    blogCollection.fields,
+    'project',
+    taxonomy.projects.map((p) => p.id),
+    'project options',
+  );
+  checkCmsFieldOptions(
+    blogCollection.fields,
+    'kind',
+    taxonomy.kinds.map((k) => k.id),
+    'kind options',
+  );
+  checkCmsFieldOptions(
+    blogCollection.fields,
+    'series',
+    taxonomy.series.map((s) => s.id),
+    'series options',
+  );
 }
 
 if (hasError) {
