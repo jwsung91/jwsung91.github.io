@@ -12,493 +12,395 @@ description: Transformer 기반 LLM이 Encoder-only, Decoder-only, Encoder-Decod
 draft: false
 ---
 
-## 도입: Transformer 이후의 구조 분류
+## 도입: 확률 분포만으로는 문장이 생성되지 않는다
 
-Transformer는 Encoder와 Decoder를 모두 포함하는 구조로 제안되었다. 원래 구조는 번역과 같이 입력 문장을 이해한 뒤 다른 문장으로 생성하는 작업을 다루기 위한 형태였다.
+LLM은 현재까지의 token sequence를 보고 다음 token 후보들의 확률 분포를 만든다. 
 
-예를 들면 다음과 같은 작업이다.
+예를 들어 입력이 다음과 같다고 하자.
 
-```text
-입력: I drank coffee.
-출력: 나는 커피를 마셨다.
-```
+> "나는 커피를"
 
-이 작업에는 두 가지 단계가 필요하다.
+모델은 Vocabulary 전체 token에 대해 다음과 같은 확률 분포를 만들 수 있다.
 
-```text
-1. 입력 문장을 이해한다.
-2. 이해한 내용을 바탕으로 출력 문장을 생성한다.
-```
+| Token | Probability (확률) |
+| :--- | :--- |
+| 마셨다 | 0.60 |
+| 좋아한다 | 0.20 |
+| 샀다 | 0.15 |
+| 내렸다 | 0.03 |
+| . | 0.02 |
 
-그래서 원래 Transformer는 Encoder와 Decoder로 나뉜다.
+하지만 확률 분포만으로는 실제 문장이 완성되지 않는다. 이 수많은 후보 중에서 출력으로 내보낼 최종 token 하나를 선택해야 한다.
 
-```mermaid
-flowchart LR
-    A[입력 문장] --> B[Encoder]
-    B --> C[입력 문장의 문맥 표현]
-    C --> D[Decoder]
-    D --> E[출력 문장]
-```
+> **확률 분포:** 마셨다(0.60), 좋아한다(0.20), 샀다(0.15) ...
+> **선택된 token:** 마셨다
 
-Encoder는 입력 문장을 읽고 문맥 표현을 만든다. Decoder는 그 문맥 표현을 참고하면서 출력 문장을 하나씩 생성한다.
+이처럼 계산된 확률 분포에서 실제 출력할 token을 선택하는 과정을 **Decoding(디코딩)**이라고 한다.
 
-하지만 모든 NLP 작업이 입력과 출력이 모두 필요한 변환 문제는 아니다. 어떤 작업은 입력 문장을 이해하고 분류하는 것이 목적이고, 어떤 작업은 이전 문맥을 기반으로 다음 문장을 생성하는 것이 목적이다.
+---
 
-이 차이에 따라 Transformer 기반 모델은 크게 세 가지 구조로 나뉜다.
+## 이 글에서 다루는 범위
 
-```mermaid
-flowchart TD
-    A[Transformer 기반 모델] --> B[Encoder-only]
-    A --> C[Decoder-only]
-    A --> D[Encoder-Decoder]
+이 글은 LLM이 계산해 낸 '다음 token 확률 분포'를 기준으로, 실제 token을 선택하는 추론 전략을 정리한다.
 
-    B --> B1[BERT 계열]
-    C --> C1[GPT 계열]
-    D --> D1[T5 / BART 계열]
+**[ 다루는 내용 ]**
+* Greedy Decoding
+* Sampling
+* Temperature
+* Top-k Sampling
+* Top-p Sampling
+* Penalty 기반 Logit 조정
+* Stop Sequence와 종료 조건
 
-    B1 --> B2[문장 이해 / 분류 / 임베딩]
-    C1 --> C2[다음 토큰 예측 / 텍스트 생성]
-    D1 --> D2[입력 변환 / 번역 / 요약]
-```
+명심해야 할 점은, **Decoding은 모델을 학습(Training)시키는 과정이 아니다.** 이미 학습이 완료된 모델이 내뱉은 확률 분포 안에서, 어떤 방식으로 다음 token을 고를지 결정하는 **추론 단계의 선택 전략**이다.
 
-## Encoder-only의 의미
+---
 
-Encoder-only는 Transformer의 Encoder block만 사용하는 구조다. 대표적인 모델은 BERT다.
+## 전체 흐름
+
+Decoding은 Softmax 연산 직후에 일어난다.
 
 ```mermaid
 flowchart TD
-    A[입력 문장] --> B[Token Embedding]
-    B --> C[Position Embedding]
-    C --> D[Encoder Block 1]
-    D --> E[Encoder Block 2]
-    E --> F[...]
-    F --> G[Encoder Block N]
-    G --> H[문맥이 반영된 토큰 벡터]
+    A[Token Probability Distribution] --> B[Decoding Strategy]
+    B --> C[Selected Token]
+    C --> D[Token Sequence에 추가]
+    D --> E[다음 위치 예측 반복]
+
 ```
 
-Encoder-only 구조에서는 각 token이 입력 문장 전체를 볼 수 있다. 특정 token을 표현할 때 왼쪽 문맥과 오른쪽 문맥을 모두 참고한다.
+조금 더 세분화하여 이전 단계와 연결하면 다음과 같다.
 
-예를 들어 다음 문장이 있다고 하자.
+> **Logits $\rightarrow$ Softmax $\rightarrow$ Token Probability Distribution $\rightarrow$ Decoding Strategy $\rightarrow$ Selected Token**
 
-```text
-나는 커피를 마셨다.
-```
+이 글의 핵심은 다음 질문에 답하는 것이다.
 
-Encoder에서는 각 token이 모든 token을 참조할 수 있다.
+> "확률이 계산된 여러 token 후보 중에서, 과연 어떤 기준으로 실제 token 하나를 선택할 것인가?"
 
-```text
-      나는  커피를  마셨다
-나는      O     O      O
-커피를    O     O      O
-마셨다    O     O      O
-```
+---
 
-`커피를`이라는 token을 표현할 때 앞의 `나는`도 참고하고, 뒤의 `마셨다`도 참고한다. 이 구조를 양방향 문맥 구조라고 볼 수 있다.
+## Decoding이란 무엇인가
 
-BERT 계열 모델은 보통 Masked Language Modeling 방식으로 학습한다.
+Decoding은 token 확률 분포에서 실제 출력할 token을 선택하는 과정이다. 앞선 예시의 확률 분포에서 token을 선택하는 방법은 단 하나가 아니다.
 
-```text
-입력:
-나는 [MASK]를 마셨다.
+* 항상 **가장 높은 확률**의 token을 고를 수 있다.
+* 확률에 따라 무작위(Random)로 뽑을 수 있다.
+* 낮은 확률의 token을 아예 **후보에서 제외**할 수 있다.
+* 확률 분포를 더 **날카롭게** 혹은 **평평하게** 조작할 수 있다.
 
-정답:
-커피
-```
+이 선택 방식에 따라 LLM의 출력은 항상 똑같고 안정적일 수도 있고, 매번 새롭고 창의적일 수도 있다.
 
-모델은 `[MASK]` 앞뒤 문맥을 모두 보고 가려진 token을 예측한다.
+---
 
-```mermaid
-flowchart LR
-    A[나는] --> M[[MASK]]
-    B[를] --> M
-    C[마셨다] --> M
-    M --> D[커피 예측]
-```
+## Greedy Decoding
 
-## Encoder-only가 이해 작업에 맞는 이유
+가장 단순한 방식은 무조건 가장 확률이 높은 token을 선택하는 것이다. 이를 Greedy Decoding(탐욕적 탐색)이라고 한다.
 
-Encoder-only 구조는 입력 전체를 이미 알고 있는 상태에서 의미를 판단하는 작업에 맞다.
+> **Greedy Decoding:** 가장 높은 확률을 가진 token을 1순위로 확정하여 선택한다.
 
-예를 들어 문장 분류 문제를 보자.
+| Token | Probability | 선택 여부 |
+| --- | --- | --- |
+| **마셨다** | **0.60** | **선택 (1위)** |
+| 좋아한다 | 0.20 | 제외 |
+| 샀다 | 0.15 | 제외 |
 
-```text
-입력:
-배송이 너무 늦고 제품도 파손되었다.
+**[ Greedy 방식의 특징 ]**
 
-출력:
-부정
-```
+| 항목 | 특징 |
+| --- | --- |
+| **안정성** | 높음 |
+| **다양성** | 낮음 |
+| **재현성** | 높음 |
+| **단점** | 출력이 단조롭거나 국소적으로 최적인 선택(Local Optima)에 갇힐 수 있음 |
 
-이 작업에서는 다음 단어를 생성할 필요가 없다. 입력 문장 전체를 보고 하나의 label을 판단하면 된다.
+Greedy decoding은 기술문서 요약, 코드 설명, 구조화된 데이터 추출처럼 **일관성이 중요한 작업**에 적합하다. 다만 항상 1순위의 token만 고르기 때문에 다채로운 표현을 만들어내기는 어렵다.
 
-개체명 인식도 마찬가지다.
+---
 
-```text
-입력:
-삼성전자는 수원에서 AI 세미나를 열었다.
+## Sampling
 
-출력:
-삼성전자: 조직
-수원: 장소
-AI 세미나: 이벤트
-```
+Sampling(샘플링)은 확률 분포에 따라 주사위를 굴리듯 무작위로 token을 선택하는 방식이다.
 
-각 token이 어떤 개체인지 판단하려면 문장 전체 문맥을 보는 구조가 유리하다. 왼쪽 문맥만 보는 것보다 양방향 문맥을 보는 쪽이 token의 역할을 더 명확하게 파악할 수 있다.
+> **Sampling:** 확률이 높은 token이 더 자주 선택되지만, 무조건 1등만 뽑히지는 않는다. 2위나 3위 token이 뽑힐 수도 있다.
 
-Encoder-only는 다음 작업에 주로 사용된다.
+| Token | Probability | 선택 가능성 |
+| --- | --- | --- |
+| 마셨다 | 0.60 | 가장 자주 선택됨 |
+| 좋아한다 | 0.20 | 종종 선택됨 |
+| 샀다 | 0.15 | 가끔 선택됨 |
 
-| 작업           | 구조가 맞는 이유                             |
-| -------------- | -------------------------------------------- |
-| 문장 분류      | 전체 문장을 보고 하나의 label을 판단         |
-| 감정 분석      | 문장 전체의 긍정/부정/중립 판단              |
-| 개체명 인식    | 각 token의 개체 유형 판단                    |
-| 문서 유사도    | 문장 또는 문서를 vector로 만들어 비교        |
-| 검색 embedding | query와 document를 같은 vector 공간에서 비교 |
-| 질문 응답 추출 | 주어진 문서 안에서 답이 되는 span을 찾음     |
+Sampling은 출력에 **다양성**을 부여한다. 똑같은 Prompt를 넣어도 매번 답변이 미묘하게 달라지는 이유가 바로 이 Sampling 덕분이다.
 
-Encoder-only 구조를 한 문장으로 정리하면 다음과 같다.
+| 항목 | 특징 |
+| --- | --- |
+| **안정성** | Greedy보다 낮음 |
+| **다양성** | 높음 |
+| **재현성** | 낮음 |
+| **적합한 작업** | 창작, 아이디어 브레인스토밍, 표현의 다양성이 필요한 챗봇 |
 
-```text
-Encoder-only는 입력 전체를 한 번에 보고,
-각 token 또는 문장 전체의 의미 표현을 만드는 구조다.
-```
+단, 순수 Sampling만 사용하면 낮은 확률의 엉뚱한 token이 선택되어 문맥을 망칠 위험이 있다. 따라서 실무에서는 이를 보완하기 위해 **Temperature, Top-k, Top-p** 같은 제어 장치를 함께 엮어 사용한다.
 
-## Decoder-only의 의미
+---
 
-Decoder-only는 Transformer의 Decoder 계열 block만 사용하는 구조다. 대표적인 모델은 GPT다.
+## Temperature
+
+Temperature(온도)는 Softmax 함수에 개입하여 확률 분포의 '날카로움'을 조절하는 파라미터다.
+
+$$ \text{softmax}(\text{logits} / \text{temperature}) $$
+
+Temperature가 낮으면 높은 logit을 가진 token에 확률이 더 뾰족하게 집중되고, 반대로 높으면 하위권 token들에게 확률이 넓게 분산된다.
 
 ```mermaid
 flowchart TD
-    A[입력 토큰들] --> B[Token Embedding]
-    B --> C[Position Embedding]
-    C --> D[Masked Decoder Block 1]
-    D --> E[Masked Decoder Block 2]
-    E --> F[...]
-    F --> G[Masked Decoder Block N]
-    G --> H[다음 토큰 확률]
+    A[Logits] --> B{Temperature}
+    B -->|낮음 < 1.0| C[상위 Token에 확률 집중]
+    B -->|높음 > 1.0| D[여러 Token으로 확률 분산]
+    C --> E[더 보수적이고 안정적인 출력]
+    D --> F[더 창의적이고 다양한 출력]
+
 ```
 
-원래 Transformer Decoder에는 두 종류의 attention이 있다.
+### Temperature가 낮은 경우
 
-```text
-1. Masked Self-Attention
-2. Encoder-Decoder Cross-Attention
-```
+Temperature가 1보다 작으면 확률 분포가 훨씬 날카로워진다.
 
-번역 모델에서는 Decoder가 Encoder의 출력도 참고해야 하므로 Cross-Attention이 필요하다.
+* 높은 확률 token이 더 강하게 선택됨
+* 출력이 결정적(Deterministic)으로 변함
+* 다양성은 줄어듦
+
+| Token | 원래 확률 | **낮은 Temp 적용 후** |
+| --- | --- | --- |
+| **마셨다** | 0.60 | **0.82** (집중) |
+| 좋아한다 | 0.20 | 0.10 |
+| 샀다 | 0.15 | 0.07 |
+
+기술 문서 QA, 코드 디버깅, 장애 분석처럼 **정확성과 안정성**이 생명일 때는 낮은 temperature가 적합하다.
+
+### Temperature가 높은 경우
+
+Temperature가 1보다 크면 확률 분포가 둥글고 평평해진다.
+
+* 낮은 확률 token도 선택될 가능성이 커짐
+* 출력 다양성이 크게 증가함
+* 산만하거나 부정확한 출력이 나올 위험도 증가함
+
+| Token | 원래 확률 | **높은 Temp 적용 후** |
+| --- | --- | --- |
+| **마셨다** | 0.60 | **0.42** (감소) |
+| 좋아한다 | 0.20 | 0.24 (증가) |
+| 샀다 | 0.15 | 0.20 (증가) |
+
+아이디어 생성, 창작 문장 쓰기 등 **새로운 표현과 영감**이 필요할 때는 높은 temperature를 사용할 수 있다.
+
+### Temperature 0에 대한 주의
+
+일부 API나 도구에서는 `Temperature = 0`을 가장 결정적인 세팅으로 사용한다. 수식 그대로 보면 0으로 나누는 것은 정의되지 않으므로, 실제 구현부에서는 무작위성을 배제하고 **Greedy Decoding**에 가깝게 동작하도록 예외 처리되어 있다.
+
+* Temperature가 낮을수록 Greedy에 가까워진다.
+* Temperature가 높을수록 Sampling의 무작위성이 커진다.
+
+---
+
+## Top-k Sampling
+
+**Top-k**는 확률이 높은 상위 $k$개의 token만 후보로 남기고, 나머지는 단호하게 잘라내는 필터링 방식이다.
+
+> **Top-k:** 1등부터 $k$등까지만 본선에 진출시킨다. 나머지는 확률을 0으로 만들어 제외한다.
+
+예를 들어 $k = 3$이면 상위 3개 token만 남는다.
+
+| Token | Probability | 상태 |
+| --- | --- | --- |
+| 마셨다 | 0.60 | **유지** |
+| 좋아한다 | 0.20 | **유지** |
+| 샀다 | 0.15 | **유지** |
+| 내렸다 | 0.03 | 제외 (0%) |
+| . | 0.02 | 제외 (0%) |
+
+남은 3개의 후보 안에서만 다시 확률의 합이 100%가 되도록 조정한 뒤 Sampling을 진행한다.
+
+| $k$ 값 | 특징 |
+| --- | --- |
+| **작음** | 안정적이지만 다양성이 낮음 (1이면 Greedy와 동일) |
+| **큼** | 다양성은 증가하지만, 품질 낮은 엉뚱한 후보가 섞일 수 있음 |
+
+Top-k는 문맥을 해치는 치명적인 오답을 차단하는 데 유용하다. 다만, 확률 분포의 형태와 관계없이 **무조건 고정된 개수**만 남기기 때문에 때로는 융통성이 떨어질 수 있다.
+
+---
+
+## Top-p Sampling (Nucleus Sampling)
+
+**Top-p**는 등수(개수)가 아니라 '누적 확률'이 $p$에 도달할 때까지 후보를 남기는 방식이다.
+
+> **Top-p:** 확률이 높은 순서대로 더해 나가다가, 누적 합이 $p$에 도달하는 순간 후보 풀(Pool)을 닫는다.
+
+예를 들어 **$p = 0.90$** (누적 확률 90%)이라고 하자.
+
+| Token | Probability | **누적 확률** | 상태 |
+| --- | --- | --- | --- |
+| 마셨다 | 0.50 | 0.50 | **유지** |
+| 좋아한다 | 0.25 | 0.75 | **유지** |
+| 샀다 | 0.10 | 0.85 | **유지** |
+| 내렸다 | 0.05 | **0.90** | **유지 (Cut-off)** |
+| . | 0.03 | 0.93 | 제외 |
+
+Top-p는 확률 분포의 모양에 따라 후보 개수가 유동적으로 변한다.
+
+* 1위 확률이 압도적이면 후보 수가 1~2개로 적어진다.
+* 확률이 여러 token에 팽팽하게 분산되어 있다면 후보 수가 10개 이상으로 늘어난다.
+
+| 방식 | 컷오프 기준 | 후보 수 |
+| --- | --- | --- |
+| **Top-k** | 상위 $k$개 token | **고정됨** |
+| **Top-p** | 누적 확률 $p$까지의 token | **분포에 따라 유동적임** |
+
+Top-p는 문맥 상황에 맞춰 유연하게 대처하므로 최신 자연어 생성 모델에서 널리 쓰인다.
+
+---
+
+## Temperature, Top-k, Top-p의 관계
+
+이 세 가지 파라미터는 모두 Sampling의 다양성을 조절하지만 톱니바퀴처럼 서로 다른 역할을 맡고 있다.
+
+| 설정 | 역할 |
+| --- | --- |
+| **Temperature** | 확률 분포 자체의 날카로움/평평함 조절 |
+| **Top-k** | 갯수를 기준으로 하위 후보를 잘라냄 |
+| **Top-p** | 누적 확률을 기준으로 하위 후보를 잘라냄 |
+
+일반적인 파이프라인 흐름은 다음과 같다.
 
 ```mermaid
 flowchart TD
-    A[Encoder 출력] --> C[Cross-Attention]
-    B[Decoder 입력] --> D[Masked Self-Attention]
-    D --> C
-    C --> E[출력 생성]
+    A[Logits] --> B[1. Temperature 적용]
+    B --> C[확률 분포 생성]
+    C --> D[2. Top-k 또는 Top-p로 후보 제한]
+    D --> E[3. 최종 Sampling]
+    E --> F[Selected Token]
+
 ```
 
-반면 GPT 같은 Decoder-only 모델은 별도의 Encoder가 없다. 따라서 Encoder-Decoder Cross-Attention은 사용하지 않고, Masked Self-Attention 중심의 Decoder block을 쌓는 구조로 이해할 수 있다.
+**[ 목적에 따른 세팅 방향 ]**
+
+* **안정적인 답변이 필요할 때:** 낮은 Temperature, 작은 Top-p 또는 제한적인 Top-k.
+* **다양하고 창의적인 답변이 필요할 때:** 높은 Temperature, 넓은 Top-p.
+
+특정 숫자 값 자체에 집착하기보다는 "이 파라미터가 전체 분포에 어떤 영향을 주는가"를 이해하는 편이 더 중요하다.
+
+---
+
+## Repetition, Frequency, Presence Penalty
+
+Decoding 단계에서는 모델이 똑같은 말을 앵무새처럼 반복하는 현상을 억제하기 위해 Logit 점수를 강제로 깎는 페널티 기법을 쓰기도 한다.
+
+* 이미 등장한 단어에 대한 선택 가능성을 낮춘다.
+* 완전히 새로운 표현이 나올 가능성을 높인다.
+
+### Repetition Penalty
+
+연속된 텍스트 내에서 같은 token이 반복적으로 선택되는 것을 직접적으로 억제한다.
+
+> "나는 커피를 마셨다. 커피를 마셨다." 같은 기계적인 루프를 방지한다.
+
+### Frequency Penalty
+
+특정 token이 **등장한 횟수**에 비례하여 점수를 깎는다.
+특정 단어("매우", "진짜" 등)를 남용하여 문장이 지루해지는 것을 막아준다.
+
+### Presence Penalty
+
+등장 횟수와 상관없이 특정 token이 한 번이라도 등장했는지(여부)를 따져 점수를 깎는다.
+모델이 이전에 하던 이야기를 멈추고 새로운 화제나 단어를 꺼내도록 유도할 때 효과적이다.
+
+| Penalty | 기준 | 효과 |
+| --- | --- | --- |
+| **Repetition Penalty** | 연속된 문맥 내 반복 | 기계적인 동일 구문 반복 억제 |
+| **Frequency Penalty** | 등장 횟수 비례 | 특정 단어의 과도한 쏠림/남용 방지 |
+| **Presence Penalty** | 등장 여부 (0 or 1) | 새로운 토픽과 단어로의 전환 유도 |
+
+---
+
+## Stop Sequence와 종료 조건
+
+Decoding은 token을 딱 하나 고르고 끝나는 단발성 과정이 아니다. 선택된 token을 기존 Sequence 뒤에 이어 붙이고, 다시 다음 token을 예측하는 무한 루프다.
+
+이 루프는 **종료 조건**을 만날 때 비로소 멈춘다.
 
 ```mermaid
 flowchart TD
-    A[이전 토큰들] --> B[Masked Self-Attention]
-    B --> C[Feed Forward Network]
-    C --> D[다음 토큰 예측]
+    A[현재 Token Sequence] --> B[확률 분포 계산]
+    B --> C[Decoding으로 Token 1개 선택]
+    C --> D[Token Sequence 맨 뒤에 추가]
+    D --> E{종료 조건 충족?}
+    E -->|No| A
+    E -->|Yes| F[최종 텍스트 반환 및 종료]
+
 ```
 
-Decoder-only 모델은 이전 token만 보고 다음 token을 예측한다.
+**[ 대표적인 종료 조건 ]**
 
-```text
-나는 커피를 → 마셨다
-```
+* **EOS Token 선택:** 모델이 문맥상 문장이 끝났다고 판단해 마침표 격인 `[EOS]` (End Of Sequence) 토큰을 스스로 생성했을 때.
+* **최대 출력 길이 도달:** 사전에 설정해 둔 Max Tokens 한계치에 다다랐을 때.
+* **Stop Sequence 감지:** `\n\nUser:` 처럼 사용자가 지정한 특정 패턴이 출력될 조짐이 보이면 즉시 시스템이 컷오프(Cut-off) 할 때.
 
-이때 미래 token을 보면 안 된다. 미래 token을 볼 수 있다면 정답을 미리 보는 구조가 된다.
+---
 
-그래서 Decoder-only 모델은 causal mask를 사용한다.
+## 같은 질문에 다른 답변이 나오는 이유
 
-```text
-      나는  커피를  마셨다
-나는      O     X      X
-커피를    O     O      X
-마셨다    O     O      O
-```
+챗GPT에게 동일한 Prompt를 넣었는데 어제와 오늘의 답변이 달라지는 이유는 바로 이 Decoding 설정과 관련이 있다.
 
-각 token은 자기 자신과 이전 token만 참조할 수 있다.
+Greedy 방식으로 세팅하면 1순위만 쫓아가므로 늘 비슷한 대답이 나온다. 하지만 기본적으로 LLM은 일정 수준의 Temperature와 Sampling이 활성화되어 있으므로, 매 턴마다 확률의 주사위를 굴리며 다른 갈래의 token을 뻗어 나갈 가능성을 품고 있다.
 
-## Decoder-only가 생성 작업에 맞는 이유
+> **같은 Prompt $\rightarrow$ 비슷한 확률 분포 $\rightarrow$ Decoding 주사위에 따라 다른 Token 선택**
 
-텍스트 생성은 순차적인 과정이다.
+즉, LLM이 내뱉는 문장의 생동감과 다양성은 모델의 지식뿐만 아니라 Decoding 설정이 빚어낸 결과물이다.
 
-```text
-나는 → 커피를 → 마셨다 → .
-```
+---
 
-다음 token을 생성하는 시점에는 아직 미래 token이 존재하지 않는다. 따라서 현재까지 주어진 token만 보고 다음 token을 예측해야 한다.
+## 작업 유형별 Decoding 설정 방향
 
-GPT 계열의 학습 방식은 이 생성 조건과 동일하다.
+수행하려는 태스크에 따라 Decoding 파라미터의 밸런스를 적절히 맞춰주어야 최상의 결과를 얻을 수 있다.
 
-```text
-입력:
-나는
+| 작업 | 설정 방향 |
+| --- | --- |
+| **기술문서 요약** | 낮은 Temperature, 안정적 출력 유도 |
+| **코드 생성/설명** | 낮은 Randomness, 형식 안정성 최우선 |
+| **장애 로그 분석** | 팩트와 근거 중심, 과도한 Sampling 제한 |
+| **JSON 출력** | 극히 낮은 Temperature, 출력 Schema 제약 |
+| **브레인스토밍** | Sampling 허용, 다양한 영감 확보 |
+| **창작 글쓰기** | 높은 Temperature 또는 넓은 Top-p 설정 |
+| **후보 문장 생성** | 여러 번 Sampling하여 다채로운 후보 확보 |
 
-정답:
-커피를
-```
+---
 
-```text
-입력:
-나는 커피를
+## Decoding은 학습이 아니다
 
-정답:
-마셨다
-```
+마지막으로 짚고 넘어가야 할 점은, Decoding 과정에서 **모델의 파라미터(Weight)는 단 1%도 변하지 않는다**는 사실이다.
 
-```text
-입력:
-나는 커피를 마셨다
+| 구분 | Training (학습) | Decoding (추론) |
+| --- | --- | --- |
+| **시점** | 학습 단계 | 모델 배포 후 추론 단계 |
+| **목적** | 정답 확률을 높이도록 가중치 업데이트 | 계산된 확률 안에서 다음 token 선택 |
+| **입력** | 방대한 학습 데이터셋 | 사용자의 Prompt |
+| **출력** | Loss 계산 및 Weight 수정 | 화면에 찍힐 실제 Token 문자 |
+| **모델 변경** | **있음 (Weight 업데이트)** | **전혀 없음** |
 
-정답:
-.
-```
+Decoding은 모델을 똑똑하게 만드는 작업이 아니다. 이미 충분히 똑똑해진 모델이 머릿속에 띄운 선택지(확률 분포)를 우리가 **어떤 렌즈로 필터링하여 끄집어낼 것인가**에 대한 전략일 뿐이다.
 
-학습 중에도 이전 token을 보고 다음 token을 맞히고, 실제 생성 중에도 이전 token을 보고 다음 token을 만든다.
+---
 
-```mermaid
-flowchart TD
-    A[입력: 나는 커피를] --> B[Decoder-only LLM]
-    B --> C[다음 토큰 확률]
-    C --> D[마셨다 선택]
-    D --> E[입력 갱신: 나는 커피를 마셨다]
-    E --> B
-```
+## 요약 및 정리
 
-이 구조는 대화형 모델과 문장 생성에 직접 연결된다.
+Decoding은 LLM이 내놓은 Token 확률 분포표에서 실제 화면에 찍힐 Token을 최종 결정하는 과정이다.
 
-```text
-사용자 입력:
-Transformer를 설명해줘.
+> **Token Probability Distribution $\rightarrow$ Decoding Strategy $\rightarrow$ Selected Token**
 
-모델 입력:
-사용자 입력 + 이전 대화 맥락
+* **Greedy Decoding:** 무조건 1등만 고른다. 안정적이지만 단조롭다.
+* **Sampling:** 확률에 기대어 주사위를 굴린다. 문맥이 다채로워진다.
+* **Temperature:** 확률 분포의 날카로움을 조절한다. (낮으면 안정, 높으면 창의)
+* **Top-k:** 순위를 기준으로 무조건 상위 $k$개의 후보만 남긴다.
+* **Top-p:** 누적 확률 $p$에 도달할 때까지 유동적으로 후보를 남긴다.
+* **Penalty:** 앵무새처럼 똑같은 표현을 반복하는 현상을 억제한다.
+* **Stop Sequence / EOS:** 텍스트 생성의 브레이크(종료) 역할을 수행한다.
 
-모델 출력:
-Transformer는 ...
-```
-
-모델은 응답 전체를 한 번에 출력하는 것이 아니라, 다음 token을 반복적으로 선택하면서 문장을 구성한다.
-
-Decoder-only는 다음 작업에 주로 사용된다.
-
-| 작업      | 구조가 맞는 이유                              |
-| --------- | --------------------------------------------- |
-| 대화      | 이전 대화 맥락 뒤에 이어질 응답 생성          |
-| 문서 작성 | 앞 문맥을 기준으로 다음 문장 생성             |
-| 요약      | 입력 문서를 prompt로 두고 요약문 생성         |
-| 번역      | 입력 문장을 prompt로 두고 목표 언어 문장 생성 |
-| 코드 생성 | 기존 코드와 지시문 뒤에 이어질 코드 생성      |
-| 질의응답  | 질문과 문맥 뒤에 답변 생성                    |
-
-Decoder-only 구조를 한 문장으로 정리하면 다음과 같다.
-
-```text
-Decoder-only는 이전 token을 기반으로 다음 token을 반복 예측하면서
-텍스트를 생성하는 구조다.
-```
-
-## Encoder-Decoder 구조
-
-Encoder-Decoder 구조는 Transformer의 Encoder와 Decoder를 모두 사용하는 구조다. 대표적인 모델로 T5, BART 계열이 있다.
-
-이 구조는 입력 문장을 먼저 Encoder가 문맥 표현으로 바꾸고, Decoder가 그 표현을 참고해 출력 문장을 생성한다.
-
-```mermaid
-flowchart LR
-    A[입력 문장] --> B[Encoder]
-    B --> C[문맥 표현]
-    C --> D[Decoder]
-    D --> E[출력 문장]
-```
-
-번역 작업을 예로 들면 다음과 같다.
-
-```text
-입력:
-I drank coffee.
-
-출력:
-나는 커피를 마셨다.
-```
-
-Encoder는 입력 문장의 의미를 vector 표현으로 만든다. Decoder는 이 표현을 참고하면서 목표 언어의 문장을 생성한다.
-
-```mermaid
-flowchart TD
-    A[I drank coffee.] --> B[Encoder]
-    B --> C[의미 표현]
-    C --> D[Decoder]
-    D --> E[나는 커피를 마셨다.]
-```
-
-Encoder-Decoder 구조는 입력과 출력이 명확히 분리된 변환 작업에 주로 사용된다.
-
-| 작업              | 구조가 맞는 이유                             |
-| ----------------- | -------------------------------------------- |
-| 기계 번역         | 입력 언어를 이해한 뒤 목표 언어로 생성       |
-| 문서 요약         | 긴 입력 문서를 이해한 뒤 짧은 문장으로 생성  |
-| 문장 재작성       | 입력 문장의 의미를 유지한 채 표현 변경       |
-| Text-to-Text 작업 | 모든 NLP 작업을 입력 text와 출력 text로 통일 |
-
-## Autoencoding과 Autoregressive
-
-Encoder-only, Decoder-only는 구조의 차이를 설명하는 용어다. Autoencoding, Autoregressive는 학습 방식의 차이를 설명하는 용어다.
-
-```mermaid
-flowchart TD
-    A[LLM 학습 방식] --> B[Autoencoding]
-    A --> C[Autoregressive]
-
-    B --> B1[입력 전체 구조 학습]
-    B --> B2[가려진 token 복원]
-    B --> B3[BERT 계열]
-
-    C --> C1[이전 token 기반 다음 token 예측]
-    C --> C2[순차 생성]
-    C --> C3[GPT 계열]
-```
-
-Autoencoding은 입력의 일부가 가려졌을 때 원래 입력을 복원하는 방식이다.
-
-```text
-입력:
-나는 [MASK]를 마셨다.
-
-예측:
-커피
-```
-
-Autoregressive는 주어진 sequence를 기반으로 다음 값을 예측하는 방식이다.
-
-```text
-입력:
-나는 커피를
-
-예측:
-마셨다
-```
-
-두 방식의 차이는 다음과 같이 정리할 수 있다.
-
-| 구분      | Autoencoding            | Autoregressive              |
-| --------- | ----------------------- | --------------------------- |
-| 대표 모델 | BERT                    | GPT                         |
-| 주 구조   | Encoder-only            | Decoder-only                |
-| 문맥 사용 | 양방향 문맥             | 이전 문맥                   |
-| 학습 목표 | 가려진 token 복원       | 다음 token 예측             |
-| 주요 출력 | 의미 표현, label, span  | 다음 token, 생성 문장       |
-| 활용      | 분류, 유사도, 검색, NER | 대화, 요약, 생성, 코드 작성 |
-
-## BERT와 GPT의 차이
-
-BERT와 GPT는 모두 Transformer 기반이지만 사용하는 구조와 학습 목표가 다르다.
-
-BERT는 입력 문장을 이해하는 방향으로 설계되었다. 문장 전체를 보고 특정 token이나 문장 전체의 의미를 파악한다.
-
-```text
-BERT:
-문장 전체를 보고 빈칸을 맞힌다.
-```
-
-GPT는 이전 token들을 보고 다음 token을 순차적으로 예측한다.
-
-```text
-GPT:
-이전 token들을 보고 다음 token을 맞힌다.
-```
-
-동일한 문장을 두고 보면 차이가 명확하다.
-
-```text
-문장:
-나는 커피를 마셨다.
-```
-
-BERT 방식은 문장 중간을 가린 뒤 복원한다.
-
-```text
-나는 [MASK]를 마셨다.
-→ 커피
-```
-
-GPT 방식은 앞부분을 보고 다음 token을 예측한다.
-
-```text
-나는 커피를
-→ 마셨다
-```
-
-BERT는 전체 문맥을 이용해 입력을 이해하는 구조이고, GPT는 이전 문맥을 기반으로 이어서 생성하는 구조다.
-
-## 구조와 활용의 연결
-
-모델 구조는 활용 방식과 직접 연결된다.
-
-```mermaid
-flowchart LR
-    A[Encoder-only] --> B[문장 이해]
-    B --> C[분류]
-    B --> D[검색]
-    B --> E[유사도]
-    B --> F[개체명 인식]
-
-    G[Decoder-only] --> H[문장 생성]
-    H --> I[대화]
-    H --> J[요약]
-    H --> K[번역]
-    H --> L[코드 생성]
-
-    M[Encoder-Decoder] --> N[입력 변환]
-    N --> O[번역]
-    N --> P[요약]
-    N --> Q[문장 재작성]
-```
-
-검색 시스템이나 문서 분류 시스템에서는 Encoder-only 계열이 자주 사용된다. 사용자의 질문과 문서를 embedding으로 바꾸고, 두 vector의 유사도를 비교할 수 있기 때문이다.
-
-대화형 챗봇이나 코드 생성 도구에서는 Decoder-only 계열이 사용된다. 주어진 문맥 뒤에 이어질 token을 생성해야 하기 때문이다.
-
-번역이나 요약처럼 입력과 출력이 명확히 분리된 변환 작업에서는 Encoder-Decoder 구조가 사용된다.
-
-## 정리
-
-Transformer 기반 LLM은 목적에 따라 구조가 나뉜다.
-
-```text
-Encoder-only:
-입력 문장을 이해하는 구조
-대표 모델: BERT
-주요 작업: 분류, 유사도, 검색, NER
-
-Decoder-only:
-이전 token을 기반으로 다음 token을 생성하는 구조
-대표 모델: GPT
-주요 작업: 대화, 생성, 요약, 코드 작성
-
-Encoder-Decoder:
-입력을 이해한 뒤 다른 형태의 출력을 생성하는 구조
-대표 모델: T5, BART
-주요 작업: 번역, 요약, 문장 변환
-```
-
-Autoencoding과 Autoregressive는 학습 방식의 차이를 설명한다.
-
-```text
-Autoencoding:
-문장 일부를 가리고 복원한다.
-전체 문맥 이해에 맞는 학습 방식이다.
-
-Autoregressive:
-이전 token을 보고 다음 token을 예측한다.
-순차적 생성에 맞는 학습 방식이다.
-```
-
-Encoder-only와 Decoder-only의 차이는 단순히 Transformer block의 일부를 쓰느냐의 문제가 아니다. 모델이 해결하려는 문제의 차이에서 나온다.
-
-입력 전체를 이해하고 판단해야 하는 문제에서는 Encoder-only 구조가 사용된다. 이전 문맥을 기반으로 다음 출력을 생성해야 하는 문제에서는 Decoder-only 구조가 사용된다. Transformer는 공통 기반 구조이고, BERT와 GPT는 그 구조를 서로 다른 목적에 맞게 사용한 결과다.
+목적에 맞는 완벽한 프롬프트를 짰더라도 Decoding 설정이 어긋나면 원하는 결과물을 얻기 힘들다. 이 설정값들의 원리를 이해하고 조작하는 것이 실무 LLM 활용의 핵심 키(Key)다.
