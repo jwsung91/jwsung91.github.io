@@ -35,7 +35,7 @@ LLM(대형 언어 모델)은 입력 문장을 보고 한 번에 전체 답변을
 
 이 글에서는 Transformer의 출력 벡터가 어떻게 **Logit(로짓)**이 되고, 이 Logit이 **Softmax(소프트맥스)**를 거쳐 최종적인 Token별 확률 분포로 바뀌는지 정리한다.
 
----
+***
 
 ## 이 글에서 다루는 범위
 
@@ -44,6 +44,7 @@ LLM(대형 언어 모델)은 입력 문장을 보고 한 번에 전체 답변을
 > **현재까지의 token sequence $\rightarrow$ 다음 token 후보들의 점수 계산 $\rightarrow$ 확률 분포 생성**
 
 ### 핵심 다룸 요소
+
 * **Last Hidden Vector**
 * **LM Head**
 * **Logit**
@@ -52,7 +53,7 @@ LLM(대형 언어 모델)은 입력 문장을 보고 한 번에 전체 답변을
 
 실제 텍스트 생성 단계에서는 이 확률 분포에서 token 하나를 최종 선택해야 한다. 그 선택 과정에는 Greedy Search, Sampling, Temperature 조정, Top-k, Top-p 같은 디코딩 전략이 사용되지만, 이 글에서는 **확률 분포를 만드는 과정까지만** 다룬다.
 
----
+***
 
 ## 전체 흐름
 
@@ -67,7 +68,6 @@ flowchart TD
     E --> F[Logits]
     F --> G[Softmax]
     G --> H[Token Probability Distribution]
-
 ```
 
 핵심 연산 흐름은 다음과 같이 요약할 수 있다.
@@ -80,7 +80,7 @@ flowchart TD
 
 이 글에서는 Transformer 내부의 복잡한 구조(Self-Attention 등)는 생략하고, Transformer를 "입력을 문맥이 반영된 hidden vector로 바꾸는 블랙박스"로 상정한다.
 
----
+***
 
 ## Transformer 출력은 무엇인가
 
@@ -99,7 +99,6 @@ Transformer는 입력 token 개수만큼 hidden vector를 출력한다. 입력 t
 
 [Transformer 출력]
 [ h_1, h_2, h_3 ]
-
 ```
 
 각 hidden vector는 해당 위치의 token과 그 이전의 문맥을 모두 반영한 고차원 표현(Representation)이다.
@@ -116,7 +115,7 @@ Decoder-only LLM에서 '다음 token'을 예측할 때는 보통 **마지막 위
 
 여기서 $h_3$는 단순히 `를`이라는 token 하나만의 표현이 아니다. `나는 커피를`이라는 **현재까지의 전체 문맥이 압축 반영된** 마지막 위치의 벡터다.
 
----
+***
 
 ## Last Hidden Vector는 아직 token이 아니다
 
@@ -128,7 +127,7 @@ $$h_3 = [0.12, -0.03, 0.44, \dots, 0.31]$$
 
 따라서 이 거대한 벡터를 **Vocabulary 전체 token에 대한 점수**로 변환해야 한다. 이 변환을 담당하는 계층이 바로 **LM Head**다.
 
----
+***
 
 ## LM Head란 무엇인가
 
@@ -147,7 +146,6 @@ LM Head는 마지막 hidden vector($h_3$)를 받아 각 token에 대한 원시 �
 .        -> 1.3
 나는     -> -2.0
 ...
-
 ```
 
 이렇게 계산된 각 점수를 Logit(로짓)이라고 부른다.
@@ -167,7 +165,6 @@ LM Head는 4,096차원의 hidden vector를 50,000차원의 logit vector로 변�
 flowchart TD
     A[Hidden Vector<br/>4096 차원] --> B[LM Head]
     B --> C[Logit Vector<br/>50000 차원]
-
 ```
 
 Logit vector의 각 인덱스는 Vocabulary 안의 token 하나하나에 직접적으로 대응한다.
@@ -179,7 +176,7 @@ Logit vector의 각 인덱스는 Vocabulary 안의 token 하나하나에 직접�
 
 따라서 **Logit Vector의 전체 크기는 Vocabulary Size와 일치한다.**
 
----
+***
 
 ## Logit이란 무엇인가
 
@@ -197,7 +194,7 @@ Logit vector의 각 인덱스는 Vocabulary 안의 token 하나하나에 직접�
 
 Logit 값이 크다는 것은 해당 token이 다음 위치에 올 가능성이 모델 내부적으로 높게 평가되었다는 뜻이다.
 
-하지만 **Logit 자체는 확률이 아니다.** 8.2라는 숫자가 82%를 의미하지 않으며, 5.1이 51%를 뜻하지 않는다. Logit은 어디까지나 token 간의 '상대적인 점수 차이'를 나타낼 뿐이며, 우리가 아는 0~1 사이의 확률로 해석하려면 **Softmax**를 거쳐야만 한다.
+하지만 **Logit 자체는 확률이 아니다.** 8.2라는 숫자가 82%를 의미하지 않으며, 5.1이 51%를 뜻하지 않는다. Logit은 어디까지나 token 간의 '상대적인 점수 차이'를 나타낼 뿐이며, 우리가 아는 0\~1 사이의 확률로 해석하려면 **Softmax**를 거쳐야만 한다.
 
 ### Logit은 '상대적인 점수'다
 
@@ -222,7 +219,7 @@ Logit은 개별 숫자 하나만 떼어놓고 보면 해석하기 어렵다. 핵
 
 Softmax 연산은 절대값이 아닌 이런 '상대적인 차이'를 기반으로 확률 분포를 만든다. 따라서 logit은 개별 값이 아니라 전체 logit vector 분포 안에서 해석되어야 한다.
 
----
+***
 
 ## Softmax란 무엇인가
 
@@ -247,7 +244,6 @@ $$\text{softmax}(z_i) = \frac{\exp(z_i)}{\sum \exp(z_j)}$$
 flowchart TD
     A[Token별 Logit] --> B[Softmax]
     B --> C[Token별 Probability <br/> 총합 = 1.0]
-
 ```
 
 Softmax는 Vocabulary 전체 token을 대상으로 한 번에 계산된다. 즉, 특정 token의 최종 확률은 자기 자신의 logit뿐만 아니라 **다른 모든 token들의 logit 점수에도 영향을 받는다.**
@@ -278,9 +274,9 @@ Softmax는 Vocabulary 전체 token을 대상으로 한 번에 계산된다. 즉,
 
 Softmax 내부에는 지수 함수($\exp$)가 있기 때문에, Logit의 미세한 차이가 확률에서는 큰 격차로 벌어진다.
 
-특정 token의 logit이 2~3점만 높아도 Softmax 결과는 그 token에 확률의 대부분을 몰아주게 된다(위 예시처럼 91% 집중). 반대로 1, 2, 3위의 Logit 점수가 4.2, 4.1, 4.0처럼 매우 비슷하다면, 확률 역시 30%, 28%, 25% 식으로 고르게 분산된다.
+특정 token의 logit이 2\~3점만 높아도 Softmax 결과는 그 token에 확률의 대부분을 몰아주게 된다(위 예시처럼 91% 집중). 반대로 1, 2, 3위의 Logit 점수가 4.2, 4.1, 4.0처럼 매우 비슷하다면, 확률 역시 30%, 28%, 25% 식으로 고르게 분산된다.
 
----
+***
 
 ## Softmax 결과는 '결과'가 아니라 '확률 분포'다
 
@@ -293,7 +289,7 @@ Softmax 결과에서 확률이 낮게 나왔다는 것은 선택될 가능성이
 
 즉, Softmax는 정답 하나를 확정 짓는 함수가 아니라, **선택을 위한 정밀한 확률 지도**를 그리는 단계다.
 
----
+***
 
 ## 심화: Vocabulary 전체에 대해 계산한다는 것의 의미
 
@@ -308,7 +304,6 @@ token id 1     -> 0.00000%
 token id 1024  -> 91.0000% (마셨다)
 ...
 token id 49999 -> 0.00012%
-
 ```
 
 대다수 token의 확률은 0에 한없이 가깝게 수렴하겠지만, 아키텍처 구조상 무조건 전체 크기에 대한 행렬 연산이 수행된다. 이 때문에 Vocabulary Size를 무작정 늘리면 모델의 최종 출력 Layer 크기와 연산량(VRAM 사용량)이 급격히 증가하게 된다.
@@ -334,7 +329,7 @@ LLM은 텍스트를 바로 뱉어내지 않는다. 여러 단계의 수학적 �
 
 최종적으로 도출된 이 Token Probability Distribution(토큰 확률 분포)를 바탕으로, 모델은 Greedy 방식이나 Sampling 기법을 활용해 최종적인 하나의 단어를 선택하고 이를 화면에 출력하게 된다.
 
----
+***
 
 ## 참고
 
@@ -349,12 +344,11 @@ LLM은 텍스트를 바로 뱉어내지 않는다. 여러 단계의 수학적 �
 
 일부 모델 아키텍처에서는 메모리를 절약하기 위해 처음에 사용한 Embedding Table의 가중치(Weight) 행렬을 뒤집어서(Transpose) 마지막 LM Head의 가중치로 재사용하기도 한다. 이를 **Weight Tying(가중치 공유)** 기법이라고 부른다.
 
----
+***
 
 ### 실제 코드 구현에서의 Softmax 트릭
 
 개념적인 Softmax 수식은 지수($\exp$)를 직접 계산한다.
-
 
 $$\text{softmax}(z_i) = \frac{\exp(z_i)}{\sum \exp(z_j)}$$
 
@@ -364,4 +358,4 @@ $$\text{softmax}(z_i) = \frac{\exp(z_i - \max(z))}{\sum \exp(z_j - \max(z))}$$
 
 앞서 "Logit은 절대값이 아니라 상대적인 차이가 중요하다"고 설명했다. 모든 Logit에서 똑같이 최댓값을 빼주더라도 token 간의 상대적 점수 차이는 그대로 유지되므로, 최종적인 Softmax 확률 결과는 수학적으로 완벽히 동일하다.
 
----
+***
