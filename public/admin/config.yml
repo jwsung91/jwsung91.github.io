@@ -113,7 +113,6 @@ collections:
               label: "AI Curator 파이프라인 구축기",
               value: "ai-curator-pipeline",
             }
-          - { label: "C++ STL Study", value: "cpp-stl-study" }
           - { label: "LLM Core", value: "llm-core" }
           - { label: "LLM Training", value: "llm-training" }
 
@@ -155,6 +154,21 @@ collections:
             date_format: "YYYY-MM-DD"
             time_format: false
             required: false
+          - { label: "Body", name: "body", widget: "markdown" }
+
+  - name: "about"
+    label: "About"
+    files:
+      - label: "About Page"
+        name: "about"
+        file: "src/content/about.md"
+        fields:
+          - {
+              label: "Title",
+              name: "title",
+              widget: "hidden",
+              default: "About",
+            }
           - { label: "Body", name: "body", widget: "markdown" }
 
   - name: "projects"

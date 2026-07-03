@@ -27,11 +27,6 @@
       "description": "기술 뉴스 자동 수집·요약·배포 파이프라인 구축 기록입니다."
     },
     {
-      "id": "cpp-stl-study",
-      "title": "C++ STL Study",
-      "description": "C++ STL과 자료구조를 실무 관점에서 정리합니다."
-    },
-    {
       "id": "llm-core",
       "title": "LLM Core",
       "description": "Transformer부터 decoding까지, LLM이 텍스트를 생성하는 핵심 원리를 단계별로 정리합니다."
