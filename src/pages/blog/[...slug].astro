@@ -353,32 +353,81 @@ const blogPostingStructuredData = {
       });
     };
 
-    const renderMermaid = async () => {
-      const diagrams = document.querySelectorAll('.mermaid');
+    if (document.querySelectorAll('.mermaid').length) {
+      let tabsEnhanced = false;
+      let isRerendering = false;
 
-      if (!diagrams.length) {
-        return;
+      const rerenderMermaid = async () => {
+        if (isRerendering) {
+          return;
+        }
+
+        isRerendering = true;
+
+        try {
+          const diagrams = document.querySelectorAll('.mermaid');
+
+          if (!diagrams.length) {
+            return;
+          }
+
+          const { default: mermaid } = await import('mermaid');
+
+          diagrams.forEach((el) => {
+            if (!el.getAttribute('data-mermaid-source')) {
+              el.setAttribute('data-mermaid-source', el.textContent ?? '');
+            }
+
+            const source = el.getAttribute('data-mermaid-source');
+            if (source !== null) {
+              el.removeAttribute('data-processed');
+              el.textContent = source;
+            }
+          });
+
+          mermaid.initialize({
+            startOnLoad: false,
+            theme: document.documentElement.classList.contains('dark')
+              ? 'dark'
+              : 'default',
+          });
+
+          await mermaid.run({ nodes: Array.from(diagrams) });
+
+          if (!tabsEnhanced) {
+            enhanceMermaidTabs();
+            tabsEnhanced = true;
+          }
+        } finally {
+          isRerendering = false;
+        }
+      };
+
+      const initMermaid = () => {
+        rerenderMermaid();
+
+        let lastDark = document.documentElement.classList.contains('dark');
+
+        new MutationObserver(() => {
+          const isDark = document.documentElement.classList.contains('dark');
+
+          if (isDark !== lastDark) {
+            lastDark = isDark;
+            rerenderMermaid();
+          }
+        }).observe(document.documentElement, {
+          attributes: true,
+          attributeFilter: ['class'],
+        });
+      };
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initMermaid, {
+          once: true,
+        });
+      } else {
+        initMermaid();
       }
-
-      const { default: mermaid } = await import('mermaid');
-
-      mermaid.initialize({
-        startOnLoad: false,
-        theme: document.documentElement.classList.contains('dark')
-          ? 'dark'
-          : 'default',
-      });
-
-      await mermaid.run({ nodes: Array.from(diagrams) });
-      enhanceMermaidTabs();
-    };
-
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', renderMermaid, {
-        once: true,
-      });
-    } else {
-      renderMermaid();
     }
   </script>
 </BaseLayout>
