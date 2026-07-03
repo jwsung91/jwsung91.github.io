@@ -21,6 +21,11 @@ export { projectLabels, kindLabels };
 
 const tagDisplayLabels: Record<string, string> = {
   'ai-curator': 'AI Curator',
+  llm: 'LLM',
+  ai: 'AI',
+  stl: 'STL',
+  'c-plus-plus': 'C++',
+  rlhf: 'RLHF',
 };
 
 export const sortBlogPosts = (posts: BlogPost[]) =>

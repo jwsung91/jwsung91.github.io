@@ -10,7 +10,7 @@ tags:
   - base-model
   - chat-model
   - instruction-tuning
-  - RLHF
+  - rlhf
   - alignment
 description: 사전 학습을 마친 Base Model이 Instruction Tuning, Preference Tuning, Safety Alignment를 거쳐 대화형 Chat Model로 발전하는 세부 과정 정리
 draft: false

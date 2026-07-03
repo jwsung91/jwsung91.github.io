@@ -144,6 +144,10 @@ for (const file of files) {
 
       const normalized = tag.toLowerCase();
 
+      if (tag !== normalized) {
+        fail(currentFile, `tag는 소문자로 작성해야 합니다: ${tag}`);
+      }
+
       if (seenTags.has(normalized)) {
         fail(currentFile, `중복 tag가 있습니다: ${tag}`);
       }
