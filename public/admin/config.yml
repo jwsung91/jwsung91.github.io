@@ -113,7 +113,6 @@ collections:
               label: "AI Curator 파이프라인 구축기",
               value: "ai-curator-pipeline",
             }
-          - { label: "C++ STL Study", value: "cpp-stl-study" }
           - { label: "LLM Core", value: "llm-core" }
           - { label: "LLM Training", value: "llm-training" }
 
