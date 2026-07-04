@@ -1,5 +1,5 @@
 ---
-title: '[unilink] UDP backpressure 데드락 트러블슈팅'
+title: 'UDP backpressure 데드락 트러블슈팅'
 date: 2026-07-02
 updatedAt: 2026-07-02
 project: unilink

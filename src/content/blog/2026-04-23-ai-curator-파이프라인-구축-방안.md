@@ -1,5 +1,5 @@
 ---
-title: '[AI Curator] 파이프라인 구축 방안'
+title: '파이프라인 구축 방안'
 date: 2026-04-23
 project: ai-curator
 kind: design

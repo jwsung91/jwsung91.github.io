@@ -1,5 +1,5 @@
 ---
-title: '[unilink] unified API 설계'
+title: 'Unified API 설계'
 date: 2026-05-31
 project: unilink
 kind: design

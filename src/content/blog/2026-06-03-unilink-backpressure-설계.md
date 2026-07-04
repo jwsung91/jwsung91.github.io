@@ -1,5 +1,5 @@
 ---
-title: '[unilink] backpressure 설계'
+title: 'Backpressure 설계'
 date: 2026-06-03
 project: unilink
 kind: design

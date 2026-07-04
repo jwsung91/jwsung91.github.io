@@ -1,5 +1,5 @@
 ---
-title: '[unilink] transport 계층 설계'
+title: 'Transport 계층 설계'
 date: 2026-06-02
 project: unilink
 kind: design

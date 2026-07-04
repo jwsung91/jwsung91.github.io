@@ -1,5 +1,5 @@
 ---
-title: '[unilink] ChannelFactory 설계'
+title: 'ChannelFactory 설계'
 date: 2026-06-02
 project: unilink
 kind: design

@@ -1,5 +1,5 @@
 ---
-title: '[unilink] TCP_NODELAY 트러블슈팅'
+title: 'TCP_NODELAY 트러블슈팅'
 date: 2026-07-02
 updatedAt: 2026-07-02
 project: unilink
