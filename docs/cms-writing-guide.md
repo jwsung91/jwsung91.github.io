@@ -84,6 +84,13 @@ flowchart LR
 - tab 대신 space를 사용한다.
 - Mermaid source를 별도 코드블록으로 중복 작성하지 않는다.
 
+## 목록 화면에서 글 찾기
+
+Blog collection 글이 많아지면 목록 화면에서 정렬(Sort)뿐 아니라 그룹(Group) 보기를 사용하면 편합니다.
+
+- 목록 상단의 Group 옵션에서 Project / Series / Kind 기준으로 묶어서 볼 수 있습니다.
+- Draft 필터로 초안만 따로 모아 볼 수 있습니다.
+
 ## 게시 전 확인
 
 - description이 40~180자인가?

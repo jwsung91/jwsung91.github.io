@@ -40,6 +40,17 @@ collections:
       - kind
       - series
       - seriesOrder
+    view_groups:
+      - label: "Project"
+        field: project
+      - label: "Series"
+        field: series
+      - label: "Kind"
+        field: kind
+    view_filters:
+      - label: "Draft"
+        field: draft
+        pattern: true
     fields:
       - label: "Title"
         name: "title"

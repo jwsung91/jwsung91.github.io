@@ -1,0 +1,85 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import {
+  formatDate,
+  getBlogPath,
+  getPublishedBlogPosts,
+  getSeriesGroups,
+} from '../../../lib/blog';
+
+export async function getStaticPaths() {
+  const posts = await getPublishedBlogPosts();
+  const seriesGroups = getSeriesGroups(posts).filter(
+    (group) => !group.series.project,
+  );
+
+  return seriesGroups.map((group) => ({
+    params: { series: group.series.id },
+    props: { series: group.series, posts: group.posts },
+  }));
+}
+
+const { series, posts } = Astro.props;
+---
+
+<BaseLayout
+  title={`${series.title} — jwsung91`}
+  description={series.description}
+>
+  <main class="page-layout">
+    <section class="mb-12">
+      <p class="mb-2 font-mono text-sm text-stone-500">Series</p>
+      <h1
+        class="mb-3 text-3xl font-bold text-stone-900 dark:text-stone-100 md:text-4xl"
+      >
+        {series.title}
+      </h1>
+      <p
+        class="max-w-2xl text-base leading-relaxed text-stone-600 dark:text-stone-400"
+      >
+        {series.description}
+      </p>
+    </section>
+
+    <section>
+      <h2
+        class="mb-6 font-mono text-xs uppercase tracking-wider text-stone-500"
+      >
+        Posts
+      </h2>
+      <ul class="space-y-3">
+        {
+          posts.map((post, index) => (
+            <li>
+              <a
+                href={getBlogPath(post)}
+                class="group flex flex-col gap-2 rounded-lg border border-stone-200 bg-stone-100/50 p-4 dark:border-stone-800 dark:bg-stone-900/50 sm:flex-row sm:items-center sm:justify-between"
+              >
+                <div>
+                  <p class="font-mono text-xs uppercase tracking-wider text-stone-500">
+                    {series.title} {index + 1}
+                  </p>
+                  <h3 class="mt-1 text-base font-semibold text-stone-900 transition-colors duration-200 group-hover:text-stone-700 dark:text-stone-100 dark:group-hover:text-stone-300">
+                    {post.data.title}
+                  </h3>
+                </div>
+                <span class="font-mono text-xs uppercase tracking-wider text-stone-500">
+                  {formatDate(post.data.date)}
+                </span>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </section>
+
+    <footer class="mt-12">
+      <a
+        href="/blog/"
+        class="font-mono text-sm text-azure-600 dark:text-azure-400 hover:underline"
+      >
+        ← all posts
+      </a>
+    </footer>
+  </main>
+</BaseLayout>

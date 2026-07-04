@@ -4,6 +4,8 @@ import {
   kindLabels,
   projectIds,
   projectLabels,
+  seriesList,
+  type SeriesMeta,
 } from './taxonomy';
 
 export type BlogPost = CollectionEntry<'blog'>;
@@ -94,13 +96,32 @@ export const filterPostsByTagSlug = (posts: BlogPost[], tagSlug: string) =>
   );
 
 export const getStudyPosts = (posts: BlogPost[]) =>
-  posts.filter((post) => post.data.kind === 'study');
+  posts.filter((post) => post.data.kind === 'study' && !post.data.series);
 
 export const getProjectPosts = (posts: BlogPost[], project: BlogProject) =>
   posts.filter((post) => post.data.project === project);
 
 export const getSitePosts = (posts: BlogPost[]) =>
   posts.filter((post) => post.data.project === 'site');
+
+export type BlogSeriesGroup = {
+  series: SeriesMeta;
+  posts: BlogPost[];
+};
+
+const getLatestDate = (posts: BlogPost[]) =>
+  Math.max(...posts.map((post) => post.data.date.getTime()));
+
+export const getSeriesGroups = (posts: BlogPost[]): BlogSeriesGroup[] =>
+  seriesList
+    .map((series) => ({
+      series,
+      posts: sortBlogSeriesPosts(
+        posts.filter((post) => post.data.series === series.id),
+      ),
+    }))
+    .filter((group) => group.posts.length > 0)
+    .sort((a, b) => getLatestDate(b.posts) - getLatestDate(a.posts));
 
 export const formatSeriesTitle = (series: string) =>
   series

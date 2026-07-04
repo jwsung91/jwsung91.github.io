@@ -3,30 +3,23 @@ import PostListItem from '../../components/PostListItem.astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import {
   getBlogPath,
-  getProjectPosts,
   getPublishedBlogPosts,
+  getSeriesGroups,
   getSitePosts,
   getStudyPosts,
-  projectLabels,
-  type BlogProject,
 } from '../../lib/blog';
-import { seriesList } from '../../lib/taxonomy';
 
 const RECENT_POSTS_LIMIT = 5;
 
 const posts = await getPublishedBlogPosts();
-const projectGroups = (['unilink', 'ai-curator'] as BlogProject[])
-  .map((project) => ({
-    project,
-    posts: getProjectPosts(posts, project),
-  }))
-  .filter((group) => group.posts.length > 0);
+const seriesGroups = getSeriesGroups(posts);
 const studyPosts = getStudyPosts(posts);
 const sitePosts = getSitePosts(posts);
 const recentPosts = posts.slice(0, RECENT_POSTS_LIMIT);
-const getProjectDocTitle = (project: BlogProject) =>
-  seriesList.find((series) => series.project === project)?.title ??
-  projectLabels[project];
+const getSeriesPath = (series: (typeof seriesGroups)[number]['series']) =>
+  series.project
+    ? `/projects/${series.project}/`
+    : `/blog/series/${series.id}/`;
 ---
 
 <BaseLayout
@@ -49,26 +42,26 @@ const getProjectDocTitle = (project: BlogProject) =>
       <h2
         class="mb-6 font-mono text-xs uppercase tracking-wider text-stone-500"
       >
-        Project Docs
+        Series
       </h2>
       <div class="grid gap-4 md:grid-cols-2">
         {
-          projectGroups.map((group) => {
-            const firstPost = group.posts[group.posts.length - 1];
+          seriesGroups.map((group) => {
+            const firstPost = group.posts[0];
 
             return (
               <article class="rounded-lg border border-stone-200 bg-stone-100/50 p-5 dark:border-stone-800 dark:bg-stone-900/50">
                 <h3 class="text-lg font-semibold text-stone-900 dark:text-stone-100">
-                  {getProjectDocTitle(group.project)}
+                  {group.series.title}
                 </h3>
                 <p class="mt-2 text-sm leading-relaxed text-stone-600 dark:text-stone-400">
-                  {group.posts.length}개의 프로젝트 문서가 있습니다.
+                  {group.posts.length}개의 연재 글이 있습니다.
                 </p>
                 <a
-                  href={`/projects/${group.project}/`}
+                  href={getSeriesPath(group.series)}
                   class="mt-4 inline-block font-mono text-sm text-azure-600 dark:text-azure-400 hover:underline"
                 >
-                  project docs →
+                  series →
                 </a>
                 {firstPost && (
                   <a
