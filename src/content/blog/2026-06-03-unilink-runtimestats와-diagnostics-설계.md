@@ -1,5 +1,5 @@
 ---
-title: '[unilink] RuntimeStats와 Diagnostics 설계'
+title: 'RuntimeStats와 Diagnostics 설계'
 date: 2026-06-03
 project: unilink
 kind: design

@@ -1,5 +1,5 @@
 ---
-title: '[AI Curator] 파이프라인 구축기 — 실제 구현'
+title: '파이프라인 구축기 — 실제 구현'
 date: 2026-04-25
 project: ai-curator
 kind: implementation

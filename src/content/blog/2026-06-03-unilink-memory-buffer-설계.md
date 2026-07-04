@@ -1,5 +1,5 @@
 ---
-title: '[unilink] memory / buffer 설계'
+title: 'Memory / buffer 설계'
 date: 2026-06-03
 project: unilink
 kind: design

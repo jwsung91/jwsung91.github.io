@@ -1,5 +1,5 @@
 ---
-title: '[STL] Priority queue'
+title: 'Priority queue'
 date: 2026-04-21
 kind: study
 tags:
