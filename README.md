@@ -12,15 +12,18 @@
 
 ## 라우팅
 
-| 경로           | 설명                                            |
-| -------------- | ----------------------------------------------- |
-| `/`            | 홈 — Hero, Now 프리뷰, Projects, Recent Writing |
-| `/now`         | 현재 작업 및 관심사                             |
-| `/blog`        | 포스트 목록                                     |
-| `/blog/[slug]` | 포스트 상세                                     |
-| `/projects`    | 프로젝트 문서 허브                              |
-| `/about`       | 소개 및 경력                                    |
-| `/rss.xml`     | RSS 피드                                        |
+| 경로                    | 설명                                                     |
+| ----------------------- | -------------------------------------------------------- |
+| `/`                     | 홈 — Hero, Now 프리뷰, Projects, Recent Writing          |
+| `/now`                  | 현재 작업 및 관심사                                      |
+| `/blog`                 | 포스트 목록 (Series / Study Notes / Site Notes / Latest) |
+| `/blog/[slug]`          | 포스트 상세                                              |
+| `/blog/tags/[tag]`      | 태그별 포스트 목록                                       |
+| `/blog/series/[series]` | 시리즈 허브 (project 없이 존재하는 시리즈 전용)          |
+| `/projects`             | 프로젝트 문서 허브                                       |
+| `/projects/[slug]`      | 프로젝트 상세 (해당 프로젝트의 Series + Related Writing) |
+| `/about`                | 소개 및 경력                                             |
+| `/rss.xml`              | RSS 피드                                                 |
 
 ## 콘텐츠 구조
 
@@ -40,15 +43,29 @@ src/content/
 ---
 title: 제목
 date: 2026-04-18
+updatedAt: 2026-04-20 # 실질적으로 내용을 수정한 경우만 (선택)
 project: unilink # unilink | ai-curator | site (선택)
-kind: design # design | implementation | release | retrospective | study | note
+kind: design # design | implementation | retrospective | study | note | devlog
 tags: [ros2, c++]
 description: 한 줄 요약
+series: unilink-design # 연속 글일 때만 (선택)
+seriesOrder: 1 # series가 있으면 필수
 draft: false
 ---
 ```
 
 파일명 컨벤션: `YYYY-MM-DD-slug.md`
+
+`project` / `kind` / `series`의 허용 값은 `src/data/taxonomy.json`에서 관리하며, `scripts/check-content.mjs`가 이 값과 CMS `config.yml`의 select 옵션이 서로 일치하는지 검증한다.
+
+### 시리즈(Series) 노출 방식
+
+`series`가 있는 글은 `project` 유무와 무관하게 `/blog` 인덱스의 "Series" 섹션에 카드로 묶여서 노출된다.
+
+- `series`에 연결된 `project`가 있으면(`unilink-design` → `unilink` 등) 카드는 해당 프로젝트 허브(`/projects/[slug]`)로 링크되고, 그 페이지의 "Series" 섹션에서 순서대로 볼 수 있다.
+- `project`가 없는 시리즈(예: `llm-core`, `llm-training`)는 전용 허브 페이지 `/blog/series/[series]`로 링크된다.
+
+새 시리즈를 추가하려면 `src/data/taxonomy.json`의 `series` 배열에 항목을 추가하고 `config.yml`의 Series select 옵션도 함께 갱신한다 (다르면 `content:check`가 실패한다).
 
 ### 프로젝트 frontmatter
 
