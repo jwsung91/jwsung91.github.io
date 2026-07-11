@@ -37,14 +37,10 @@ const statusLabel: Record<string, string> = {
     </section>
 
     <section id="now" class="mb-16">
-      <h2
-        class="mb-6 font-mono text-xs uppercase tracking-wider text-stone-500"
-      >
-        Now
-      </h2>
+      <h2 class="mb-6 section-eyebrow">Now</h2>
 
       <div
-        class="page-content prose dark:prose-invert prose-stone max-w-none prose-headings:text-xs prose-headings:uppercase prose-headings:tracking-wider prose-headings:text-stone-500 prose-p:text-stone-700 dark:prose-p:text-stone-300 prose-li:text-stone-700 dark:prose-li:text-stone-300 prose-a:text-azure-600 dark:prose-a:text-azure-400 prose-a:no-underline hover:prose-a:underline"
+        class="now-content page-content prose dark:prose-invert prose-stone max-w-none prose-headings:text-xs prose-headings:uppercase prose-headings:tracking-wider prose-headings:text-stone-500 prose-p:text-stone-700 dark:prose-p:text-stone-300 prose-li:text-stone-700 dark:prose-li:text-stone-300 prose-a:text-azure-600 dark:prose-a:text-azure-400 prose-a:no-underline hover:prose-a:underline"
       >
         <NowContent />
       </div>
@@ -65,11 +61,7 @@ const statusLabel: Record<string, string> = {
     </section>
 
     <section id="projects" class="mb-16">
-      <h2
-        class="mb-6 font-mono text-xs uppercase tracking-wider text-stone-500"
-      >
-        Projects
-      </h2>
+      <h2 class="mb-6 section-eyebrow">Projects</h2>
       <ul class="space-y-4">
         {
           projects.map((p) => (
@@ -129,11 +121,7 @@ const statusLabel: Record<string, string> = {
     </section>
 
     <section class="mb-16">
-      <h2
-        class="mb-6 font-mono text-xs uppercase tracking-wider text-stone-500"
-      >
-        Recent Writing
-      </h2>
+      <h2 class="mb-6 section-eyebrow">Recent Writing</h2>
       <div class="space-y-4">
         {
           recentPosts.map((post) => (
