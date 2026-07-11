@@ -78,14 +78,12 @@ const getSeriesPath = (series: (typeof seriesGroups)[number]['series']) =>
       </div>
     </section>
 
-    <section class="mb-16">
-      <h2
-        class="mb-6 font-mono text-xs uppercase tracking-wider text-stone-500"
-      >
-        Study Notes
-      </h2>
-      {
-        studyPosts.length > 0 ? (
+    {
+      studyPosts.length > 0 && (
+        <section class="mb-16">
+          <h2 class="mb-6 font-mono text-xs uppercase tracking-wider text-stone-500">
+            Study Notes
+          </h2>
           <ul class="space-y-3">
             {studyPosts.map((post) => (
               <li>
@@ -93,13 +91,9 @@ const getSeriesPath = (series: (typeof seriesGroups)[number]['series']) =>
               </li>
             ))}
           </ul>
-        ) : (
-          <p class="text-base leading-relaxed text-stone-600 dark:text-stone-400">
-            공개된 study 글이 아직 없습니다.
-          </p>
-        )
-      }
-    </section>
+        </section>
+      )
+    }
 
     <section class="mb-16">
       <h2
