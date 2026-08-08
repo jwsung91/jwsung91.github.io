@@ -27,6 +27,7 @@ pnpm-debug.log*
 .idea/
 
 # agent-rules (local only)
-AGENTS.md
-CLAUDE.md
-GEMINI.md
+/AGENTS.md
+/CLAUDE.md
+/GEMINI.md
+/.agent-rules/bases/
