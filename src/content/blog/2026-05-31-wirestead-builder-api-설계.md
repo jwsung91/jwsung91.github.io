@@ -1,18 +1,16 @@
 ---
 title: 'Builder API 설계'
 date: 2026-05-31
-project: unilink
+project: wirestead
 kind: design
 tags:
-  - unilink
+  - wirestead
   - cpp
-  - async-io
   - builder-pattern
   - crtp
-  - concepts
   - api-design
 description: CRTP, Concepts, Fluent API를 활용해 복잡한 통신 객체 설정을 안전하고 읽기 쉬운 생성 흐름으로 구성한 과정을 정리했다.
-series: 'unilink-design'
+series: 'wirestead-design'
 seriesOrder: 3
 draft: false
 ---
@@ -41,11 +39,11 @@ TcpClient client(
 이 코드는 짧지만 명확하지 않다.
 각 숫자와 boolean이 무엇을 의미하는지 코드만 보고 이해하기 어렵다. 생성자 overload가 늘어나면 사용자는 어떤 생성자를 선택해야 하는지도 계속 확인해야 한다.
 
-unilink에서는 이 문제를 Builder API로 풀었다.
+wirestead에서는 이 문제를 Builder API로 풀었다.
 필수 입력은 entry point에서 받고, 선택적 설정은 fluent API로 명시적으로 연결한다.
 
 ```cpp
-auto client = unilink::tcp_client("127.0.0.1", 9000)
+auto client = wirestead::tcp_client("127.0.0.1", 9000)
     .retry_interval(std::chrono::milliseconds(3000))
     .max_retries(-1)
     .connection_timeout(std::chrono::milliseconds(5000))
@@ -88,15 +86,15 @@ mindmap
 
 ## Builder가 담당하는 역할
 
-unilink에서 Builder는 통신 객체가 생성되기 전에 필요한 설정을 모으는 계층이다.
+wirestead에서 Builder는 통신 객체가 생성되기 전에 필요한 설정을 모으는 계층이다.
 사용자는 builder를 통해 callback, framer, backpressure, reconnect, socket option 같은 설정을 구성한 뒤 `build()`를 호출한다.
 
 ```cpp
-auto client = unilink::tcp_client("127.0.0.1", 9000)
-    .on_data([](const unilink::MessageContext& ctx) {
+auto client = wirestead::tcp_client("127.0.0.1", 9000)
+    .on_data([](const wirestead::MessageContext& ctx) {
         // handle received data
     })
-    .on_error([](const unilink::ErrorContext& err) {
+    .on_error([](const wirestead::ErrorContext& err) {
         // handle error
     })
     .build();
@@ -140,7 +138,7 @@ Builder API의 가장 중요한 목표는 설정 코드가 읽히는 것이다.
 반면 Builder API는 설정의 의미를 메서드 이름으로 드러낸다.
 
 ```cpp
-auto client = unilink::tcp_client("127.0.0.1", 9000)
+auto client = wirestead::tcp_client("127.0.0.1", 9000)
     .retry_interval(std::chrono::milliseconds(3000))
     .max_retries(5)
     .connection_timeout(std::chrono::milliseconds(5000))
@@ -174,11 +172,11 @@ mindmap
       runtime phase
 ```
 
-unilink의 Builder API는 이 목표를 기준으로 설계되었다.
+wirestead의 Builder API는 이 목표를 기준으로 설계되었다.
 
 ## BuilderInterface: 공통 설정 계층
 
-unilink에는 transport별 builder가 존재한다.
+wirestead에는 transport별 builder가 존재한다.
 예를 들어 TCP client, TCP server, Serial, UDP, UDS는 각각 생성에 필요한 입력과 세부 옵션이 다르다.
 
 하지만 모든 builder가 callback 등록, framer 설정, backpressure 설정을 각자 구현하면 중복이 발생한다.
@@ -225,7 +223,7 @@ flowchart TD
 문제는 callback signature가 잘못되었을 때다.
 예를 들어 `on_data`는 수신 메시지 context를 받아야 하고, `on_error`는 error context를 받아야 한다. 사용자가 잘못된 인자를 받는 lambda를 넘기면 컴파일 단계에서 이를 잡아낼 수 있어야 한다.
 
-unilink는 이를 C++20 Concepts로 제한한다.
+wirestead는 이를 C++20 Concepts로 제한한다.
 
 ```cpp
 template <typename T>
@@ -275,7 +273,7 @@ flowchart TD
 
 ## Rebind와 BuilderState
 
-unilink Builder에는 `BuilderState`와 `Rebind` 구조도 포함되어 있다.
+wirestead Builder에는 `BuilderState`와 `Rebind` 구조도 포함되어 있다.
 
 `BuilderState`는 callback 등록 상태를 bitmask로 표현한다.
 예를 들어 data callback이 등록되었는지, error callback이 등록되었는지를 상태로 추적할 수 있다.
@@ -333,7 +331,7 @@ TCP client는 TCP client만의 설정이 필요하다.
 예를 들어 retry interval, max retries, connection timeout, TCP_NODELAY, keep-alive, send/receive buffer size 같은 옵션은 TCP client의 성격에 더 가깝다.
 
 ```cpp
-auto client = unilink::tcp_client("127.0.0.1", 9000)
+auto client = wirestead::tcp_client("127.0.0.1", 9000)
     .retry_interval(std::chrono::milliseconds(3000))
     .max_retries(5)
     .connection_timeout(std::chrono::milliseconds(5000))
@@ -410,16 +408,16 @@ flowchart TD
 Builder는 설정을 모으고, wrapper 생성 시점에 그 설정을 전달한다.
 
 ```cpp
-auto client = unilink::tcp_client("127.0.0.1", 9000)
-    .on_data([](const unilink::MessageContext& ctx) {
+auto client = wirestead::tcp_client("127.0.0.1", 9000)
+    .on_data([](const wirestead::MessageContext& ctx) {
         // handle data
     })
     .use_line_framer("\n")
     .backpressure_threshold(64 * 1024)
     .build();
 
-client->start();
-client->send("hello");
+client.start();
+client.send("hello");
 ```
 
 이 구분은 중요하다.
@@ -439,14 +437,14 @@ flowchart LR
 
 ## Framer와 Backpressure 설정
 
-unilink Builder의 특징 중 하나는 단순 transport option뿐 아니라, 비동기 통신에서 반복되는 런타임 문제도 설정할 수 있다는 점이다.
+wirestead Builder의 특징 중 하나는 단순 transport option뿐 아니라, 비동기 통신에서 반복되는 런타임 문제도 설정할 수 있다는 점이다.
 
 대표적인 예가 framer다.
 
 ```cpp
-auto client = unilink::tcp_client("127.0.0.1", 9000)
+auto client = wirestead::tcp_client("127.0.0.1", 9000)
     .use_line_framer("\n")
-    .on_message([](const unilink::MessageContext& msg) {
+    .on_message([](const wirestead::MessageContext& msg) {
         // handle complete line message
     })
     .build();
@@ -458,9 +456,9 @@ Builder 단계에서 line framer를 설정하고, runtime에서는 message callb
 Packet 기반 framing도 같은 방향으로 확장할 수 있다.
 
 ```cpp
-auto client = unilink::tcp_client("127.0.0.1", 9000)
+auto client = wirestead::tcp_client("127.0.0.1", 9000)
     .use_packet_framer({0x02}, {0x03}, 4096)
-    .on_message([](const unilink::MessageContext& msg) {
+    .on_message([](const wirestead::MessageContext& msg) {
         // handle framed packet
     })
     .build();
@@ -469,9 +467,9 @@ auto client = unilink::tcp_client("127.0.0.1", 9000)
 backpressure도 builder에서 설정할 수 있다.
 
 ```cpp
-auto client = unilink::tcp_client("127.0.0.1", 9000)
+auto client = wirestead::tcp_client("127.0.0.1", 9000)
     .backpressure_strategy(
-        unilink::base::constants::BackpressureStrategy::BestEffort)
+        wirestead::base::constants::BackpressureStrategy::BestEffort)
     .backpressure_threshold(64 * 1024)
     .on_backpressure([](size_t queued_bytes) {
         // observe queue pressure
@@ -499,7 +497,7 @@ mindmap
       context-based reporting
 ```
 
-이것이 unilink Builder의 중요한 역할이다.
+이것이 wirestead Builder의 중요한 역할이다.
 Builder는 단순 옵션 설정기가 아니라, 통신 객체의 runtime behavior를 구성하는 API다.
 
 ## Member Function Callback 지원
@@ -507,23 +505,23 @@ Builder는 단순 옵션 설정기가 아니라, 통신 객체의 runtime behavi
 비동기 callback API는 lambda만 받으면 충분해 보일 수 있다.
 하지만 실제 애플리케이션에서는 클래스의 멤버 함수로 이벤트를 처리하고 싶은 경우도 많다.
 
-unilink Builder는 이런 사용을 위해 객체 포인터와 멤버 함수 포인터를 받는 overload도 제공한다.
+wirestead Builder는 이런 사용을 위해 객체 포인터와 멤버 함수 포인터를 받는 overload도 제공한다.
 
 ```cpp
 class Handler {
 public:
-    void handle_data(const unilink::MessageContext& ctx) {
+    void handle_data(const wirestead::MessageContext& ctx) {
         // handle data
     }
 
-    void handle_error(const unilink::ErrorContext& err) {
+    void handle_error(const wirestead::ErrorContext& err) {
         // handle error
     }
 };
 
 Handler handler;
 
-auto client = unilink::tcp_client("127.0.0.1", 9000)
+auto client = wirestead::tcp_client("127.0.0.1", 9000)
     .on_data(&handler, &Handler::handle_data)
     .on_error(&handler, &Handler::handle_error)
     .build();
@@ -571,18 +569,18 @@ mindmap
       API consistency burden
 ```
 
-이 trade-off에도 불구하고 unilink에서는 Builder 구조를 선택했다.
+이 trade-off에도 불구하고 wirestead에서는 Builder 구조를 선택했다.
 
 이유는 통신 객체의 설정 복잡성이 생성자 기반 API보다 Builder 기반 API에 더 잘 맞기 때문이다.
 특히 여러 transport를 지원하고, callback과 runtime policy를 함께 설정해야 하는 라이브러리에서는 Builder가 public API의 일관성을 유지하는 데 유리하다.
 
 ## 정리: Builder의 역할
 
-unilink에서 Builder는 다음 역할을 담당한다.
+wirestead에서 Builder는 다음 역할을 담당한다.
 
 ```mermaid
 mindmap
-  root((unilink Builder Role))
+  root((wirestead Builder Role))
     Configuration
       required inputs
       optional settings
@@ -607,7 +605,7 @@ mindmap
 ```
 
 Builder는 단순히 객체 생성을 편하게 만드는 도구가 아니다.
-unilink에서 Builder는 public API의 일관성을 유지하고, transport별 설정을 분리하며, 비동기 통신에서 필요한 callback과 runtime policy를 구성하는 핵심 계층이다.
+wirestead에서 Builder는 public API의 일관성을 유지하고, transport별 설정을 분리하며, 비동기 통신에서 필요한 callback과 runtime policy를 구성하는 핵심 계층이다.
 
 정리하면 다음과 같다.
 
@@ -619,5 +617,5 @@ unilink에서 Builder는 public API의 일관성을 유지하고, transport별 �
 - `build()` 단계에서 설정을 wrapper 객체로 전달한다.
 - framer와 backpressure 같은 runtime concern도 builder 설정으로 표현한다.
 
-Builder API는 unilink의 사용 경험을 결정하는 중요한 계층이다.
-통신 객체의 생성 과정을 명시적으로 만들고, 설정의 의미를 코드에 드러내며, transport별 차이를 확장 가능한 방식으로 흡수한다. 이 점에서 Builder는 unilink의 Unified API를 실제 사용 코드로 연결하는 핵심 설계 요소라고 볼 수 있다.
+Builder API는 wirestead의 사용 경험을 결정하는 중요한 계층이다.
+통신 객체의 생성 과정을 명시적으로 만들고, 설정의 의미를 코드에 드러내며, transport별 차이를 확장 가능한 방식으로 흡수한다. 이 점에서 Builder는 wirestead의 Unified API를 실제 사용 코드로 연결하는 핵심 설계 요소라고 볼 수 있다.

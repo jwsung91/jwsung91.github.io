@@ -1,20 +1,17 @@
 ---
 title: 'Framer 계층 설계'
 date: 2026-06-03
-project: unilink
+project: wirestead
 kind: design
 tags:
-  - unilink
+  - wirestead
   - cpp
-  - async-io
   - framer
   - stream
   - protocol
-  - zero-copy
-  - architecture
 description: TCP와 Serial의 raw byte stream을 애플리케이션이 처리할 message 단위로 나누는 Framer 계층의 경계를 정리했다.
-series: 'unilink-design'
-seriesOrder: 10
+series: 'wirestead-design'
+seriesOrder: 8
 draft: false
 ---
 
@@ -148,7 +145,7 @@ Framer는 다음 문제를 해결한다.
 
 ## IFramer: 메시지 분리 전략의 공통 계약
 
-unilink에서 Framer는 `IFramer` 인터페이스로 추상화된다.
+wirestead에서 Framer는 `IFramer` 인터페이스로 추상화된다.
 
 개념적으로 보면 다음과 같다.
 
@@ -413,12 +410,12 @@ flowchart TD
 사용자 입장에서는 두 가지 callback을 구분할 수 있다.
 
 ```cpp
-auto client = unilink::tcp_client("127.0.0.1", 9000)
+auto client = wirestead::tcp_client("127.0.0.1", 9000)
     .use_line_framer("\n")
-    .on_data([](const unilink::MessageContext& ctx) {
+    .on_data([](const wirestead::MessageContext& ctx) {
         // raw chunk callback
     })
-    .on_message([](const unilink::MessageContext& msg) {
+    .on_message([](const wirestead::MessageContext& msg) {
         // complete message callback
     })
     .build();
@@ -428,16 +425,16 @@ auto client = unilink::tcp_client("127.0.0.1", 9000)
 `on_message`는 framer가 추출한 complete message에 가깝다.
 
 이 분리는 중요하다.
-어떤 애플리케이션은 raw chunk를 직접 처리하고 싶을 수 있고, 어떤 애플리케이션은 message 단위만 보고 싶을 수 있다. unilink는 이 둘을 분리해 제공한다.
+어떤 애플리케이션은 raw chunk를 직접 처리하고 싶을 수 있고, 어떤 애플리케이션은 message 단위만 보고 싶을 수 있다. wirestead는 이 둘을 분리해 제공한다.
 
 ## Builder에서 Framer 설정하기
 
 Framer는 Builder 단계에서 설정할 수 있다.
 
 ```cpp
-auto client = unilink::tcp_client("127.0.0.1", 9000)
+auto client = wirestead::tcp_client("127.0.0.1", 9000)
     .use_line_framer("\n")
-    .on_message([](const unilink::MessageContext& msg) {
+    .on_message([](const wirestead::MessageContext& msg) {
         // handle line message
     })
     .build();
@@ -446,9 +443,9 @@ auto client = unilink::tcp_client("127.0.0.1", 9000)
 Packet 기반 protocol이라면 다음처럼 설정할 수 있다.
 
 ```cpp
-auto client = unilink::tcp_client("127.0.0.1", 9000)
+auto client = wirestead::tcp_client("127.0.0.1", 9000)
     .use_packet_framer({0x02}, {0x03}, 4096)
-    .on_message([](const unilink::MessageContext& msg) {
+    .on_message([](const wirestead::MessageContext& msg) {
         // handle packet
     })
     .build();
@@ -457,11 +454,11 @@ auto client = unilink::tcp_client("127.0.0.1", 9000)
 또는 custom framer factory를 넘기는 방식으로 사용자 정의 framing 전략을 사용할 수도 있다.
 
 ```cpp
-auto client = unilink::tcp_client("127.0.0.1", 9000)
+auto client = wirestead::tcp_client("127.0.0.1", 9000)
     .framer([] {
         return std::make_unique<MyCustomFramer>();
     })
-    .on_message([](const unilink::MessageContext& msg) {
+    .on_message([](const wirestead::MessageContext& msg) {
         // handle custom-framed message
     })
     .build();
@@ -524,7 +521,7 @@ Framer는 이 복잡성을 하나의 전략 계층으로 격리한다.
 
 ## 정리
 
-unilink에서 Framer는 raw byte stream을 complete message로 변환하는 계층이다.
+wirestead에서 Framer는 raw byte stream을 complete message로 변환하는 계층이다.
 
 ```mermaid
 mindmap
@@ -566,5 +563,5 @@ mindmap
 - Builder는 Framer 전략을 설정하고, Wrapper는 이를 runtime callback과 연결한다.
 - max_length와 reset은 buffer 증가와 parser 상태 오류를 방지하는 안전장치다.
 
-Framer 계층은 unilink에서 raw data와 application message 사이의 경계다.
+Framer 계층은 wirestead에서 raw data와 application message 사이의 경계다.
 이 계층을 분리했기 때문에 Transport는 I/O에 집중하고, 애플리케이션은 complete message 단위의 callback을 기준으로 로직을 작성할 수 있다.

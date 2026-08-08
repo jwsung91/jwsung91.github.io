@@ -1,18 +1,16 @@
 ---
 title: 'Wrapper 계층 설계'
 date: 2026-06-02
-project: unilink
+project: wirestead
 kind: design
 tags:
-  - unilink
+  - wirestead
   - cpp
-  - async-io
   - wrapper
   - pimpl
   - api-design
-  - architecture
 description: Public API와 transport 구현 사이에서 수명, callback, 실행 상태를 조율하는 Wrapper 계층의 역할과 책임을 정리했다.
-series: 'unilink-design'
+series: 'wirestead-design'
 seriesOrder: 4
 draft: false
 ---
@@ -22,7 +20,7 @@ draft: false
 통신 라이브러리에서 사용자가 실제로 다루는 객체는 내부 transport 구현체가 아니다.
 사용자는 socket, acceptor, serial port, `io_context`, async read/write pipeline을 직접 다루기보다, `start`, `send`, `stop`, `on_data`, `on_error` 같은 의미 있는 동작을 호출하고 싶어 한다.
 
-unilink에서 이 역할을 담당하는 계층이 Wrapper다.
+wirestead에서 이 역할을 담당하는 계층이 Wrapper다.
 
 Wrapper는 public API와 transport implementation 사이에 위치한다.
 사용자에게는 단순한 실행 객체처럼 보이지만, 내부적으로는 transport 객체 생성, lifecycle 관리, callback 연결, framer 적용, backpressure 처리, runtime statistics 조회 같은 작업을 중재한다.
@@ -131,6 +129,15 @@ Transport는 Boost.Asio socket, acceptor, serial port 같은 OS 또는 라이브
 
 정리하면 Wrapper는 사용자-facing 계층이고, Channel은 내부 통신 추상화이며, Transport는 실제 프로토콜 구현 계층이다.
 
+이름이 헷갈리기 쉬운 지점이 하나 있다. TCP client는 Wrapper 계층에도 있고 Transport 계층에도 있는데, 이 둘은 완전히 다른 클래스다. 이 시리즈에서는 다음 규칙으로 구분한다.
+
+| 이름                 | 계층      | 역할                                      |
+| -------------------- | --------- | ----------------------------------------- |
+| `TcpClient`          | Wrapper   | 사용자가 직접 생성하고 호출하는 실행 객체 |
+| `TcpClientTransport` | Transport | `Channel` 계약을 구현하는 내부 I/O 구현체 |
+
+즉 접미사 `Transport`가 붙으면 내부 구현체이고, 붙지 않으면 사용자-facing wrapper다.
+
 ```mermaid
 flowchart TD
     A[User Code] --> B[Wrapper]
@@ -192,7 +199,7 @@ Wrapper는 사용자에게 필요한 API만 남기고, 구현 세부사항을 �
 
 ## PImpl: 구현 세부사항 숨기기
 
-unilink의 wrapper는 PImpl 구조를 사용한다.
+wirestead의 wrapper는 PImpl 구조를 사용한다.
 
 개념적으로는 다음과 같은 형태다.
 
@@ -291,7 +298,7 @@ flowchart TD
 ## ChannelInterface: 공통 실행 계약
 
 Wrapper는 단순한 concrete class만으로 구성되지 않는다.
-unilink는 1:1 통신 모델을 위한 공통 interface로 `ChannelInterface`를 둔다.
+wirestead는 1:1 통신 모델을 위한 공통 interface로 `ChannelInterface`를 둔다.
 
 `ChannelInterface`는 TCP client, Serial, UDP client, UDS client처럼 point-to-point 성격의 통신 객체가 공통적으로 제공해야 하는 동작을 정의한다.
 
@@ -424,7 +431,7 @@ Wrapper 내부에서 alive marker, mutex, pending promise, handler detach 같은
 ## Send API: 정책을 담은 전송 함수
 
 Wrapper의 전송 API는 단순히 `write`를 감싼 것이 아니다.
-unilink는 전송 API를 몇 가지 성격으로 나눈다.
+wirestead는 전송 API를 몇 가지 성격으로 나눈다.
 
 ```mermaid
 mindmap
@@ -600,11 +607,11 @@ Wrapper는 단기적으로는 한 계층을 더 만드는 선택이지만, 장�
 
 ## 정리: Wrapper의 역할
 
-unilink에서 Wrapper는 사용자가 실제로 다루는 실행 객체이자, public API와 transport 구현 사이의 완충 계층이다.
+wirestead에서 Wrapper는 사용자가 실제로 다루는 실행 객체이자, public API와 transport 구현 사이의 완충 계층이다.
 
 ```mermaid
 mindmap
-  root((unilink Wrapper Role))
+  root((wirestead Wrapper Role))
     Public Execution Object
       start
       stop
@@ -643,4 +650,4 @@ Wrapper의 핵심은 단순한 위임이 아니다.
 - lifecycle, thread safety, callback safety를 내부에서 관리한다.
 - stats와 상태 조회를 통해 운영 관측성을 제공한다.
 
-이 구조 덕분에 unilink는 내부 transport 구현을 확장하거나 개선하면서도, 사용자가 바라보는 API를 비교적 안정적으로 유지할 수 있다.
+이 구조 덕분에 wirestead는 내부 transport 구현을 확장하거나 개선하면서도, 사용자가 바라보는 API를 비교적 안정적으로 유지할 수 있다.

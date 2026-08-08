@@ -1,7 +1,6 @@
 ---
 title: 'Pretraining과 Fine-tuning'
 date: 2026-07-03
-updatedAt: 2026-07-03
 kind: study
 series: llm-training
 seriesOrder: 1
@@ -9,15 +8,14 @@ tags:
   - llm
   - pretraining
   - fine-tuning
-  - next-token-prediction
   - loss
-description: LLM이 대규모 텍스트로 기본 언어 패턴을 학습하고, 특정 작업에 맞게 조정되는 과정 정리
+description: LLM이 대규모 텍스트로 언어 패턴을 학습하는 pretraining과, 특정 작업에 맞게 조정하는 fine-tuning의 차이를 정리했다.
 draft: false
 ---
 
 ## 도입: LLM은 어떻게 다음 token을 잘 예측하게 되는가
 
-앞선 글에서는 LLM이 다음 token을 생성하는 과정을 봤다.
+[LLM Core 시리즈](/blog/2026-07-03-llm-core-logit과-softmax)에서는 LLM이 다음 token을 생성하는 과정을 봤다.
 
 > Token Sequence → Transformer → Logits → Softmax → Token Probability → Decoding → Selected Token
 
@@ -66,7 +64,6 @@ flowchart TD
     B --> C[Base Model]
     C --> D[Fine-tuning]
     D --> E[Task-adapted Model]
-
 ```
 
 Pretraining은 대규모 텍스트에서 일반적인 언어 패턴을 학습하는 단계다.
@@ -100,7 +97,6 @@ flowchart TD
     E[Inference] --> F[확률 분포 계산]
     F --> G[Decoding]
     G --> H[출력 생성]
-
 ```
 
 Training에서는 모델 weight가 바뀐다.
@@ -138,7 +134,6 @@ flowchart TD
     A[문장: 나는 커피를 마셨다.] --> B[입력: 나는 / 정답: 커피를]
     A --> C[입력: 나는 커피를 / 정답: 마셨다]
     A --> D[입력: 나는 커피를 마셨다 / 정답: .]
-
 ```
 
 이 방식에서는 별도의 사람이 모든 정답을 라벨링하지 않아도 된다.
@@ -158,11 +153,15 @@ flowchart TD
 
 모델 입력과 정답은 다음처럼 구성된다.
 
-| 위치 | 입력으로 보는 token | 예측해야 할 정답 token |
-| ---- | ------------------- | ---------------------- |
-| 1    | 나는                | 커피를                 |
-| 2    | 커피를              | 마셨다                 |
-| 3    | 마셨다              | .                      |
+| 위치 | 그 위치까지 모델이 보는 sequence | 예측해야 할 정답 token |
+| ---- | -------------------------------- | ---------------------- |
+| 1    | 나는                             | 커피를                 |
+| 2    | 나는 커피를                      | 마셨다                 |
+| 3    | 나는 커피를 마셨다               | .                      |
+
+여기서 주의할 점이 있다. 2번 위치에서 모델이 보는 것은 `커피를` 하나가 아니라 `나는 커피를`이다. Decoder-only 모델은 각 위치에서 **그 위치까지의 모든 이전 토큰**을 참조한다.
+
+"한 칸씩 민다"는 표현은 입력과 정답을 만드는 방법을 가리키는 것이지, 모델이 토큰을 하나씩만 본다는 뜻이 아니다.
 
 모델은 각 위치에서 다음 token의 확률 분포를 만든다.
 그리고 실제 정답 token에 얼마나 높은 확률을 주었는지 평가한다.
@@ -173,7 +172,6 @@ flowchart TD
     A --> C[정답 Tokens<br/>한 칸 뒤의 Token]
     B --> D[LLM 예측]
     D --> E[정답과 비교]
-
 ```
 
 이 구조 때문에 LLM은 많은 텍스트를 읽으면서 다음 token 예측 능력을 학습할 수 있다.
@@ -233,7 +231,6 @@ flowchart TD
     D --> E[Gradient 계산]
     E --> F[Parameter 업데이트]
     F --> B
-
 ```
 
 이 과정을 매우 많은 데이터에 대해 반복한다.
@@ -272,7 +269,6 @@ flowchart TD
     B --> C[Loss 계산]
     C --> D[Parameter 업데이트]
     D --> E[Base Model]
-
 ```
 
 Pretraining을 마친 모델을 보통 **Base Model**이라고 부른다.
@@ -308,7 +304,6 @@ flowchart TD
     A[Base Model] --> B[Task-specific Dataset]
     B --> C[추가 학습]
     C --> D[Fine-tuned Model]
-
 ```
 
 Pretraining이 넓은 범위의 일반 학습이라면, fine-tuning은 좁은 목적에 맞춘 추가 조정이다.
@@ -510,7 +505,6 @@ flowchart TD
     C --> D{기준 통과?}
     D -->|Yes| E[배포 후보]
     D -->|No| F[데이터 / 학습 설정 수정]
-
 ```
 
 Fine-tuning은 학습 데이터, 평가 데이터, 배포 관리가 함께 설계되어야 한다.
@@ -533,7 +527,6 @@ flowchart TD
 
     G --> H[Evaluation]
     H --> I[Deployment Candidate]
-
 ```
 
 각 단계의 역할은 다음과 같다.
@@ -579,3 +572,5 @@ LLM 학습을 이해할 때 핵심은 다음이다.
 
 > Pretraining은 모델의 기본 능력을 만든다.
 > Fine-tuning은 그 능력을 특정 목적에 맞게 조정한다.
+
+다음 글에서는 pretraining을 마친 base model이 [어떻게 chat model이 되는지](/blog/2026-07-03-llm-training-base-model은-어떻게-chat-model이-되는가) 살펴본다.

@@ -1,23 +1,21 @@
 ---
 title: 'TCP_NODELAY 트러블슈팅'
 date: 2026-07-02
-updatedAt: 2026-07-02
-project: unilink
+project: wirestead
 kind: devlog
 tags:
-  - unilink
+  - wirestead
   - cpp
   - tcp
-  - benchmarking
   - latency
-  - networking
-description: TCP 44ms latency spike와 tcp_no_delay 기본값 개선
+  - benchmarking
+description: TCP payload 4096B부터 p50이 44ms로 고정되던 원인을 Nagle과 delayed ACK 조합으로 추적하고, 라이브러리 기본값을 tcp_no_delay=true로 바꾼 기록이다.
 draft: false
 ---
 
 ## 도입: 4096B부터 튄 44ms 지연의 원인은 TCP 기본값
 
-`unilink`는 TCP, UDP, Serial, UDS를 하나의 인터페이스로 감싸는 transport 계층을 제공한다. 이 글은 그중 TCP 벤치마크에서 발견한 44ms 지연 패턴과, 그 원인을 `TCP_NODELAY` 기본값까지 추적해 수정한 기록이다.
+`wirestead`는 TCP, UDP, Serial, UDS를 하나의 인터페이스로 감싸는 transport 계층을 제공한다. 이 글은 그중 TCP 벤치마크에서 발견한 44ms 지연 패턴과, 그 원인을 `TCP_NODELAY` 기본값까지 추적해 수정한 기록이다.
 
 문제는 TCP payload가 `4096B` 이상일 때부터 p50 latency가 약 `44ms`로 튀는 것이었다. 일시적인 outlier가 아니라, 10000번 반복 중 10000번 모두 같은 구간에서 재현됐다.
 
@@ -56,7 +54,19 @@ mindmap
 
 ## 증상: 1024B까지는 정상, 4096B부터 44ms
 
-v0.8.2 벤치마크 결과에서 이상한 패턴이 보였다.
+측정 환경은 다음과 같다. latency 수치는 환경에 따라 크게 달라지므로 먼저 밝혀 둔다.
+
+<!-- TODO: 아래 표의 값을 실제 측정 환경으로 채울 것. loopback인지 실제 NIC인지에 따라 수치 해석이 완전히 달라짐 -->
+
+| 항목      | 값                                 |
+| --------- | ---------------------------------- |
+| 버전      | wirestead v0.8.2                   |
+| 통신 경로 | (loopback / LAN / 실제 NIC 중 택1) |
+| OS / 커널 |                                    |
+| 측정 방식 | payload 크기별 10000회 반복        |
+| 지표      | p50 (중앙값)                       |
+
+이 조건에서 벤치마크 결과에 이상한 패턴이 보였다.
 
 | payload  | p50 (us)  |
 | -------- | --------- |
@@ -120,22 +130,22 @@ flowchart TD
 가설을 확인하기 위해 TCP 설정 코드를 봤다.
 
 ```cpp
-// unilink/config/tcp_client_config.hpp
+// wirestead/config/tcp_client_config.hpp
 bool tcp_no_delay = false;
 
-// unilink/config/tcp_server_config.hpp
+// wirestead/config/tcp_server_config.hpp
 bool tcp_no_delay = false;
 ```
 
 config struct 기준으로 `tcp_no_delay` 기본값은 `false`였다. 즉, 기본적으로 Nagle 알고리즘이 켜져 있었다.
 
-여기서 끝이 아니었다. unilink는 config struct 외에도 사용자가 실제로 많이 쓰는 wrapper builder API를 제공한다. 이 builder도 별도의 기본값을 가지고 있었다.
+여기서 끝이 아니었다. wirestead는 config struct 외에도 사용자가 실제로 많이 쓰는 wrapper builder API를 제공한다. 이 builder도 별도의 기본값을 가지고 있었다.
 
 ```cpp
-// unilink/wrapper/tcp_client/tcp_client.cc
+// wirestead/wrapper/tcp_client/tcp_client.cc
 bool tcp_no_delay_ = false;
 
-// unilink/wrapper/tcp_server/tcp_server.cc
+// wirestead/wrapper/tcp_server/tcp_server.cc
 std::atomic<bool> tcp_no_delay_{false};
 ```
 
@@ -164,7 +174,7 @@ flowchart TD
 | 벤치마크에서만 `.tcp_no_delay(true)` 설정 | 벤치마크 수치는 즉시 개선   | 실제 사용자는 같은 함정을 밟음                   |
 | 라이브러리 기본값을 `true`로 변경         | 기본 동작이 저지연에 맞춰짐 | 작은 메시지를 자주 보내는 경우 패킷 수 증가 가능 |
 
-벤치마크만 고치는 건 문제를 숨기는 것에 가깝다. unilink 사용자는 TCP, UDP, Serial, UDS를 같은 추상화로 사용할 것을 기대한다. 그런데 TCP만 기본값 때문에 40ms대 지연을 만들면 transport 간 동작 일관성이 깨진다.
+벤치마크만 고치는 건 문제를 숨기는 것에 가깝다. wirestead 사용자는 TCP, UDP, Serial, UDS를 같은 추상화로 사용할 것을 기대한다. 그런데 TCP만 기본값 때문에 40ms대 지연을 만들면 transport 간 동작 일관성이 깨진다.
 
 따라서 벤치마크가 아니라 라이브러리 기본값을 고치기로 했다.
 
@@ -180,7 +190,7 @@ flowchart TD
 
 물론 `tcp_no_delay = true`에도 trade-off는 있다. 작은 메시지를 매우 자주 보내는 workload에서는 Nagle이 해주던 packet coalescing이 줄어들어 패킷 수가 늘어날 수 있다.
 
-하지만 unilink의 기본 사용처는 요청-응답, 제어 메시지, IPC성 통신에 가깝다. 이 경우 처리량보다 예측 가능한 latency가 더 중요하다. 대량 bulk 전송처럼 throughput이 중요한 사용자는 명시적으로 `.tcp_no_delay(false)`를 선택하면 된다.
+하지만 wirestead의 기본 사용처는 요청-응답, 제어 메시지, IPC성 통신에 가깝다. 이 경우 처리량보다 예측 가능한 latency가 더 중요하다. 대량 bulk 전송처럼 throughput이 중요한 사용자는 명시적으로 `.tcp_no_delay(false)`를 선택하면 된다.
 
 기본값은 저지연 쪽에 두는 것이 더 안전하다고 판단했다.
 
@@ -235,7 +245,7 @@ flowchart TD
 
 ## 정리: 이상한 숫자는 구조적인 신호였다
 
-이번 문제는 TCP 성능이 갑자기 나빠진 문제가 아니었다. TCP 기본 동작인 Nagle 알고리즘이 unilink의 기본 사용 목적과 맞지 않았고, delayed ACK과 만나면서 특정 payload 크기부터 44ms 지연이 고정적으로 발생한 것이다.
+이번 문제는 TCP 성능이 갑자기 나빠진 문제가 아니었다. TCP 기본 동작인 Nagle 알고리즘이 wirestead의 기본 사용 목적과 맞지 않았고, delayed ACK과 만나면서 특정 payload 크기부터 44ms 지연이 고정적으로 발생한 것이다.
 
 정리하면 다음과 같다.
 

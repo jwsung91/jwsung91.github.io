@@ -1,17 +1,15 @@
 ---
 title: 'Tokenizer와 Embedding'
 date: 2026-07-03
-updatedAt: 2026-07-03
 kind: study
 series: llm-core
-seriesOrder: 3
+seriesOrder: 1
 tags:
   - llm
   - tokenizer
   - embedding
   - token
-  - vector
-description: Tokenizer의 토큰 분할, Token ID 매핑, Embedding Layer 및 Position Embedding의 구조와 역할
+description: Tokenizer의 토큰 분할과 Token ID 매핑, Embedding Layer의 역할, 위치 정보를 넣는 방식까지 LLM의 입력 변환 과정을 정리했다.
 draft: false
 ---
 
@@ -34,7 +32,6 @@ flowchart LR
     E --> F[Embedding Vectors]
     F --> G[Position Embedding 추가]
     G --> H[Transformer 입력]
-
 ```
 
 이 글에서는 위 흐름에서 **Tokenizer, Token ID, Embedding, Position Embedding**이 각각 어떤 역할을 하는지 정리한다.
@@ -51,28 +48,24 @@ Token은 반드시 우리가 아는 '단어' 하나와 일치하지는 않는다
 
 ```text
 나는 커피를 마셨다.
-
 ```
 
 사람이 보기에는 아래처럼 띄어쓰기(단어) 단위로 나눌 수 있다.
 
 ```text
 나는 / 커피를 / 마셨다
-
 ```
 
 하지만 실제 Tokenizer는 모델에 따라 다음과 같이 다르게 쪼갤 수 있다.
 
 ```text
 나 / 는 / 커피 / 를 / 마셨 / 다
-
 ```
 
 또는 이렇게 처리될 수도 있다.
 
 ```text
 나는 / 커피 / 를 / 마 / 셨다
-
 ```
 
 이처럼 실제 분할 결과는 모델이 사용하는 Vocabulary(어휘 사전)와 **학습 방식**에 따라 달라진다.
@@ -92,7 +85,6 @@ Token은 반드시 우리가 아는 '단어' 하나와 일치하지는 않는다
 
 ```text
 커피, 커피를, 커피가, 커피에도, 커피처럼...
-
 ```
 
 단어 단위로만 처리하면 이 모든 변형을 각각 독립된 별도의 token으로 사전에 등록해야 한다. 이 경우 Vocabulary 크기가 기하급수적으로 커지고, 사전에 없는 단어가 나오면 처리가 불가능해진다.
@@ -104,7 +96,6 @@ Token은 반드시 우리가 아는 '단어' 하나와 일치하지는 않는다
 커피 + 가
 커피 + 에도
 커피 + 처럼
-
 ```
 
 Subword 방식은 단어를 더 작은 의미 단위나 빈도 기반 단위로 쪼갠다. 이를 통해 처음 보는 단어라도 기존에 알고 있는 작은 token들의 조합으로 유연하게 표현할 수 있다.
@@ -121,7 +112,6 @@ flowchart TD
     B --> C[Tokens]
     C --> D[Vocabulary Lookup]
     D --> E[Token IDs]
-
 ```
 
 예를 들어 Tokenizer의 사전(Vocabulary)이 다음과 같이 매핑되어 있다고 하자.
@@ -173,7 +163,6 @@ l + o -> lo
 lo + w -> low
 e + s -> es
 es + t -> est
-
 ```
 
 그 결과, 자주 등장하는 익숙한 단어(예: `low`)는 통째로 하나의 token으로 처리되고, 드물게 등장하는 단어(예: `lowest`)는 더 작은 token들의 조합(`low` + `est`)으로 표현된다.
@@ -184,10 +173,11 @@ flowchart TD
     B --> C[조합 병합]
     C --> D[Subword Token 생성]
     D --> E[Vocabulary 구성]
-
 ```
 
-BPE 방식은 Vocabulary의 크기를 일정하게 제한하면서도 OOV 문제 없이 다양한 단어를 표현할 수 있게 해주는 강력한 무기다.
+BPE는 Vocabulary 크기를 일정하게 제한하면서도 처음 보는 단어를 기존 token의 조합으로 표현할 수 있게 해준다.
+
+다만 "OOV가 완전히 사라진다"고 말하려면 조건이 하나 붙는다. 문자 단위에서 시작하는 BPE는 학습 때 본 적 없는 문자(예: 학습 코퍼스에 없던 언어의 글자, 희귀 이모지)를 만나면 여전히 처리하지 못한다. 최신 Tokenizer가 문자가 아니라 **byte 단위**에서 시작하는 byte-level BPE를 쓰는 이유가 이것이다. 모든 텍스트는 결국 256가지 byte로 환원되므로, byte를 기본 단위로 삼으면 표현하지 못하는 입력이 원리적으로 없어진다.
 
 ---
 
@@ -197,9 +187,11 @@ Tokenizer가 뱉어낸 Token ID는 단순한 정수 번호다.
 
 > `[1024, 3812, 217, 9041, 13]`
 
-이 숫자 자체에는 어떠한 수학적, 문맥적 의미도 담겨있지 않다. 예를 들어 `1024`라는 숫자가 `나는`이라는 단어의 성질을 표현하는 것이 아니라, 단순히 Vocabulary Table의 1,024번째 칸에 위치해 있다는 뜻(Index)일 뿐이다.
+이 숫자 자체에는 어떠한 수학적, 문맥적 의미도 담겨있지 않다. 예를 들어 `1024`라는 숫자가 `나는`이라는 단어의 성질을 표현하는 것이 아니라, 단순히 Vocabulary Table에서 인덱스 `1024`번 자리에 등록되어 있다는 뜻일 뿐이다.
 
-모델이 단어의 '의미'를 기반으로 실제로 연산을 수행하려면, 이 맹목적인 Token ID를 **의미를 담은 연속적인 벡터(Vector)** 공간으로 옮겨야 한다. 이 역할을 하는 것이 바로 **Embedding Layer**다.
+그래서 `3812`(`커피`)가 `1024`(`나는`)보다 크다는 사실에는 아무 의미가 없다. ID 사이의 크기 비교나 사칙연산은 성립하지 않는다.
+
+모델이 단어의 '의미'를 기반으로 연산을 수행하려면, 이 순번에 불과한 Token ID를 **의미를 담은 연속적인 벡터(Vector)** 공간으로 옮겨야 한다. 이 역할을 하는 것이 바로 **Embedding Layer**다.
 
 ---
 
@@ -211,7 +203,6 @@ Embedding(임베딩)은 단순한 정수인 Token ID를 일정한 길이를 가�
 flowchart LR
     A[Token ID] --> B[Embedding Layer]
     B --> C[Embedding Vector]
-
 ```
 
 Embedding Layer는 거대한 룩업 테이블(Lookup Table)처럼 동작하여, 각 Token ID에 대응하는 벡터를 찾아 꺼내온다.
@@ -220,7 +211,6 @@ Embedding Layer는 거대한 룩업 테이블(Lookup Table)처럼 동작하여, 
 1024 -> [ 0.12, -0.03,  0.44, ... ]
 3812 -> [-0.51,  0.27,  0.08, ... ]
 217  -> [ 0.09,  0.11, -0.32, ... ]
-
 ```
 
 ```mermaid
@@ -231,7 +221,6 @@ flowchart TD
     A1[1024] --> B
     A2[3812] --> B
     A3[217] --> B
-
 ```
 
 이 벡터의 차원 수(Embedding Dimension)는 모델의 크기에 따라 다르다. 만약 차원이 4,096이라면, 토큰 하나가 4,096개의 실수로 이루어진 정밀한 배열로 표현되는 것이다.
@@ -251,10 +240,9 @@ flowchart TD
     A[Vocabulary Size<br/>token 개수] --> C[Embedding Table]
     B[Embedding Dimension<br/>vector 차원] --> C
     C --> D[Token Embedding]
-
 ```
 
-이 거대한 테이블 안의 실수 값들은 고정된 것이 아니다. 신경망이 수많은 텍스트를 학습하는 과정에서 역전파(Backpropagation)를 통해 미세하게 조정되며, 최종적으로는 **의미나 쓰임새가 비슷한 토큰들끼리 벡터 공간상에서 가까운 방향을 가리키도록** 똑똑하게 군집화된다.
+이 거대한 테이블 안의 실수 값들은 고정된 것이 아니다. 신경망이 수많은 텍스트를 학습하는 과정에서 역전파(Backpropagation)를 통해 미세하게 조정되며, 최종적으로는 **의미나 쓰임새가 비슷한 토큰들끼리 벡터 공간상에서 가까운 방향을 가리키도록** 군집화된다.
 
 ---
 
@@ -275,7 +263,6 @@ flowchart TD
 flowchart TD
     A[Token Embedding] --> B[Transformer Block]
     B --> C[Contextualized Token Representation]
-
 ```
 
 ---
@@ -304,8 +291,22 @@ flowchart TD
     B --> E[Add]
     D --> E
     E --> F[Transformer Input]
-
 ```
+
+### 최신 모델은 위치 정보를 다르게 넣는다
+
+위에서 설명한 "입력 벡터에 위치 벡터를 더한다"는 방식은 **절대 위치 임베딩**이다. 초기 Transformer와 GPT-2, BERT가 이 방식을 썼다.
+
+하지만 최근의 주요 LLM(LLaMA, Qwen 계열 등)은 **RoPE**(Rotary Position Embedding)를 사용한다. RoPE는 입력 벡터에 무언가를 더하지 않는다. 대신 Attention 계산 직전에 Query와 Key 벡터를 **위치에 비례한 각도만큼 회전**시킨다.
+
+| 방식                 | 적용 위치                         | 성질                                        |
+| -------------------- | --------------------------------- | ------------------------------------------- |
+| **절대 위치 임베딩** | Embedding 단계에서 더함           | 학습한 최대 길이를 넘기기 어려움            |
+| **RoPE**             | Attention 내부의 Q, K에 회전 적용 | 두 토큰의 **상대 거리**가 자연스럽게 반영됨 |
+
+회전을 적용하면 Q와 K의 내적이 두 토큰의 **위치 차이**에 의존하게 되어, 상대적인 거리 정보가 attention 점수에 직접 들어간다. 학습할 때 본 것보다 긴 문맥으로 확장하기도 상대적으로 수월하다.
+
+따라서 `Input Embedding = Token Embedding + Position Embedding`은 위치 정보가 왜 필요한지 이해하기 위한 기본형으로 보는 편이 정확하다. 실제 모델이 위치를 주입하는 지점은 구현마다 다르다.
 
 ---
 
@@ -322,7 +323,6 @@ flowchart TD
     E --> F[Position Embedding 추가]
     F --> G[Transformer Blocks]
     G --> H[Contextualized Representations]
-
 ```
 
 | 단계                   | 역할                                               |
@@ -340,13 +340,19 @@ flowchart TD
 
 LLM은 연산 효율을 위해 여러 문장을 하나의 Batch(배치)로 묶어 동시에 처리한다. 문제는 문장마다 길이가 제각각이라는 점이다.
 
-> **A:** 나는 커피를 마셨다. (4 tokens)
-> **B:** 오늘 아침에 따뜻한 커피를 천천히 마셨다. (7 tokens)
+앞에서 본 것처럼 `나는 커피를 마셨다.`는 5개 token으로 나뉜다. 조금 더 긴 문장과 함께 묶어 보자.
+
+```text
+A: 나는 / 커피 / 를 / 마셨다 / .            (5 tokens)
+B: 오늘 / 아침 / 에 / 따뜻한 / 커피 / 를 / 마셨다 / .   (8 tokens)
+```
 
 길이가 다르면 직사각형 형태의 텐서(Tensor) 행렬로 묶을 수가 없다. 그래서 짧은 문장의 빈 공간에는 `[PAD]`라는 의미 없는 패딩 토큰을 채워 넣어 가장 긴 문장의 길이에 맞춘다.
 
-> **A:** 나는 / 커피를 / 마셨다 / `[PAD]` / `[PAD]` / `[PAD]` / `[PAD]`
-> **B:** 오늘 / 아침에 / 따뜻한 / 커피를 / 천천히 / 마셨다 / .
+```text
+A: 나는 / 커피 / 를 / 마셨다 / . / [PAD] / [PAD] / [PAD]
+B: 오늘 / 아침 / 에 / 따뜻한 / 커피 / 를 / 마셨다 / .
+```
 
 하지만 `[PAD]`는 실제 내용이 아니므로 연산(Attention)에 반영되어서는 안 된다. 이때 모델에게 "이 부분은 가짜니까 무시해!"라고 알려주는 가이드라인이 바로 **Attention Mask**다.
 
@@ -356,7 +362,6 @@ flowchart TD
     B --> C[Same Length Batch 텐서화]
     C --> D[Attention Mask 적용]
     D --> E[Transformer 연산]
-
 ```
 
 ---
@@ -366,11 +371,11 @@ flowchart TD
 LLM을 실무에서 다룰 때 '토큰 수(Token Count)'는 시스템의 성능과 비용을 결정짓는 핵심 지표다.
 
 - **입력 가능한 최대 길이 (Context Window)** 제한
-- API **호출 비용** (보통 1K Token 당 과금)
+- API **호출 비용** (주요 API는 보통 100만 토큰 단위로 단가를 표기한다)
 - 생성 및 응답 **지연 시간 (Latency)**
 - RAG 구현 시 **검색 문맥(Context)의 크기** 제약
 
-특히 한국어나 프로그래밍 코드, JSON 데이터, 시스템 로그 등을 넣을 때는 사람이 느끼는 글자 수보다 토큰 수가 훨씬 뻥튀기될 수 있다.
+특히 한국어나 프로그래밍 코드, JSON 데이터, 시스템 로그 등을 넣을 때는 사람이 느끼는 글자 수보다 토큰 수가 훨씬 많아질 수 있다.
 
 > `[2026-07-03 10:12:31.123] TCP_TRANSPORT_LATENCY_WARN`
 
@@ -395,13 +400,14 @@ LLM을 실무에서 다룰 때 '토큰 수(Token Count)'는 시스템의 성능�
 | **사용 위치** | LLM 내부의 첫 번째 Layer                   | 텍스트 검색 파이프라인 (별도의 Embedding 모델 사용) |
 
 **LLM 내부 임베딩**은 텍스트를 연산하기 위해 쪼개진 ID 하나하나를 벡터로 바꾸는 '시작점'이다.
-**RAG 임베딩**은 수백 자의 문맥 덩어리(Chunk)가 품고 있는 핵심 '의미'를 하나의 묵직한 벡터로 압축하여 검색 가능하게 만드는 기술이다.
+**RAG 임베딩**은 수백 자의 문맥 덩어리(Chunk)가 품고 있는 핵심 의미를 하나의 벡터로 압축하여 검색 가능하게 만드는 기술이다.
 
 ```mermaid
 flowchart TD
     A[LLM Token Embedding] --> B[Token ID를 Transformer 입력 vector로 변환]
     C[RAG Embedding] --> D[문서 덩어리를 Vector DB 검색용 의미 벡터로 변환]
-
 ```
 
 이 차이를 명확히 구분해야 전체적인 LLM 생태계와 RAG 시스템 아키텍처를 헷갈리지 않고 설계할 수 있다.
+
+다음 글에서는 이렇게 만들어진 입력 벡터가 [Transformer와 self-attention](/blog/2026-07-02-llm-transformer와-self-attention-이해하기)을 거쳐 문맥이 반영된 표현으로 바뀌는 과정을 살펴본다.

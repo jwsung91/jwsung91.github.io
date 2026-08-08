@@ -1,6 +1,6 @@
 {
   "projects": [
-    { "id": "unilink", "label": "unilink" },
+    { "id": "wirestead", "label": "wirestead" },
     { "id": "ai-curator", "label": "AI Curator" },
     { "id": "site", "label": "Site" }
   ],
@@ -14,9 +14,9 @@
   ],
   "series": [
     {
-      "id": "unilink-design",
-      "title": "unilink 설계 노트",
-      "project": "unilink",
+      "id": "wirestead-design",
+      "title": "wirestead 설계 노트",
+      "project": "wirestead",
       "description": "C++ 비동기 통신 라이브러리를 설계하며 정리한 아키텍처 기록입니다."
     },
     {

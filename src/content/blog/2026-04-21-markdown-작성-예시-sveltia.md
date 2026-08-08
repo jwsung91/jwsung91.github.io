@@ -6,6 +6,7 @@ kind: note
 tags:
   - markdown
   - sveltia
+  - site
 description: Sveltia CMS raw Markdown 모드에서 frontmatter, 코드 블록, 표, Mermaid 다이어그램 작성 예시를 정리했다.
 draft: false
 ---

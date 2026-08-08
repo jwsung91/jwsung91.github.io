@@ -80,7 +80,7 @@ collections:
         required: false
         hint: "프로젝트와 직접 관련 없는 개인 공부 글이면 비워둡니다."
         options:
-          - { label: "unilink", value: "unilink" }
+          - { label: "wirestead", value: "wirestead" }
           - { label: "AI Curator", value: "ai-curator" }
           - { label: "Site", value: "site" }
 
@@ -118,7 +118,7 @@ collections:
         required: false
         hint: "연속 글이 아니라면 비워둡니다."
         options:
-          - { label: "unilink 설계 노트", value: "unilink-design" }
+          - { label: "wirestead 설계 노트", value: "wirestead-design" }
           - {
               label: "AI Curator 파이프라인 구축기",
               value: "ai-curator-pipeline",

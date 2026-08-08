@@ -3,25 +3,26 @@ title: 'Priority queue'
 date: 2026-04-21
 kind: study
 tags:
+  - cpp
   - stl
-  - c++
-  - 자료구조
-description: C++ std::priority_queue의 동작 방식, 최대 힙과 최소 힙 사용법, 사용자 정의 비교 함수 예제를 정리합니다.
+  - data-structure
+description: C++ std::priority_queue의 동작 방식, 최대 힙과 최소 힙 사용법, 사용자 정의 비교 함수 예제를 정리했다.
 draft: true
 ---
 
 ## 정의
 
-우선순위가 가장 높은(혹은 낮은) 데이터를 가장 먼저 도출되는 형태의 자료구조
+우선순위가 가장 높은(혹은 낮은) 데이터가 가장 먼저 나오는 자료구조
 
 - C++에서는 `std::priority_queue`가 기본적으로 제공
-- 내부적으로 \*\*최대 힙(Max Heap)\*\*을 사용해서 구현되어 있음
-- 정렬이 필요없는 **우선순위 기반의 데어터 처리**에 적합
+- 내부적으로 **최대 힙**(Max Heap)을 사용해서 구현되어 있음
+- 정렬이 필요 없는 **우선순위 기반의 데이터 처리**에 적합
 
 ### 구조
 
 - C++의 `std::priority_queue`는 기본적으로 힙(Heap) 자료구조를 기반으로 동작
-- 내부적으로 `std::vector`를 사용하며, 힙 연산을 활용하여 정렬
+- 내부적으로 `std::vector`를 사용하며, 힙 연산으로 힙 순서(heap order)를 유지한다
+  - 컨테이너 전체가 정렬되어 있는 것은 아니다. `top()`이 항상 최우선 원소를 가리키도록 유지할 뿐이다
   - `std::make_heap`, `std::push_heap`, `std::pop_heap`
 
 ### 시간복잡도
@@ -31,7 +32,7 @@ draft: true
 
 ### 템플릿 정의
 
-```c
+```cpp
 template <class T, class Container = std::vector<T>, class Compare = std::less<T>>
 class priority_queue;
 ```
@@ -50,7 +51,7 @@ class priority_queue;
 
 - 기본적으로 최대 힙으로 적용되어 있음
 
-```c
+```cpp
 #include <iostream>
 #include <queue>
 
@@ -79,7 +80,7 @@ int main() {
 
 `std::priority_queue`를 선언할 때 `std::greater<>` 추가
 
-```c
+```cpp
 #include <iostream>
 #include <queue>
 #include <vector>
@@ -107,13 +108,14 @@ int main() {
 
 ## 사용자 정의 구조체 적용
 
-특정 기준으로 정렬하고 싶다면, `operator`를 오버로딩하거나 `compare` 함수를 지정
+특정 기준으로 정렬하고 싶다면, `operator<`를 오버로딩하거나 `compare` 함수를 지정
 
 ### operator 오버로딩
 
-```c
+```cpp
 #include <iostream>
 #include <queue>
+#include <string>
 
 struct Task {
     int score;
@@ -148,9 +150,10 @@ High Medium Low
 
 ### compare 함수 이용
 
-```c
+```cpp
 #include <iostream>
 #include <queue>
+#include <string>
 #include <vector>
 
 struct Task {
@@ -180,7 +183,7 @@ int main() {
 }
 ```
 
-priority 기준 오름차순으로 정리됨
+priority 기준 오름차순으로 출력됨
 
 ```text
 Low Medium High

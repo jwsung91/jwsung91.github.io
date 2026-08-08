@@ -5,7 +5,7 @@ status: active
 repo: https://github.com/jwsung91/ai-curator
 url: https://jwsung91.github.io/ai-curator/
 tags:
-  - ai
+  - llm
   - astro
   - automation
 order: 2

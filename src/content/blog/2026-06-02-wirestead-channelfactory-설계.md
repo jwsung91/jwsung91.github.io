@@ -1,19 +1,17 @@
 ---
 title: 'ChannelFactory 설계'
 date: 2026-06-02
-project: unilink
+project: wirestead
 kind: design
 tags:
-  - unilink
+  - wirestead
   - cpp
-  - async-io
   - factory-pattern
   - channel
-  - architecture
   - dependency-injection
 description: Config를 기반으로 concrete Channel 구현체를 생성하고 Wrapper가 transport 선택을 직접 알지 않도록 분리한 구조를 정리했다.
-series: 'unilink-design'
-seriesOrder: 6
+series: 'wirestead-design'
+seriesOrder: 7
 draft: false
 ---
 
@@ -31,7 +29,7 @@ TCP client 설정이면 TCP client transport가 필요하고, Serial 설정이�
 이 선택 로직을 wrapper 내부에 모두 넣을 수도 있다.
 하지만 그렇게 하면 wrapper는 다시 transport 종류를 알아야 하고, 생성 조건도 직접 관리해야 한다. 결국 wrapper가 transport 차이를 숨기는 계층이 아니라, transport 생성 로직까지 떠안는 계층이 된다.
 
-unilink에서는 이 역할을 `ChannelFactory`로 분리한다.
+wirestead에서는 이 역할을 `ChannelFactory`로 분리한다.
 
 ```mermaid
 flowchart TD
@@ -214,6 +212,10 @@ Config 타입이 곧 생성 의도를 나타낸다.
 개념적으로는 다음과 같은 구조다.
 
 ```cpp
+// 분기 누락을 컴파일 타임에 잡기 위한 헬퍼
+template <typename>
+inline constexpr bool always_false_v = false;
+
 std::shared_ptr<Channel> ChannelFactory::create(
     const ChannelOptions& options,
     std::shared_ptr<boost::asio::io_context> external_ioc) {
@@ -223,15 +225,28 @@ std::shared_ptr<Channel> ChannelFactory::create(
 
             if constexpr (std::is_same_v<T, TcpClientConfig>) {
                 return create_tcp_client(config, external_ioc);
+            } else if constexpr (std::is_same_v<T, TcpServerConfig>) {
+                return create_tcp_server(config, external_ioc);
             } else if constexpr (std::is_same_v<T, SerialConfig>) {
                 return create_serial(config, external_ioc);
             } else if constexpr (std::is_same_v<T, UdpConfig>) {
                 return create_udp(config, external_ioc);
+            } else if constexpr (std::is_same_v<T, UdsClientConfig>) {
+                return create_uds_client(config, external_ioc);
+            } else if constexpr (std::is_same_v<T, UdsServerConfig>) {
+                return create_uds_server(config, external_ioc);
+            } else {
+                static_assert(always_false_v<T>,
+                              "ChannelOptions에 처리되지 않은 config 타입이 있습니다.");
             }
         },
         options);
 }
 ```
+
+마지막 `else` 분기의 `static_assert`가 중요하다. 이것이 없으면 `ChannelOptions`에 새 config 타입을 추가하고 분기를 빠뜨렸을 때, 해당 타입으로 인스턴스화된 lambda가 **아무것도 return하지 않고 함수 끝에 도달**한다. 이는 컴파일 에러가 아니라 정의되지 않은 동작(UB)이며, 경고조차 놓치기 쉽다.
+
+`always_false_v`를 쓰는 이유는 `static_assert(false, ...)`를 그대로 쓰면 template이 인스턴스화되기 전에 무조건 실패하기 때문이다. 타입에 의존하는 false 값을 만들어야 해당 분기가 실제로 선택될 때만 에러가 난다.
 
 이 구조에는 몇 가지 장점이 있다.
 
@@ -273,7 +288,9 @@ flowchart TD
 전통적인 `enum` + `switch` 방식이나 문자열 기반 factory에서는 transport type과 config payload가 따로 움직일 수 있다. 예를 들어 type은 TCP인데 config는 Serial용 구조체인 잘못된 조합을 만들 여지가 생긴다. 이런 오류는 런타임에서야 드러날 가능성이 높다.
 
 반면 `std::variant` 기반 구조에서는 factory가 받을 수 있는 config 타입의 목록이 타입 시스템 안에 들어간다.
-새로운 transport를 추가하려면 `ChannelOptions`에 config 타입을 추가해야 하고, `std::visit` 분기에서 해당 타입을 처리해야 한다. 이 과정에서 누락된 분기는 컴파일 단계에서 드러날 수 있다.
+새로운 transport를 추가하려면 `ChannelOptions`에 config 타입을 추가해야 하고, `std::visit` 분기에서 해당 타입을 처리해야 한다. 앞에서 본 `static_assert` 분기를 두었기 때문에, 이때 분기를 빠뜨리면 컴파일 단계에서 즉시 드러난다.
+
+주의할 점은 이것이 자동으로 보장되지는 않는다는 것이다. `else` 분기 없이 `if constexpr` 체인만 나열하면 누락된 타입은 조용히 UB가 된다. 타입 기반 dispatch의 안전성은 variant를 쓴다는 사실이 아니라, 처리되지 않은 타입을 명시적으로 막았는지에서 나온다.
 
 또한 `dynamic_cast`나 런타임 타입 검사에 의존하지 않고, config의 실제 타입에 따라 생성 경로를 정할 수 있다.
 즉, Factory는 런타임 문자열 비교나 불안정한 downcast보다, 타입으로 생성 경로를 정리하는 방식을 선택했다.
@@ -287,7 +304,7 @@ flowchart TD
 
 라이브러리가 내부 `io_context`를 직접 관리할 수도 있고, 사용자가 외부에서 관리하는 `io_context`를 주입할 수도 있다.
 
-unilink의 `ChannelFactory`는 optional external `io_context`를 받는다.
+wirestead의 `ChannelFactory`는 optional external `io_context`를 받는다.
 
 ```cpp
 static std::shared_ptr<Channel> create(
@@ -308,7 +325,7 @@ flowchart TD
     D --> F[Library manages runtime context]
 ```
 
-외부 `io_context`를 지원하면 사용자는 여러 channel을 하나의 event loop에 묶거나, 이미 존재하는 application-level runtime에 unilink channel을 통합할 수 있다.
+외부 `io_context`를 지원하면 사용자는 여러 channel을 하나의 event loop에 묶거나, 이미 존재하는 application-level runtime에 wirestead channel을 통합할 수 있다.
 
 반대로 external context를 제공하지 않으면 transport가 내부 context를 사용해 동작할 수 있다.
 
@@ -399,7 +416,7 @@ mindmap
       OS resource handling
 ```
 
-이 책임 분리는 unilink 구조에서 중요하다.
+이 책임 분리는 wirestead 구조에서 중요하다.
 Wrapper가 transport 선택까지 담당하면 wrapper는 점점 무거워지고, transport가 늘어날수록 변경 영향을 받게 된다.
 
 Factory를 분리하면 transport 추가나 생성 방식 변경이 wrapper에 직접 퍼지는 것을 줄일 수 있다.
@@ -508,4 +525,4 @@ mindmap
 - 새로운 transport가 추가되면 factory의 variant와 생성 함수가 명확한 확장 지점이 된다.
 
 Channel 계층이 “통신 행위의 공통 계약”이라면, ChannelFactory는 그 계약을 만족하는 concrete 구현체를 선택하고 생성하는 경계다.
-이 구조 덕분에 unilink는 wrapper의 public API를 안정적으로 유지하면서도, 내부 transport 구현과 생성 방식을 독립적으로 확장할 수 있다.
+이 구조 덕분에 wirestead는 wrapper의 public API를 안정적으로 유지하면서도, 내부 transport 구현과 생성 방식을 독립적으로 확장할 수 있다.
