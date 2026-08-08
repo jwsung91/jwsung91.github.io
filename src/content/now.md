@@ -1,6 +1,6 @@
 ---
 title: Now
-updatedAt: 2026-07-17
+updatedAt: 2026-08-08
 ---
 
 ## 작업 중
