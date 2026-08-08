@@ -1,24 +1,21 @@
 ---
 title: 'UDP backpressure 데드락 트러블슈팅'
 date: 2026-07-02
-updatedAt: 2026-07-02
-project: unilink
+project: wirestead
 kind: devlog
 tags:
-  - unilink
+  - wirestead
   - cpp
-  - async-io
-  - backpressure
-  - deadlock
   - concurrency
-  - debugging
-description: UDP backpressure 데드락 재현과 lost wakeup 원인 분석
+  - deadlock
+  - backpressure
+description: UDP write 실패 후 프로세스가 멈추는 문제를 queue 미정리와 조건변수 lost wakeup 두 원인으로 좁혀 가며 분석한 기록이다.
 draft: false
 ---
 
 ## 도입: UDP write 실패가 아니라, backpressure 해제가 문제
 
-`unilink`의 backpressure 전략은 송신 queue가 압박을 받을 때 `Reliable`과 `BestEffort`로 동작을 나눈다. 이 글은 그 설계가 실제 환경에서 어떻게 깨졌고, 왜 단순한 에러 처리 버그가 아니라 동시성 문제까지 포함하고 있었는지를 정리한 기록이다.
+`wirestead`의 backpressure 전략은 송신 queue가 압박을 받을 때 `Reliable`과 `BestEffort`로 동작을 나눈다. 이 글은 그 설계가 실제 환경에서 어떻게 깨졌고, 왜 단순한 에러 처리 버그가 아니라 동시성 문제까지 포함하고 있었는지를 정리한 기록이다.
 
 문제는 UDP에서 payload `65536B`를 전송할 때 발생했다. 이 크기는 UDP datagram 한계인 약 `65507B`를 넘기 때문에 `Message too long` 에러가 나는 것 자체는 정상이다. 하지만 실제 문제는 그 다음이었다. write 실패 이후 벤치마크 프로세스가 종료되지 않고 멈췄고, GitHub Actions에서는 2시간 job timeout에 걸려 강제 종료됐다.
 
@@ -84,7 +81,7 @@ x64에서 재현되지 않고 Jetson에서만 확률적으로 재현된다는 �
 
 ```cpp
 if (ec) {
-  UNILINK_LOG_ERROR("udp", "write", ...);
+  WIRESTEAD_LOG_ERROR("udp", "write", ...);
   transition_to(LinkState::Error, ec);
   writing_ = false;
   // tx_, pending_, backpressure_active_ 정리 없이 return
@@ -183,6 +180,24 @@ void wait_for_backpressure_clear(std::unique_lock<std::mutex>& bp_lock) {
 ```
 
 이 수정의 의미는 크다. 이제 notify를 놓치더라도 sender thread가 영원히 잠들지 않는다. 최악의 경우 50ms 뒤 스스로 상태를 다시 확인하고 빠져나올 수 있다.
+
+### 왜 정석대로 고치지 않았나
+
+여기서 짚고 넘어갈 점이 있다. lost wakeup의 교과서적인 해법은 bounded wait가 아니다. **predicate가 참조하는 상태를 변경할 때 조건변수와 같은 mutex를 잡고, 그 규율 안에서 notify하는 것**이다. 그렇게 하면 waiter가 predicate를 확인하고 wait에 들어가는 구간과 notify가 겹칠 수 없으므로 race 자체가 사라진다.
+
+이번 수정은 그 race를 없앤 것이 아니라, race가 발생해도 최대 50ms 뒤에 회복되도록 만든 것이다. 증상 완화에 가깝다.
+
+현재 상태를 정확히 적어 두면 다음과 같다.
+
+| 구분            | 내용                                              |
+| --------------- | ------------------------------------------------- |
+| **적용한 수정** | bounded wait으로 hang을 회복 가능한 지연으로 낮춤 |
+| **남은 문제**   | notify 유실 race 자체는 그대로 존재               |
+| **정석 해법**   | 상태 변경과 notify를 `bp_mutex_` 규율 안에서 수행 |
+
+정석 해법을 바로 적용하지 않은 것은, notify가 strand 위에서 실행되는 I/O handler 경로에서 발생하기 때문이다. 이 지점에서 사용자 thread가 잡을 수 있는 mutex를 기다리게 만들면 event loop 전체가 영향을 받을 수 있어, lock 순서를 다시 설계해야 한다.
+
+즉 이번 수정은 "고쳤다"가 아니라 "장애 등급을 낮추고 근본 수정을 후속 과제로 남겼다"에 가깝다. 상태 변경을 strand 안으로 모으는 구조 변경이 남아 있다.
 
 ## 검증: 유닛 테스트는 일부만 증명했고, 실제 검증은 Jetson 반복 실행이었다
 

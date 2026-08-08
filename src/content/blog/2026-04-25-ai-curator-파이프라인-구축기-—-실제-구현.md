@@ -5,13 +5,15 @@ project: ai-curator
 kind: implementation
 tags:
   - ai-curator
-description: 'GitHub Actions와 Gemini API를 활용해 기술 뉴스를 자동 수집·요약하고 Astro 정적 사이트로 배포하는 과정을 정리합니다.'
+  - github-actions
+  - astro
+description: GitHub Actions와 Gemini API를 활용해 기술 뉴스를 자동 수집·요약하고 Astro 정적 사이트로 배포하는 과정을 정리했다.
 series: 'ai-curator-pipeline'
 seriesOrder: 2
 draft: false
 ---
 
-> 이 글은 2026-04-23에 작성한 설계 방안 포스트의 실제 구현 버전입니다.
+> 이 글은 [파이프라인 구축 방안](/blog/2026-04-23-ai-curator-파이프라인-구축-방안)의 실제 구현 버전이다.
 > 설계 단계와 달라진 부분을 포함해 현재 작동 중인 상태를 기록합니다.
 
 ## 결과물

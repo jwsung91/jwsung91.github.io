@@ -1,19 +1,17 @@
 ---
 title: 'Channel 추상화 설계'
 date: 2026-06-02
-project: unilink
+project: wirestead
 kind: design
 tags:
-  - unilink
+  - wirestead
   - cpp
-  - async-io
   - channel
   - abstraction
-  - architecture
   - dependency-injection
 description: TCP, UDP, Serial, UDS의 차이를 숨기고 애플리케이션이 의존할 공통 Channel 계약을 설계한 기준을 정리했다.
-series: 'unilink-design'
-seriesOrder: 7
+series: 'wirestead-design'
+seriesOrder: 5
 draft: false
 ---
 
@@ -37,7 +35,7 @@ flowchart TD
 사용자는 일반적으로 통신 객체를 시작하고, 데이터를 보내고, 수신 이벤트를 받고, 에러를 처리하며, 현재 상태를 확인하고 싶어 한다.
 즉, 사용자가 실제로 관심을 갖는 것은 TCP인지 Serial인지보다 “데이터를 안전하고 예측 가능한 방식으로 주고받을 수 있는가”에 가깝다.
 
-unilink의 Channel 계층은 이 관점에서 출발한다.
+wirestead의 Channel 계층은 이 관점에서 출발한다.
 Channel은 특정 transport를 그대로 노출하는 대신, 여러 통신 방식에서 반복되는 통신 행위를 공통 계약으로 정리하기 위한 추상화다.
 
 ## 용어 정리: Wrapper, Channel, Transport
@@ -180,7 +178,7 @@ flowchart TD
     CH --> STATS[stats]
 ```
 
-이 차이가 unilink Channel 설계의 핵심이다.
+이 차이가 wirestead Channel 설계의 핵심이다.
 구현 중심으로 보면 TCP, UDP, Serial은 모두 다르지만, 행위 중심으로 보면 공통 계약을 만들 수 있다.
 
 ## Channel Interface
@@ -337,7 +335,7 @@ flowchart TD
 ## Channel은 아키텍처 경계다
 
 Channel 계층은 단순한 interface 하나가 아니다.
-unilink 아키텍처에서 변경이 넘어가지 않도록 막는 경계다.
+wirestead 아키텍처에서 변경이 넘어가지 않도록 막는 경계다.
 
 ```mermaid
 flowchart LR
@@ -391,7 +389,7 @@ TCP의 connected 상태와 UDP의 connected-like 상태처럼, transport마다 �
 
 ## 정리
 
-unilink에서 Channel은 TCP, UDP, Serial, UDS를 단순히 하나로 묶기 위한 계층이 아니다.
+wirestead에서 Channel은 TCP, UDP, Serial, UDS를 단순히 하나로 묶기 위한 계층이 아니다.
 더 정확히는 통신 방식의 차이를 뒤로 밀어내고, 애플리케이션과 wrapper가 실제로 필요로 하는 통신 행위를 앞으로 가져오기 위한 계약이다.
 
 ```mermaid
@@ -426,5 +424,5 @@ mindmap
 - UDP 같은 비연결형 transport도 Channel 계약에 맞게 runtime state를 해석해야 한다.
 - 공통 계약은 테스트 가능성, API 안정성, 구현 교체 가능성을 높인다.
 
-Channel 계층은 unilink에서 가장 눈에 잘 띄는 public API는 아닐 수 있다.
-하지만 Builder, Wrapper, Transport 구현을 하나의 일관된 구조로 연결하는 핵심 축이며, unilink가 transport 구현이 아니라 통신 행위를 중심으로 설계되었다는 점을 가장 잘 보여주는 계층이다.
+Channel 계층은 wirestead에서 가장 눈에 잘 띄는 public API는 아닐 수 있다.
+하지만 Builder, Wrapper, Transport 구현을 하나의 일관된 구조로 연결하는 핵심 축이며, wirestead가 transport 구현이 아니라 통신 행위를 중심으로 설계되었다는 점을 가장 잘 보여주는 계층이다.

@@ -17,7 +17,7 @@
 
 프로젝트와 직접 관련된 글이면 선택합니다.
 
-- `unilink`: unilink 설계/구현/릴리즈 기록
+- `wirestead`: wirestead 설계/구현/릴리즈 기록
 - `ai-curator`: AI Curator 파이프라인/운영 기록
 - `site`: 이 블로그, Sveltia CMS, Astro 운영 기록
 
@@ -60,7 +60,7 @@ Reliable / BestEffort 채널에서 send(), queue pressure, drop 정책, backpres
 연속 글이라면 아래 필드를 함께 입력한다.
 
 ```yaml
-series: unilink-design
+series: wirestead-design
 seriesOrder: 1
 ```
 

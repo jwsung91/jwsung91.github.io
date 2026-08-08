@@ -1,19 +1,17 @@
 ---
 title: 'Backpressure 설계'
 date: 2026-06-03
-project: unilink
+project: wirestead
 kind: design
 tags:
-  - unilink
+  - wirestead
   - cpp
-  - async-io
   - backpressure
   - queue
   - realtime
-  - architecture
-description: 'Reliable / BestEffort 채널에서 send(), queue pressure, drop 정책, backpressure 처리 기준을 정리합니다.'
-series: 'unilink-design'
-seriesOrder: 11
+description: Reliable / BestEffort 채널에서 send(), queue pressure, drop 정책, backpressure 처리 기준을 정리했다.
+series: 'wirestead-design'
+seriesOrder: 10
 draft: false
 ---
 
@@ -44,7 +42,7 @@ Backpressure 설계는 이 지점에서 필요하다.
 
 > 송신 queue가 압박을 받을 때, 데이터를 보존할 것인가, 아니면 최신성을 위해 일부 데이터를 버릴 것인가?
 
-unilink는 이 선택을 `Reliable`과 `BestEffort`라는 두 가지 전략으로 나눈다.
+wirestead는 이 선택을 `Reliable`과 `BestEffort`라는 두 가지 전략으로 나눈다.
 
 ## Backpressure가 필요한 이유
 
@@ -79,7 +77,7 @@ Backpressure가 없다면 일반적으로 두 가지 문제가 생긴다.
 
 ## 두 가지 전략: Reliable과 BestEffort
 
-unilink의 Backpressure 전략은 크게 두 가지다.
+wirestead의 Backpressure 전략은 크게 두 가지다.
 
 ```mermaid
 mindmap
@@ -180,7 +178,7 @@ flowchart TD
     E -- Yes --> F[Enqueue latest data]
 ```
 
-unilink의 keep-latest 계열 동작은 새 데이터가 threshold보다 큰 경우 기존 queue를 비우는 방향으로 동작할 수 있다. 그렇지 않은 경우에는 새 데이터가 들어갈 수 있을 때까지 오래된 queue 항목을 제거한다.
+wirestead의 keep-latest 계열 동작은 새 데이터가 threshold보다 큰 경우 기존 queue를 비우는 방향으로 동작할 수 있다. 그렇지 않은 경우에는 새 데이터가 들어갈 수 있을 때까지 오래된 queue 항목을 제거한다.
 
 이 전략은 모든 메시지를 보장하지 않는다.
 대신 queue가 오래된 데이터로 가득 차는 것을 막고, 가능한 최신 상태를 유지한다.
@@ -207,7 +205,7 @@ BestEffort는 “덜 중요한 데이터”를 위한 전략이 아니다.
 Backpressure는 단순히 queue가 비어 있는지 아닌지를 보는 문제가 아니다.
 어느 정도부터 압박 상태로 볼 것인지 기준이 필요하다.
 
-unilink는 threshold를 기준으로 backpressure 상태를 판단한다.
+wirestead는 threshold를 기준으로 backpressure 상태를 판단한다.
 
 ```mermaid
 flowchart TD
@@ -289,7 +287,7 @@ flowchart TD
 동일한 “보내기”라도 데이터의 중요도와 호출자의 의도에 따라 다른 의미를 가질 수 있기 때문이다.
 
 다만 `send_blocking()`은 신중하게 사용해야 한다.
-unilink는 비동기 I/O 기반으로 동작하므로, `io_context`를 실행하는 스레드나 latency-sensitive한 callback 내부에서 blocking send를 남용하면 전체 통신 루프의 응답성이 떨어질 수 있다.
+wirestead는 비동기 I/O 기반으로 동작하므로, `io_context`를 실행하는 스레드나 latency-sensitive한 callback 내부에서 blocking send를 남용하면 전체 통신 루프의 응답성이 떨어질 수 있다.
 
 따라서 `send_blocking()`은 초기화 단계, 별도 worker thread, 또는 호출자가 blocking 비용을 명확히 감수할 수 있는 제한적인 상황에서 사용하는 것이 적절하다.
 실시간성이 중요한 경로에서는 `send()`와 `try_send()`를 통해 configured strategy를 따르거나, 데이터 성격에 맞게 Reliable / BestEffort 전략을 분리하는 편이 더 안전하다.
@@ -314,7 +312,7 @@ flowchart TD
 Backpressure는 내부 queue 관리만의 문제가 아니다.
 운영 중인 시스템에서는 queue pressure가 언제 발생했는지, 얼마나 자주 발생하는지, drop이 발생했는지 확인할 수 있어야 한다.
 
-unilink는 backpressure 상태를 callback과 runtime stats로 관측할 수 있게 한다.
+wirestead는 backpressure 상태를 callback과 runtime stats로 관측할 수 있게 한다.
 
 ```mermaid
 flowchart TD
@@ -371,7 +369,7 @@ flowchart TD
 
 즉, BackpressureStrategy는 transport 내부 queue 정책이지, 프로토콜의 전송 보장성을 바꾸는 기능은 아니다.
 
-TCP의 Reliable 전략과 UDP의 Reliable 전략은 같은 API 이름을 사용하더라도, 네트워크 계층에서 보장하는 의미는 다르다. unilink의 Backpressure는 transport가 가진 물리적 특성을 바꾸지 않고, sender-side queue policy를 통일된 방식으로 다룬다.
+TCP의 Reliable 전략과 UDP의 Reliable 전략은 같은 API 이름을 사용하더라도, 네트워크 계층에서 보장하는 의미는 다르다. wirestead의 Backpressure는 transport가 가진 물리적 특성을 바꾸지 않고, sender-side queue policy를 통일된 방식으로 다룬다.
 
 ## 데이터 성격에 따른 전략 선택
 
@@ -452,7 +450,7 @@ Backpressure는 장애를 완전히 없애는 기능이 아니다.
 
 ## 정리
 
-unilink에서 Backpressure는 송신 queue가 압박을 받을 때 어떤 정책으로 대응할지 정하는 계층이다.
+wirestead에서 Backpressure는 송신 queue가 압박을 받을 때 어떤 정책으로 대응할지 정하는 계층이다.
 
 ```mermaid
 mindmap

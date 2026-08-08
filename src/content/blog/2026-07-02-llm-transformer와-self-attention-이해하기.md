@@ -1,17 +1,15 @@
 ---
 title: 'Transformer와 self-attention'
 date: 2026-07-02
-updatedAt: 2026-07-02
 kind: study
 series: llm-core
-seriesOrder: 1
+seriesOrder: 2
 tags:
   - llm
   - transformer
-  - attention
   - self-attention
-  - ai
-description: Transformer가 sequence 데이터를 처리하는 방식과 Self-Attention이 Q, K, V 연산으로 토큰 간 관계를 계산하는 구조를 정리
+  - attention
+description: Transformer가 sequence 데이터를 처리하는 방식과 Self-Attention이 Q, K, V 연산으로 토큰 간 관계를 계산하는 구조를 정리했다.
 draft: false
 ---
 
@@ -70,11 +68,15 @@ $$\text{입력 벡터} = \text{Token Embedding} + \text{Position Embedding}$$
 
 ```mermaid
 flowchart TD
-    A[Input X] --> B[Masked Multi-Head Self-Attention]
-    B --> C[Add & LayerNorm]
-    C --> D[Feed Forward Network]
-    D --> E[Add & LayerNorm]
-    E --> F[Output X']
+    A[Input X] --> B[LayerNorm]
+    B --> C[Masked Multi-Head Self-Attention]
+    C --> D[Add]
+    A --> D
+    D --> E[LayerNorm]
+    E --> F[Feed Forward Network]
+    F --> G[Add]
+    D --> G
+    G --> H[Output X']
 ```
 
 각 구성 요소의 핵심 역할은 다음과 같다.
@@ -97,26 +99,27 @@ Self-Attention은 각 토큰에 대해 다음 질문의 답을 수치로 계산�
 "현재 토큰을 명확히 표현하기 위해, 문장 안의 어떤 토큰을 얼마나 참고해야 하는가?"
 ```
 
-예를 들어 다음 문장을 보자.
+예를 들어 다음 문장을 보자. 이 문장은 이 글 전체에서 같은 예시로 계속 사용한다.
 
 ```text
-나는 어제 산 커피를 오늘 마셨다
+나는 오늘 커피를 마셨다
 ```
 
 `마셨다`라는 토큰의 문맥적 의미를 명확히 하려면 행동의 직접적인 대상인 `커피를`이 가장 중요하고, 시점 정보인 `오늘`도 밀접하게 관련된다. Self-Attention은 이 관계를 다음과 같이 수치화한다.
 
 ```mermaid
 flowchart LR
-    A[마셨다] --> B[나는: 0.05]
-    A --> C[어제: 0.05]
-    A --> D[산: 0.10]
-    A --> E[커피를: 0.55]
-    A --> F[오늘: 0.25]
+    A[마셨다] --> B[나는: 0.10]
+    A --> C[오늘: 0.30]
+    A --> D[커피를: 0.50]
+    A --> E[마셨다: 0.10]
 ```
 
-이 값은 고정된 것이 아니라, 학습 과정에서 가중치 행렬을 통해 모델이 스스로 최적화한다. 결과적으로 `마셨다`라는 토큰의 새로운 표현(Contextualized Vector)은 각 정보의 가중합으로 생성된다.
+이 값은 고정된 것이 아니라, 학습 과정에서 가중치 행렬을 통해 모델이 스스로 최적화한다. 결과적으로 `마셨다`라는 토큰의 새로운 표현(Contextualized Vector)은 각 토큰의 Value 벡터를 이 비율로 섞어 만든다.
 
-$$\text{마셨다의 새 표현} = 0.05 \times \text{나는} + 0.05 \times \text{어제} + 0.10 \times \text{산} + 0.55 \times \text{커피를} + 0.25 \times \text{오늘}$$
+$$\text{Output}_{\text{마셨다}} = 0.10\,V_{\text{나는}} + 0.30\,V_{\text{오늘}} + 0.50\,V_{\text{커피를}} + 0.10\,V_{\text{마셨다}}$$
+
+여기서 섞이는 대상이 토큰의 원래 임베딩이 아니라 **Value 벡터**라는 점이 중요하다. 이 구분은 뒤의 Q, K, V 절에서 다시 다룬다.
 
 Attention은 특정 토큰 하나만 선택하는 하드 셀렉션(Hard Selection)이 아니다. 문맥에 따라 여러 토큰의 정보를 **비율대로 매끄럽게 섞어서** 현재 토큰의 의미를 새로이 빌딩하는 연산이다.
 
@@ -173,37 +176,41 @@ flowchart TD
 
 $Q$ 행렬과 $K$ 행렬의 전치 행렬을 내적($QK^T$)하면, 문장 내 모든 토큰 쌍(Pair) 간의 원시 관련도 점수(Raw Attention Score)가 계산된다. 토큰이 4개라면 $4 \times 4$ 크기의 행렬이 나온다.
 
+여기서 나오는 값은 **아직 확률이 아니다.** 단순한 내적 결과이므로 0~1 범위에 있지도 않고, 행의 합이 1이 되지도 않는다. 확률처럼 보이는 형태는 3단계 Softmax를 거친 뒤에야 나온다.
+
 ```text
               [Key] 토큰들
-               나는   커피를   오늘   마셨다
-[Query] 나는   0.8     0.1     0.1     0.0
-[Query] 커피를 0.1     0.7     0.0     0.2
-[Query] 오늘   0.0     0.1     0.8     0.1
-[Query] 마셨다 0.1     0.5     0.3     0.1
+               나는    오늘   커피를  마셨다
+[Query] 나는   28.0    18.4    19.2    16.0
+[Query] 오늘   17.6    27.2    20.0    18.4
+[Query] 커피를 18.4    19.2    28.8    20.8
+[Query] 마셨다 16.8    25.6    29.6    16.8
 ```
 
-`마셨다`(4번째 행)의 Query는 `커피를`(0.5)과 `오늘`(0.3)의 Key와 높은 내적값을 기록한다. 이 점수는 단순한 단어 유사도가 아니라 문법, 지시, 위치 등 학습된 복합적 관계가 반영된 결과다.
+`마셨다`(4번째 행)의 Query는 `커피를`(29.6)과 `오늘`(25.6)의 Key와 높은 내적값을 기록한다. 이 점수는 단순한 단어 유사도가 아니라 문법, 지시, 위치 등 학습된 복합적 관계가 반영된 결과다.
 
 ### 2. Scaling: $\sqrt{d_k}$로 나누는 이유
 
-공식을 보면 내적값에 $\sqrt{d_k}$(Key 벡터의 차원수의 제곱근)를 나누는 스케일링 단계가 있다.
+공식을 보면 내적값을 $\sqrt{d_k}$(Key 벡터 차원수의 제곱근)로 나누는 스케일링 단계가 있다.
 
-벡터의 차원($d_k$)이 커질수록 내적값의 절대적인 크기도 커지기 쉽다. 내적값이 너무 커진 상태에서 바로 Softmax를 적용하면 극단적인 현상이 발생한다.
+벡터의 차원($d_k$)이 커질수록 내적값의 절대적인 크기도 커지기 쉽다. 내적값이 너무 커진 상태에서 바로 Softmax를 적용하면, 가장 큰 값 하나에 확률이 거의 전부 쏠린다. 이렇게 분포가 뾰족해지면 Softmax의 그래디언트가 0에 가까워져 학습이 잘 진행되지 않는다.
 
-$$\text{Score (Scaling 없음)} = [2, 4, 20, 3] \rightarrow \text{Softmax} \approx [0, 0, 1, 0]$$
+$d_k = 64$인 head를 가정하면 $\sqrt{d_k} = 8$이므로, 위 `마셨다` 행은 다음과 같이 완만해진다.
 
-스케일링이 없으면 특정 하나의 값만 1에 수렴하고 나머지는 0이 되어 버려, 다양한 토큰의 문맥을 부드럽게 반영하지 못하고 그래디언트 소실 문제를 야기한다. $\sqrt{d_k}$로 나누어 주면 점수의 분포가 완만해져 학습이 안정화된다.
-
-$$\text{Score (Scaling 적용)} = [0.25, 0.5, 2.5, 0.375]$$
+$$[16.8,\ 25.6,\ 29.6,\ 16.8] \ \div\ 8 \ =\ [2.1,\ 3.2,\ 3.7,\ 2.1]$$
 
 ### 3. Softmax: 점수를 확률 비율로 변환
 
 스케일링된 점수 행렬에 Softmax를 취해 각 행의 합이 1이 되는 **Attention Weight(가중치)** 분포로 변환한다.
 
+$$\text{softmax}([2.1,\ 3.2,\ 3.7,\ 2.1]) = [0.10,\ 0.30,\ 0.50,\ 0.10]$$
+
 ```mermaid
 flowchart LR
-    A["관련도 점수<br/>(1.2, 0.3, 2.1, -0.4)"] --> B[Softmax] --> C["참고 비율<br/>(0.24, 0.10, 0.58, 0.08)"]
+    A["스케일링된 점수<br/>(2.1, 3.2, 3.7, 2.1)"] --> B[Softmax] --> C["참고 비율<br/>(0.10, 0.30, 0.50, 0.10)"]
 ```
+
+이 단계를 지나야 비로소 "`마셨다`가 `커피를`을 50% 참고한다"고 말할 수 있다.
 
 ### 4. Value 가중합 (Weighted Sum)
 
@@ -211,9 +218,9 @@ flowchart LR
 
 $$\text{Attention Output} = \text{Softmax}\left(\frac{QK^T}{\sqrt{d_k}}\right)V$$
 
-`마셨다` 토큰의 최종 출력 벡터는 다음과 같이 구성되어, 단순한 단어 임베딩을 넘어 '주어와 목적어, 시간적 문맥 정보가 완전히 결합한 새로운 차원의 벡터'로 거듭난다.
+`마셨다` 토큰의 최종 출력 벡터는 다음과 같이 구성되어, 단순한 단어 임베딩을 넘어 주어와 목적어, 시간 문맥이 결합된 표현이 된다.
 
-$$\text{Output}_{\text{마셨다}} = 0.1 \times V_{\text{나는}} + 0.5 \times V_{\text{커피를}} + 0.3 \times V_{\text{오늘}} + 0.1 \times V_{\text{마셨다}}$$
+$$\text{Output}_{\text{마셨다}} = 0.10\,V_{\text{나는}} + 0.30\,V_{\text{오늘}} + 0.50\,V_{\text{커피를}} + 0.10\,V_{\text{마셨다}}$$
 
 ```mermaid
 flowchart TD
@@ -242,10 +249,11 @@ GPT 같은 디코더 전용(Decoder-only) 모델은 이전 토큰들을 바탕�
 이를 방지하기 위해 미래 토큰 행렬 위치를 가려버리는 **Masking** 작업을 수행한다.
 
 ```text
-   나는  커피를  마셨다
-나는    O     X      X
-커피를  O     O      X
-마셨다  O     O      O
+        나는   오늘   커피를  마셨다
+나는     O      X       X       X
+오늘     O      O       X       X
+커피를   O      O       O       X
+마셨다   O      O       O       O
 ```
 
 구현 상으로는 소프트맥스를 통과하기 전 미래 토큰의 내적 점수 위치에 $-\infty$를 더해준다.
@@ -274,7 +282,9 @@ Self-Attention을 한 번만 수행(Single-Head)하면 문장을 단 하나의 �
 - `you` $\leftrightarrow$ `like` (주어-동사 호응 관계)
 - `coffee` $\leftrightarrow$ `tea` (대등한 선택 후보 관계)
 
-**Multi-Head Attention**은 $Q, K, V$ 공간을 여러 개($h$개)의 Head로 쪼개어 병렬로 연산을 수행한다. 각 Head는 문장의 서로 다른 문법적, 의미적 관계를 나누어 포착한다.
+**Multi-Head Attention**은 $Q, K, V$ 공간을 여러 개($h$개)의 Head로 쪼개어 병렬로 연산을 수행한다. 각 Head는 서로 다른 부분공간에서 attention을 계산하므로, 하나의 관점으로 볼 때보다 다양한 관계를 담을 수 있다.
+
+다만 아래 그림처럼 "1번 Head는 문장 구조, 2번 Head는 주어-동사 관계"처럼 역할이 깔끔하게 나뉘는 것은 아니다. 이는 이해를 돕기 위한 도식이고, 실제로는 여러 Head가 비슷한 패턴을 중복해서 학습하거나 해석하기 어려운 패턴을 잡는 경우가 더 많다.
 
 ```mermaid
 flowchart TD
@@ -304,19 +314,32 @@ Self-Attention이 토큰 간의 정보를 '교환하고 섞는 역할'을 끝내
 
 ```mermaid
 flowchart TD
-    A[Input X] --> B[Masked Multi-Head Self-Attention]
-    B --> C[Add<br/>X + Attention]
-    A --> C
-    C --> D[LayerNorm]
-    D --> E[Feed Forward Network]
-    E --> F[Add<br/>D + FFN]
-    D --> F
-    F --> G[LayerNorm]
+    A[Input X] --> B[LayerNorm]
+    B --> C[Masked Multi-Head Self-Attention]
+    C --> D[Add<br/>X + Attention]
+    A --> D
+    D --> E[LayerNorm]
+    E --> F[Feed Forward Network]
+    F --> G[Add<br/>D + FFN]
+    D --> G
     G --> H[Output X']
 ```
 
 1. **Feed Forward Network (FFN):** Attention이 여러 토큰의 정보를 융합했다면, FFN은 다른 토큰을 보지 않고 각 토큰별(Position-wise)로 개별 작동하며 융합된 특징을 비선형 변환하여 심층 표현을 완성한다.
 2. **Residual Connection:** 연산 결과에 원래의 입력값을 그대로 더해준다 ($\text{Output} = X + \text{SubLayer}(X)$). 레이어가 깊어져도 초기 정보가 왜곡 없이 끝까지 흘러갈 수 있도록 통로를 열어주어 그래디언트 흐름을 안정화한다.
+
+### Pre-LN과 Post-LN
+
+위 그림에서 LayerNorm이 각 sub-layer **앞에** 놓인 점에 주의할 필요가 있다. 이 방식을 **Pre-LN**이라고 한다.
+
+2017년 원 논문의 Transformer는 sub-layer를 통과한 뒤에 정규화하는 **Post-LN**($\text{LayerNorm}(X + \text{SubLayer}(X))$) 구조였다. 하지만 Post-LN은 레이어가 깊어질수록 학습 초기에 발산하기 쉬워, learning rate warmup 같은 장치에 크게 의존했다.
+
+| 구분        | 순서                       | 특징                                                 |
+| ----------- | -------------------------- | ---------------------------------------------------- |
+| **Post-LN** | SubLayer → Add → LayerNorm | 원 논문 구조. 깊은 모델에서 학습이 불안정            |
+| **Pre-LN**  | LayerNorm → SubLayer → Add | residual 경로가 정규화를 거치지 않아 깊어져도 안정적 |
+
+Pre-LN에서는 입력 $X$가 정규화를 거치지 않고 그대로 residual 경로를 타고 흐르기 때문에, 레이어를 아무리 쌓아도 그래디언트가 안정적으로 전달된다. 이 때문에 GPT-2 이후의 Decoder-only 모델과 LLaMA 계열은 대부분 Pre-LN을 사용한다.
 
 ---
 
@@ -328,6 +351,8 @@ Transformer는 과거 RNN처럼 시퀀스를 순차적으로 밟아 나가는 �
 2. $QK^T$ 연산으로 모든 토큰 쌍 간의 연관도를 구한다.
 3. $\sqrt{d_k}$로 스케일링하고 Softmax를 취해 '참고 비율'을 도출한다.
 4. 확률 비율대로 $V$를 가중합하여 문맥이 온전히 녹아든 토큰 벡터를 얻는다.
-5. 이 과정을 **Multi-Head**로 병렬화하고 **Transformer Block**으로 쌓아 올려 인간의 언어를 깊이 있게 이해한다.
+5. 이 과정을 **Multi-Head**로 병렬화하고 **Transformer Block**으로 여러 층 쌓아, 토큰마다 문맥이 반영된 표현을 만든다.
 
-이 강건하고 병렬화에 최적화된 아키텍처 위에, 초거대 데이터와 연산량을 쏟아부어 탄생한 결과물이 바로 오늘날 우리가 사용하는 대형 언어 모델(LLM)이다.
+이 병렬화에 최적화된 아키텍처 위에 대규모 데이터와 연산량을 투입한 결과물이 오늘날의 대형 언어 모델(LLM)이다.
+
+다음 글에서는 같은 Transformer block이 attention mask에 따라 [Encoder-only와 Decoder-only](/blog/2026-07-02-llm-encoder-only와-decoder-only-구조-이해하기)로 갈라지는 과정을 살펴본다.

@@ -1,18 +1,16 @@
 ---
 title: 'Base Model은 어떻게 Chat Model이 되는가'
 date: 2026-07-03
-updatedAt: 2026-07-03
 kind: study
 series: llm-training
 seriesOrder: 2
 tags:
   - llm
-  - base-model
   - chat-model
   - instruction-tuning
   - rlhf
   - alignment
-description: 사전 학습을 마친 Base Model이 Instruction Tuning, Preference Tuning, Safety Alignment를 거쳐 대화형 Chat Model로 발전하는 세부 과정 정리
+description: 사전 학습을 마친 Base Model이 Instruction Tuning, Preference Tuning, Safety Alignment를 거쳐 대화형 Chat Model이 되는 과정을 정리했다.
 draft: false
 ---
 
@@ -76,7 +74,6 @@ flowchart TD
     D --> E[Preference Tuning]
     E --> F[Aligned Chat Model]
     F --> G[Evaluation / Safety Check]
-
 ```
 
 각 단계의 역할은 다르다.
@@ -167,11 +164,17 @@ Instruction tuning은 모델이 사용자의 지시를 따르도록 학습시키
 
 또는 대화 형태로 구성될 수 있다.
 
-> **User:** TCP와 UDP의 차이를 표로 정리해줘.
-> **Assistant:** > | 구분 | TCP | UDP |
-> |---|---|---|
-> | 연결 방식 | 연결 지향 | 비연결형 |
-> ...
+```text
+User:
+TCP와 UDP의 차이를 표로 정리해줘.
+
+Assistant:
+| 구분      | TCP       | UDP      |
+| --------- | --------- | -------- |
+| 연결 방식 | 연결 지향 | 비연결형 |
+| 신뢰성    | 높음      | 낮음     |
+...
+```
 
 모델은 이런 예시를 통해 “사용자의 요청이 들어오면 그에 맞는 답변을 생성하는 패턴”을 학습한다.
 
@@ -181,7 +184,6 @@ flowchart TD
     B --> C[Reference Response]
     C --> D[Supervised Fine-tuning]
     D --> E[Instruction-following Model]
-
 ```
 
 Instruction tuning은 일반적인 next token prediction과 같은 학습 방식으로 수행될 수 있다.
@@ -233,7 +235,8 @@ Chat model은 단순한 문자열 하나만 입력으로 받는 것이 아니라
 모델 내부에서는 이런 대화가 하나의 token sequence로 변환된다.
 이때 사용되는 형식을 **chat template**이라고 한다.
 
-예시는 다음과 같다.
+실제 구분자는 모델마다 다르다. ChatML 계열은 `<|im_start|>system` / `<|im_end|>` 같은 특수 토큰을 쓰고, Llama 계열은 `[INST]` 같은 형식을 쓴다.
+아래는 이해를 돕기 위해 단순화한 형태이고, 실제 문법은 아니다.
 
 ```text
 <system>
@@ -245,7 +248,6 @@ TCP와 UDP의 차이를 표로 정리해줘.
 </user>
 
 <assistant>
-
 ```
 
 모델은 이 뒤에 assistant 응답을 생성한다.
@@ -302,7 +304,6 @@ flowchart TD
     C --> D
     D --> E[Chosen / Rejected Pair]
     E --> F[Preference Tuning]
-
 ```
 
 Preference tuning은 모델이 단순히 정답을 흉내 내는 것을 넘어서, 더 선호되는 응답 스타일과 판단 기준을 따르도록 만든다.
@@ -323,7 +324,6 @@ flowchart TD
     C --> D[Reward Model 학습]
     D --> E[Reward가 높아지도록 모델 조정]
     E --> F[Aligned Model]
-
 ```
 
 RLHF에서는 먼저 사람이 여러 응답을 비교해 어떤 응답이 더 좋은지 평가한다.
@@ -525,7 +525,6 @@ flowchart TD
     G --> H[Safety Alignment]
     H --> I[Chat Model]
     I --> J[Evaluation]
-
 ```
 
 각 단계의 역할은 다음과 같다.

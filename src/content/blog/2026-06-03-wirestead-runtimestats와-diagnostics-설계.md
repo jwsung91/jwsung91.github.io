@@ -1,19 +1,17 @@
 ---
 title: 'RuntimeStats와 Diagnostics 설계'
 date: 2026-06-03
-project: unilink
+project: wirestead
 kind: design
 tags:
-  - unilink
+  - wirestead
   - cpp
-  - async-io
   - diagnostics
-  - runtime-stats
   - observability
-  - architecture
+  - runtime-stats
 description: 연결 상태, 송수신량, drop, queue pressure를 RuntimeStats와 Diagnostics로 관측 가능하게 만드는 설계를 정리했다.
-series: 'unilink-design'
-seriesOrder: 8
+series: 'wirestead-design'
+seriesOrder: 11
 draft: false
 ---
 
@@ -38,7 +36,7 @@ flowchart TD
     E --> F[Diagnose queue, drop, error, throughput]
 ```
 
-unilink에서 RuntimeStats와 Diagnostics는 이런 문제를 줄이기 위한 계층이다.
+wirestead에서 RuntimeStats와 Diagnostics는 이런 문제를 줄이기 위한 계층이다.
 목표는 단순히 카운터를 제공하는 것이 아니라, 통신 객체가 런타임에 어떤 상태인지 사용자가 판단할 수 있는 최소한의 관측 지점을 제공하는 것이다.
 
 ## 관측성이 필요한 이유
@@ -290,7 +288,7 @@ RuntimeStats가 수치 기반의 관측성이라면, `ErrorContext`는 이벤트
 - 어떤 메시지인지
 - 특정 client와 관련된 에러인지
 
-unilink의 error callback은 이런 정보를 context로 전달한다.
+wirestead의 error callback은 이런 정보를 context로 전달한다.
 
 ```cpp
 class ErrorContext {
@@ -344,7 +342,7 @@ mindmap
 이 설계는 callback 사용성을 높이면서도 lifetime 문제를 명확히 한다.
 
 ```cpp
-client.on_data([](const unilink::MessageContext& ctx) {
+client.on_data([](const wirestead::MessageContext& ctx) {
     auto view = ctx.data();             // callback scope view
     auto copy = ctx.data_as_vector();   // safe to store
 });
@@ -458,7 +456,7 @@ Diagnostics는 “문제가 없도록 만드는 기능”이 아니라, 문제�
 
 ## 정리
 
-unilink에서 RuntimeStats와 Diagnostics는 통신 객체를 관측 가능한 runtime component로 만들기 위한 계층이다.
+wirestead에서 RuntimeStats와 Diagnostics는 통신 객체를 관측 가능한 runtime component로 만들기 위한 계층이다.
 
 ```mermaid
 mindmap
@@ -508,4 +506,4 @@ mindmap
 실제 시스템에서는 느려짐, 끊김, drop, queue pressure, callback 지연 같은 문제가 반복적으로 발생한다.
 
 RuntimeStats와 Diagnostics는 이런 상황에서 라이브러리가 침묵하지 않도록 만드는 장치다.
-즉, unilink의 Diagnostics 설계는 “문제를 없애는 것”이 아니라 “문제를 볼 수 있게 만드는 것”에 가깝다.
+즉, wirestead의 Diagnostics 설계는 “문제를 없애는 것”이 아니라 “문제를 볼 수 있게 만드는 것”에 가깝다.

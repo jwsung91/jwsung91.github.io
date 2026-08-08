@@ -1,25 +1,23 @@
 ---
 title: '설계 회고'
 date: 2026-06-03
-project: unilink
+project: wirestead
 kind: retrospective
 tags:
-  - unilink
+  - wirestead
   - cpp
-  - open-source
   - cmake
-  - testing
   - packaging
-  - release
-description: unilink를 기능 구현에서 테스트, 패키징, 문서화, 릴리즈 준비까지 사용할 수 있는 라이브러리로 다듬은 과정을 회고했다.
-series: 'unilink-design'
+  - open-source
+description: wirestead를 기능 구현에서 테스트, 패키징, 문서화, 릴리즈 준비까지 사용할 수 있는 라이브러리로 다듬은 과정을 회고했다.
+series: 'wirestead-design'
 seriesOrder: 12
 draft: false
 ---
 
 ## 도입: 구현만으로는 라이브러리가 되지 않는다
 
-unilink를 설계하면서 가장 크게 느낀 점은, 라이브러리는 기능 구현만으로 완성되지 않는다는 것이다.
+wirestead를 설계하면서 가장 크게 느낀 점은, 라이브러리는 기능 구현만으로 완성되지 않는다는 것이다.
 
 TCP client가 동작하고, Serial 통신이 되고, UDP packet을 주고받을 수 있다고 해서 바로 사용할 수 있는 라이브러리가 되는 것은 아니다.
 다른 개발자가 자신의 프로젝트에 포함할 수 있어야 하고, 여러 플랫폼에서 빌드되어야 하며, 테스트로 기본 동작을 확인할 수 있어야 한다. 또한 설치, 패키징, 문서화, 릴리즈 절차까지 어느 정도 정리되어 있어야 한다.
@@ -50,23 +48,23 @@ mindmap
       documentation
 ```
 
-이 글은 unilink의 내부 구조 자체보다, 그 구조를 실제로 사용할 수 있는 라이브러리로 만들기 위해 어떤 운영 기반을 갖췄는지 정리하는 회고에 가깝다.
+이 글은 wirestead의 내부 구조 자체보다, 그 구조를 실제로 사용할 수 있는 라이브러리로 만들기 위해 어떤 운영 기반을 갖췄는지 정리하는 회고에 가깝다.
 
 ## 빌드 구조: 기능보다 먼저 안정적인 진입점 만들기
 
 C++ 라이브러리에서 빌드 구조는 public API만큼 중요하다.
 사용자가 라이브러리를 사용하기 위해 가장 먼저 만나는 것은 코드가 아니라 `CMakeLists.txt`, build option, dependency 설정이다.
 
-unilink의 최상위 CMake 구조는 여러 관심사를 별도 파일로 나눈다.
+wirestead의 최상위 CMake 구조는 여러 관심사를 별도 파일로 나눈다.
 
 ```mermaid
 flowchart TD
-    A[CMakeLists.txt] --> B[UnilinkOptions.cmake]
-    A --> C[UnilinkCompiler.cmake]
-    A --> D[UnilinkDependencies.cmake]
-    A --> E[UnilinkSources.cmake]
-    A --> F[UnilinkTargets.cmake]
-    A --> G[UnilinkPackaging.cmake]
+    A[CMakeLists.txt] --> B[WiresteadOptions.cmake]
+    A --> C[WiresteadCompiler.cmake]
+    A --> D[WiresteadDependencies.cmake]
+    A --> E[WiresteadSources.cmake]
+    A --> F[WiresteadTargets.cmake]
+    A --> G[WiresteadPackaging.cmake]
 
     B --> H[Build options]
     C --> I[Compiler settings]
@@ -79,7 +77,7 @@ flowchart TD
 빌드 옵션, 컴파일러 설정, 의존성, target 구성, 패키징은 서로 다른 변경 이유를 가진다.
 이들을 하나의 `CMakeLists.txt`에 모두 넣으면 작은 수정도 전체 구조를 읽어야 한다. 반대로 역할별로 분리하면 빌드 시스템 자체도 유지보수 가능한 구조가 된다.
 
-unilink의 빌드 구조에서 중요한 기준은 다음이었다.
+wirestead의 빌드 구조에서 중요한 기준은 다음이었다.
 
 - 사용자가 켜고 끌 수 있는 옵션을 명확히 둔다.
 - shared / static library를 모두 고려한다.
@@ -96,7 +94,7 @@ unilink의 빌드 구조에서 중요한 기준은 다음이었다.
 어떤 사용자는 static library를 원하고, 어떤 사용자는 shared library를 원한다.
 테스트를 함께 빌드하고 싶은 경우도 있고, 패키지 소비자 입장에서는 테스트를 끄고 라이브러리만 빌드하고 싶을 수도 있다.
 
-따라서 unilink는 주요 build option을 명시적으로 제공한다.
+따라서 wirestead는 주요 build option을 명시적으로 제공한다.
 
 ```mermaid
 mindmap
@@ -135,7 +133,7 @@ mindmap
 
 순수 함수나 단일 클래스처럼 빠르게 확인할 수 있는 코드도 있지만, 실제 socket이나 serial port, event loop, thread, timeout이 얽히는 테스트도 있다. 이들을 모두 같은 테스트 계층에 두면 테스트 실행 시간이 길어지고, 실패 원인도 모호해진다.
 
-unilink는 테스트를 크게 세 단계로 나눈다.
+wirestead는 테스트를 크게 세 단계로 나눈다.
 
 ```mermaid
 mindmap
@@ -189,7 +187,7 @@ E2E test가 깨지면 실제 사용 시나리오의 안정성을 봐야 한다.
 
 테스트는 작성하는 것만큼 실행하기 쉬워야 한다.
 
-unilink는 CTest와 GoogleTest discovery를 기반으로 test를 등록하고, unit / integration / e2e label을 기준으로 실행할 수 있게 구성한다.
+wirestead는 CTest와 GoogleTest discovery를 기반으로 test를 등록하고, unit / integration / e2e label을 기준으로 실행할 수 있게 구성한다.
 
 ```text
 ctest -L unit
@@ -239,7 +237,7 @@ cross-platform C++ 라이브러리에서는 플랫폼 차이가 생각보다 자
 Linux에서 잘 빌드되는 코드가 Windows에서 깨질 수 있고, MSVC에서 warning이나 link option 문제가 발생할 수 있다.
 반대로 Windows를 기준으로 작성한 설치 경로나 DLL 배치 방식이 Linux 패키징에는 맞지 않을 수 있다.
 
-unilink는 Linux / Windows를 모두 고려해 target, output directory, runtime dependency, MSVC workaround 등을 빌드 시스템에 반영한다.
+wirestead는 Linux / Windows를 모두 고려해 target, output directory, runtime dependency, MSVC workaround 등을 빌드 시스템에 반영한다.
 
 ```mermaid
 mindmap
@@ -267,9 +265,9 @@ mindmap
 
 라이브러리를 다른 프로젝트에서 쓰려면 install/export 구조가 필요하다.
 
-단순히 `add_library`로 target을 만드는 것과, 외부 프로젝트에서 `find_package(unilink)`로 가져올 수 있게 만드는 것은 다르다.
+단순히 `add_library`로 target을 만드는 것과, 외부 프로젝트에서 `find_package(wirestead)`로 가져올 수 있게 만드는 것은 다르다.
 
-unilink는 install target, CMake package config, pkg-config, CPack 설정을 둔다.
+wirestead는 install target, CMake package config, pkg-config, CPack 설정을 둔다.
 
 ```mermaid
 mindmap
@@ -330,7 +328,7 @@ flowchart TD
 
 ## 문서화 전략: 핵심 문서와 상세 문서 분리
 
-unilink는 문서를 모두 한 repository에 넣는 방식 대신, 기본 문서는 core repository에 남기고 상세 문서는 별도 문서 repository로 분리하는 방향을 선택했다.
+wirestead는 문서를 모두 한 repository에 넣는 방식 대신, 기본 문서는 core repository에 남기고 상세 문서는 별도 문서 repository로 분리하는 방향을 선택했다.
 
 이 선택은 문서가 많아질수록 중요해진다.
 
@@ -466,13 +464,13 @@ mindmap
       changelog
 ```
 
-이 관점에서 보면 unilink의 구조화 작업은 단순한 정리가 아니었다.
+이 관점에서 보면 wirestead의 구조화 작업은 단순한 정리가 아니었다.
 
 Builder, Wrapper, Channel, Transport 같은 코드 아키텍처뿐 아니라, CMake, 테스트 구조, 패키징, 문서 분리까지 함께 정리해야 “다른 사람이 사용할 수 있는 라이브러리”에 가까워진다.
 
 ## 설계하면서 배운 점
 
-unilink를 설계하면서 가장 크게 느낀 점은, 좋은 라이브러리는 내부 구현이 잘 되어 있는 것만으로 충분하지 않다는 것이다.
+wirestead를 설계하면서 가장 크게 느낀 점은, 좋은 라이브러리는 내부 구현이 잘 되어 있는 것만으로 충분하지 않다는 것이다.
 
 내부 구현은 복잡할 수 있다.
 비동기 I/O, buffer lifetime, reconnect, backpressure, framer, diagnostics 같은 요소는 피할 수 없다.
@@ -493,7 +491,7 @@ flowchart TD
 첫째, 내부 복잡성을 견딜 수 있는 구조를 만든다.
 둘째, 외부 사용자에게는 단순하고 안정적인 경험을 제공한다.
 
-unilink의 여러 설계 요소는 이 두 목표 사이의 균형을 맞추기 위한 시도였다.
+wirestead의 여러 설계 요소는 이 두 목표 사이의 균형을 맞추기 위한 시도였다.
 
 ## Trade-off: 완성도를 높일수록 관리할 것도 늘어난다
 
@@ -524,11 +522,11 @@ mindmap
 
 ## 정리
 
-unilink의 설계는 단순히 통신 기능을 구현하는 것으로 끝나지 않았다.
+wirestead의 설계는 단순히 통신 기능을 구현하는 것으로 끝나지 않았다.
 
 ```mermaid
 mindmap
-  root((unilink Library Readiness))
+  root((wirestead Library Readiness))
     Architecture
       Unified API
       Builder
@@ -561,12 +559,12 @@ mindmap
 - 릴리즈 준비는 기능 완료가 아니라 사용 가능성의 점검이다.
 - 오픈소스 라이브러리는 빌드 가능성, 테스트 가능성, 문서화, 배포 가능성을 함께 갖춰야 한다.
 
-unilink를 만들면서 반복적으로 확인한 것은 하나다.
+wirestead를 만들면서 반복적으로 확인한 것은 하나다.
 
 > 좋은 라이브러리는 내부가 강해야 하지만, 외부에서는 단순해야 한다.
 
 내부에는 복잡한 transport, queue, buffer, diagnostics가 있어도, 사용자는 명확한 API와 안정적인 빌드·테스트·배포 경험을 기대한다.
-unilink의 설계와 릴리즈 준비 과정은 이 두 세계 사이의 간격을 줄이기 위한 작업이었다.
+wirestead의 설계와 릴리즈 준비 과정은 이 두 세계 사이의 간격을 줄이기 위한 작업이었다.
 
 구현은 라이브러리의 출발점이고, 테스트와 패키징과 문서화는 라이브러리를 실제로 사용할 수 있게 만드는 기반이다.
-이 과정을 거치면서 unilink는 단순한 통신 코드 묶음이 아니라, 다른 프로젝트에서 가져다 쓸 수 있는 C++ 통신 라이브러리에 가까워질 수 있었다.
+이 과정을 거치면서 wirestead는 단순한 통신 코드 묶음이 아니라, 다른 프로젝트에서 가져다 쓸 수 있는 C++ 통신 라이브러리에 가까워질 수 있었다.

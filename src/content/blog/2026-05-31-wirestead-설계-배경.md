@@ -1,18 +1,16 @@
 ---
 title: '설계 배경'
 date: 2026-05-31
-project: unilink
+project: wirestead
 kind: design
 tags:
-  - unilink
+  - wirestead
   - cpp
   - async-io
-  - communication
   - architecture
   - boost-asio
-  - design-patterns
-description: TCP, UDP, Serial, UDS를 하나의 개발 경험으로 묶기 위해 unilink가 선택한 설계 배경과 목표를 정리했다.
-series: 'unilink-design'
+description: TCP, UDP, Serial, UDS를 하나의 개발 경험으로 묶기 위해 wirestead가 선택한 설계 배경과 목표를 정리했다.
+series: 'wirestead-design'
 seriesOrder: 1
 draft: false
 ---
@@ -41,7 +39,7 @@ flowchart LR
 
 실제 프로젝트에서는 통신 방식이 바뀌었을 뿐인데 비즈니스 로직까지 함께 수정해야 하는 경우가 있다. TCP 기준으로 작성한 구조를 Serial로 옮기거나, 테스트용 UDP 인터페이스를 실제 장비용 Serial 인터페이스로 바꾸는 과정에서 callback 구조, 에러 처리, queue 정책이 함께 흔들리기도 한다.
 
-unilink는 이러한 반복과 구조적 흔들림을 줄이고, 여러 통신 방식을 일관된 API로 다루기 위해 설계한 C++ 비동기 통신 라이브러리다.
+wirestead는 이러한 반복과 구조적 흔들림을 줄이고, 여러 통신 방식을 일관된 API로 다루기 위해 설계한 C++ 비동기 통신 라이브러리다.
 
 ## 문제 정의: 구현 반복과 불일치
 
@@ -87,11 +85,11 @@ mindmap
 
 ## 설계 목표: 개발 경험 통합
 
-unilink의 목표는 단순히 여러 통신 방식을 지원하는 것이 아니다.
+wirestead의 목표는 단순히 여러 통신 방식을 지원하는 것이 아니다.
 
 TCP, UDP, Serial, Unix Domain Socket을 모두 지원하더라도 각 API가 서로 다르게 동작한다면 사용자는 결국 transport별 사용법을 따로 익혀야 한다.
 
-따라서 unilink의 핵심 목표는 “프로토콜을 하나로 만드는 것”이 아니라, “여러 통신 방식을 하나의 일관된 개발 경험으로 다루는 것”이다.
+따라서 wirestead의 핵심 목표는 “프로토콜을 하나로 만드는 것”이 아니라, “여러 통신 방식을 하나의 일관된 개발 경험으로 다루는 것”이다.
 
 ```mermaid
 flowchart TD
@@ -127,11 +125,11 @@ flowchart TD
 사용자는 가능한 한 다음과 같은 흐름으로 통신 객체를 다룰 수 있어야 한다.
 
 ```cpp
-auto client = unilink::tcp_client("127.0.0.1", 9000)
-    .on_data([](auto data) {
+auto client = wirestead::tcp_client("127.0.0.1", 9000)
+    .on_data([](const wirestead::MessageContext& ctx) {
         // handle received data
     })
-    .on_error([](auto error) {
+    .on_error([](const wirestead::ErrorContext& err) {
         // handle error
     })
     .build();
@@ -155,7 +153,7 @@ Serial, TCP, UDP, UDS는 내부 구현이 다르지만, 애플리케이션이 �
 
 물론 모든 transport를 완전히 같은 형태로 추상화할 수는 없다. TCP client와 TCP server는 구조가 다르고, UDP는 연결 상태보다 endpoint 관리가 중요하다. Serial은 baudrate, parity, stop bit 같은 포트 설정이 필요하다.
 
-따라서 unilink는 공통화할 수 있는 영역과 transport별로 분리해야 하는 영역을 명확히 나누는 방향으로 설계했다.
+따라서 wirestead는 공통화할 수 있는 영역과 transport별로 분리해야 하는 영역을 명확히 나누는 방향으로 설계했다.
 
 ## 설계 원칙 1: 단순한 Public API
 
@@ -165,27 +163,27 @@ Boost.Asio 기반으로 구현할 경우 `io_context`, socket, strand, async ope
 
 그러나 이러한 요소가 모두 public API에 노출되면 라이브러리 사용자는 통신 로직보다 비동기 구현 세부사항을 더 많이 다루게 된다.
 
-unilink에서는 public API의 역할을 제한하고, 내부 복잡성은 구현 계층으로 숨기는 방향을 선택했다.
+wirestead에서는 public API의 역할을 제한하고, 내부 복잡성은 구현 계층으로 숨기는 방향을 선택했다.
 
 ```mermaid
 flowchart TD
     subgraph API_Layer["1. Public API Layer"]
         direction LR
-        Facade["unilink.hpp\nFacade / Wrapper"]
-        Config["Builder\nConfiguration"]
-        Ops["Operations\nsend / callback / stats"]
+        Facade["wirestead.hpp<br/>Facade / Wrapper"]
+        Config["Builder<br/>Configuration"]
+        Ops["Operations<br/>send / callback / stats"]
     end
 
     subgraph Core_Layer["2. Internal Implementation"]
         direction LR
-        Transports["Transports\nTCP / UDP / Serial / UDS"]
-        Pipeline["Data Pipeline\nFramer / Queue / Buffer"]
-        Manage["Management\nFactory / Error / Logging"]
+        Transports["Transports<br/>TCP / UDP / Serial / UDS"]
+        Pipeline["Data Pipeline<br/>Framer / Queue / Buffer"]
+        Manage["Management<br/>Factory / Error / Logging"]
     end
 
     subgraph Runtime_Layer["3. Runtime Layer"]
         direction LR
-        Asio["Boost.Asio\nio_context / Sockets"]
+        Asio["Boost.Asio<br/>io_context / Sockets"]
     end
 
     API_Layer ==> Core_Layer
@@ -197,7 +195,7 @@ flowchart TD
 
 이 구조를 통해 사용자는 단순한 API를 사용하고, 라이브러리는 내부에서 transport별 복잡성을 관리한다.
 
-이 방향은 unilink의 계층 구조에도 직접적으로 반영된다. 사용자에게 노출되는 API는 Facade, Builder, Wrapper 중심으로 구성하고, 실제 transport 구현은 내부 계층으로 분리한다.
+이 방향은 wirestead의 계층 구조에도 직접적으로 반영된다. 사용자에게 노출되는 API는 Facade, Builder, Wrapper 중심으로 구성하고, 실제 transport 구현은 내부 계층으로 분리한다.
 
 중요한 것은 내부 구현을 숨기는 것 자체가 아니다. 사용자가 반드시 알아야 하는 개념과 라이브러리 내부에서 책임져야 하는 구현 세부사항을 구분하는 것이다. public API는 사용자가 의존하는 계약이고, 내부 구현은 성능과 안정성을 위해 계속 개선될 수 있는 영역이다.
 
@@ -205,7 +203,7 @@ flowchart TD
 
 TCP client, TCP server, UDP, Serial, UDS는 구현 방식이 다르다. 그러나 애플리케이션에서 공통적으로 기대하는 동작은 상당 부분 겹친다.
 
-unilink는 이 공통 동작을 중심으로 API를 구성하고, transport별 차이는 builder option과 내부 transport 계층으로 분리한다.
+wirestead는 이 공통 동작을 중심으로 API를 구성하고, transport별 차이는 builder option과 내부 transport 계층으로 분리한다.
 
 예를 들어 TCP client는 remote endpoint에 연결해야 하고, TCP server는 acceptor를 통해 여러 client를 관리해야 한다. UDP는 datagram 단위의 송수신과 endpoint 정보가 중요하며, Serial은 장치 경로와 포트 설정이 필요하다.
 
@@ -219,7 +217,7 @@ flowchart LR
         B2 --> B3[Business Logic changes]
     end
 
-    subgraph After["After: With Abstraction (unilink)"]
+    subgraph After["After: With Abstraction (wirestead)"]
         direction TB
         A1[Transport code changes] --> A2[Internal adapter changes]
         A2 --> A3[Public API unchanged]
@@ -231,7 +229,7 @@ flowchart LR
 
 이 구조는 새로운 transport가 추가되더라도 사용자가 익힌 기본 사용 흐름은 유지하고, 내부 구현과 builder만 확장하는 방식으로 대응할 수 있게 한다.
 
-즉, unilink의 abstraction은 통신 방식의 차이를 없애기 위한 것이 아니다. 차이는 내부에 남겨두되, 그 차이가 애플리케이션 전체로 전파되지 않도록 막는 것이다.
+즉, wirestead의 abstraction은 통신 방식의 차이를 없애기 위한 것이 아니다. 차이는 내부에 남겨두되, 그 차이가 애플리케이션 전체로 전파되지 않도록 막는 것이다.
 
 ## 설계 원칙 3: 비동기 통신 문제의 API화
 
@@ -241,9 +239,9 @@ flowchart LR
 
 이러한 문제를 매번 애플리케이션 코드에서 직접 처리하게 만들면, transport가 바뀔 때마다 비슷한 보조 로직이 반복된다. 또한 프로젝트마다 queue 정책, error handling, buffer 처리 방식이 달라지면서 사용 경험도 일관되지 않게 된다.
 
-unilink는 이런 문제를 내부 구현에만 숨기지 않고, 필요한 부분은 API 설계의 일부로 다루는 방향을 선택했다. `send`, `try_send`, callback, framer, runtime statistics 같은 개념은 단순한 부가 기능이 아니라, 비동기 통신을 안정적으로 사용하기 위한 공통 접점이다.
+wirestead는 이런 문제를 내부 구현에만 숨기지 않고, 필요한 부분은 API 설계의 일부로 다루는 방향을 선택했다. `send`, `try_send`, callback, framer, runtime statistics 같은 개념은 단순한 부가 기능이 아니라, 비동기 통신을 안정적으로 사용하기 위한 공통 접점이다.
 
-즉, unilink의 목적은 통신 함수를 단순히 감싸는 것이 아니라, 비동기 통신에서 반복적으로 마주치는 문제를 일관된 방식으로 다룰 수 있는 기반을 제공하는 것이다.
+즉, wirestead의 목적은 통신 함수를 단순히 감싸는 것이 아니라, 비동기 통신에서 반복적으로 마주치는 문제를 일관된 방식으로 다룰 수 있는 기반을 제공하는 것이다.
 
 ## 설계 원칙 4: 변경 영향 분리
 
@@ -251,7 +249,7 @@ unilink는 이런 문제를 내부 구현에만 숨기지 않고, 필요한 부�
 
 통신 라이브러리는 내부적으로 계속 바뀔 수밖에 없다. transport 구현이 개선될 수 있고, queue 정책이 보완될 수 있으며, reconnect 처리나 error propagation 방식도 더 안정적으로 다듬어질 수 있다. 하지만 이러한 내부 변경이 매번 사용자 코드 변경으로 이어진다면 라이브러리 사용 비용은 커진다.
 
-unilink는 사용자 코드가 의존해야 할 영역과, 라이브러리 내부에서 자유롭게 개선할 수 있는 영역을 분리하는 방향으로 구조를 잡았다.
+wirestead는 사용자 코드가 의존해야 할 영역과, 라이브러리 내부에서 자유롭게 개선할 수 있는 영역을 분리하는 방향으로 구조를 잡았다.
 
 사용자 코드는 public API에 의존한다.  
 내부 구현은 transport별 구현, queue, framer, retry, socket option, logging처럼 계속 개선될 수 있는 영역으로 둔다.
@@ -262,18 +260,18 @@ unilink는 사용자 코드가 의존해야 할 영역과, 라이브러리 내�
 
 ## 정리: 설계 방향
 
-unilink는 여러 통신 방식을 지원하는 C++ 비동기 통신 라이브러리다.
+wirestead는 여러 통신 방식을 지원하는 C++ 비동기 통신 라이브러리다.
 
 그러나 핵심 목적은 단순히 지원하는 프로토콜의 수를 늘리는 것이 아니라, 서로 다른 통신 방식을 “하나의 일관된 개발 경험”으로 묶어내는 데 있다.
 
 TCP, UDP, Serial, Unix Domain Socket은 서로 다른 특성을 가진다. 이 차이를 완전히 없앨 수는 없다. 그리고 없애는 것이 목표도 아니다.
 
-unilink가 지향하는 것은 그 차이가 애플리케이션 코드 전체로 번지지 않도록 경계를 세우는 것이다.
+wirestead가 지향하는 것은 그 차이가 애플리케이션 코드 전체로 번지지 않도록 경계를 세우는 것이다.
 
-이를 위해 unilink는 public API를 단순하게 유지하고, transport별 차이는 내부 구현으로 격리하며, 비동기 통신에서 반복적으로 등장하는 문제를 공통 API 개념으로 다룬다.
+이를 위해 wirestead는 public API를 단순하게 유지하고, transport별 차이는 내부 구현으로 격리하며, 비동기 통신에서 반복적으로 등장하는 문제를 공통 API 개념으로 다룬다.
 
-결국 unilink의 설계 방향은 다음 문장으로 정리할 수 있다.
+결국 wirestead의 설계 방향은 다음 문장으로 정리할 수 있다.
 
 > 통신 방식을 하나로 만드는 것이 아니라, 통신 방식의 차이가 애플리케이션 코드에 미치는 영향을 줄이는 것.
 
-이것이 unilink를 설계한 가장 중요한 배경이다.
+이것이 wirestead를 설계한 가장 중요한 배경이다.

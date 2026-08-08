@@ -1,19 +1,17 @@
 ---
 title: 'Transport 계층 설계'
 date: 2026-06-02
-project: unilink
+project: wirestead
 kind: design
 tags:
-  - unilink
+  - wirestead
   - cpp
-  - async-io
   - transport
   - boost-asio
-  - architecture
   - concurrency
 description: Channel 추상화를 실제 socket, serial port, event loop 기반 비동기 I/O 구현으로 연결하는 transport 계층을 정리했다.
-series: 'unilink-design'
-seriesOrder: 5
+series: 'wirestead-design'
+seriesOrder: 6
 draft: false
 ---
 
@@ -25,7 +23,7 @@ Wrapper는 Channel 계약에 의존하고, ChannelFactory는 config를 기반으
 하지만 결국 데이터는 실제 네트워크 socket이나 serial port를 통해 이동해야 한다.
 `start`, `stop`, `async_write`, `on_bytes`, `on_state` 같은 Channel 계약은 그 자체로 동작하지 않는다. 이 계약을 TCP, UDP, Serial, UDS 같은 실제 통신 방식에 맞게 구현하는 계층이 필요하다.
 
-unilink에서 이 역할을 담당하는 것이 Transport 계층이다.
+wirestead에서 이 역할을 담당하는 것이 Transport 계층이다.
 
 Transport는 public API가 아니다.
 사용자가 직접 다루기보다는 Wrapper와 Channel 뒤에 숨어 있는 내부 구현 계층이다. 그러나 실제 비동기 I/O, socket 상태, reconnect, send queue, backpressure, error mapping, runtime statistics 같은 핵심 동작은 대부분 이 계층에서 발생한다.
@@ -43,7 +41,7 @@ flowchart TD
     C --> C4[UDS Socket]
 ```
 
-Transport 계층은 unilink에서 가장 구현 세부사항이 많은 영역이다.
+Transport 계층은 wirestead에서 가장 구현 세부사항이 많은 영역이다.
 이 글에서는 Transport를 “프로토콜 구현체”로만 보지 않고, Channel 계약을 실제 비동기 I/O로 변환하는 실행 계층이라는 관점에서 정리한다.
 
 ## Transport의 역할
@@ -88,7 +86,7 @@ Transport는 다음을 함께 관리한다.
 - callback 이벤트 발생
 - 통계와 에러 정보 기록
 
-따라서 Transport는 unilink에서 실제 runtime behavior가 모이는 계층이라고 볼 수 있다.
+따라서 Transport는 wirestead에서 실제 runtime behavior가 모이는 계층이라고 볼 수 있다.
 
 ## Channel 계약 구현
 
@@ -97,7 +95,7 @@ Transport는 Channel 계약을 구현한다.
 개념적으로 보면 다음과 같다.
 
 ```cpp
-class TcpClient : public Channel {
+class TcpClientTransport : public Channel {
 public:
     void start() override;
     void stop() override;
@@ -119,7 +117,7 @@ TCP client는 내부적으로 resolver, socket, timer, strand를 사용하지만
 
 ```mermaid
 flowchart TD
-    A[Channel Contract] --> B[TcpClient Transport]
+    A[Channel Contract] --> B[TcpClientTransport]
 
     B --> C[start]
     B --> D[stop]
@@ -133,12 +131,12 @@ flowchart TD
 
 이 구조의 핵심은 Transport가 내부 구현의 자유를 가지면서도, 외부에는 Channel 계약을 유지한다는 점이다.
 
-Wrapper는 `TcpClient` transport인지, `Serial` transport인지 직접 알 필요가 없다.
+Wrapper는 `TcpClientTransport`인지 `SerialTransport`인지 직접 알 필요가 없다.
 Transport는 Channel 계약을 지키는 한 내부 구현을 자유롭게 바꿀 수 있다.
 
 ## Boost.Asio 기반 실행 모델
 
-unilink Transport 계층은 Boost.Asio 기반으로 동작한다.
+wirestead Transport 계층은 Boost.Asio 기반으로 동작한다.
 
 TCP client를 예로 들면, 내부 구현은 `io_context`, `strand`, `socket`, `resolver`, `steady_timer`, work guard, thread 등을 관리한다.
 이 구성은 비동기 connect, read, write, timeout, retry를 처리하기 위한 실행 기반이다.
@@ -264,7 +262,7 @@ TCP client의 경우 `start()`는 내부적으로 resolve/connect 흐름을 시�
 UDP나 Serial은 상태 전이의 의미가 다를 수 있다.
 UDP는 TCP처럼 연결이 성립되는 구조가 아니며, Serial은 장치 open 상태가 핵심이다. 그러나 Channel 계약은 이런 transport별 차이를 공통 상태 이벤트로 정리한다.
 
-Transport 계층의 역할은 각 protocol-specific 상태를 unilink의 공통 link state로 매핑하는 것이다.
+Transport 계층의 역할은 각 protocol-specific 상태를 wirestead의 공통 link state로 매핑하는 것이다.
 
 ## Read Path: raw bytes에서 Channel 이벤트로
 
@@ -319,7 +317,7 @@ flowchart TD
     G -- Yes --> I[wait in queue]
 ```
 
-unilink Transport는 여러 송신 API를 제공한다.
+wirestead Transport는 여러 송신 API를 제공한다.
 
 - `async_write_copy`: 데이터를 내부 queue로 복사한다.
 - `async_write_move`: `std::vector<uint8_t>`의 ownership을 transport로 이동한다.
@@ -348,7 +346,7 @@ mindmap
 Boost.Asio의 async write는 호출 직후 완료되는 것이 아니라, 나중에 handler에서 완료된다.
 따라서 write operation이 완료될 때까지 buffer가 살아 있어야 한다. 만약 caller가 넘긴 임시 buffer나 local buffer를 그대로 참조하면, 실제 write가 수행되기 전에 buffer가 사라져 dangling pointer 문제가 발생할 수 있다.
 
-unilink는 이 문제를 API 차원에서 분리한다.
+wirestead는 이 문제를 API 차원에서 분리한다.
 
 ```mermaid
 flowchart TD
@@ -582,7 +580,7 @@ TCP 연결 실패와 UDP endpoint 변경, Serial 장치 제거는 서로 다른 
 
 ## 정리
 
-unilink에서 Transport 계층은 Channel 계약을 실제 비동기 I/O로 구현하는 계층이다.
+wirestead에서 Transport 계층은 Channel 계약을 실제 비동기 I/O로 구현하는 계층이다.
 
 ```mermaid
 mindmap
@@ -625,5 +623,5 @@ mindmap
 - error와 runtime stats는 transport에서 기록하고 wrapper를 통해 사용자에게 전달된다.
 - transport-specific concern은 Transport 계층 안에 격리한다.
 
-Transport 계층은 unilink에서 가장 복잡한 내부 구현 계층이다.
+Transport 계층은 wirestead에서 가장 복잡한 내부 구현 계층이다.
 하지만 이 복잡성을 내부에 모아두기 때문에, 사용자는 Wrapper와 Channel 수준의 단순한 API로 여러 통신 방식을 다룰 수 있다.
